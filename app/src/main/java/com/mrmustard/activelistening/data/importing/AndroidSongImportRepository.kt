@@ -3,7 +3,9 @@ package com.mrmustard.activelistening.data.importing
 import android.content.Context
 import android.media.MediaMetadataRetriever
 import android.net.Uri
+import android.os.Build
 import android.provider.OpenableColumns
+import androidx.annotation.RequiresApi
 import com.mrmustard.activelistening.domain.ImportSongError
 import com.mrmustard.activelistening.domain.ImportedSong
 import com.mrmustard.activelistening.domain.SongImportResult
@@ -68,6 +70,7 @@ class AndroidSongImportRepository @Inject constructor(
             } != null
         }.getOrDefault(false)
 
+    @RequiresApi(Build.VERSION_CODES.Q)
     private fun readDurationMillis(uri: Uri): Long? =
         runCatching {
             MediaMetadataRetriever().use { retriever ->
