@@ -15,8 +15,10 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import com.mrmustard.activelistening.R
 import com.mrmustard.activelistening.ui.theme.ActiveListeningTheme
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -31,9 +33,10 @@ fun ImportSongScreen(
     modifier: Modifier = Modifier,
 ) {
     val snackbarHostState = remember { SnackbarHostState() }
+    val importErrorMessage = state.importError?.let { error -> error.toMessage() }
 
-    LaunchedEffect(state.importErrorMessage) {
-        val message = state.importErrorMessage ?: return@LaunchedEffect
+    LaunchedEffect(importErrorMessage) {
+        val message = importErrorMessage ?: return@LaunchedEffect
         snackbarHostState.showSnackbar(message)
         onErrorShown()
     }
@@ -41,7 +44,7 @@ fun ImportSongScreen(
     Scaffold(
         modifier = modifier,
         topBar = {
-            TopAppBar(title = { Text("Escucha activa") })
+            TopAppBar(title = { Text(stringResource(R.string.screen_import_song_title)) })
         },
         snackbarHost = { SnackbarHost(snackbarHostState) },
     ) { innerPadding ->

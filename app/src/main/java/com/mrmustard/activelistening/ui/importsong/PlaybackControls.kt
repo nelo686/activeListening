@@ -13,7 +13,10 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
+import com.mrmustard.activelistening.R
+import com.mrmustard.activelistening.domain.PlaybackError
 import com.mrmustard.activelistening.domain.PlaybackState
 
 @Composable
@@ -47,17 +50,17 @@ fun PlaybackControls(
         Row(verticalAlignment = Alignment.CenterVertically) {
             if (playbackState.isPlaying) {
                 Button(onClick = onPauseClick) {
-                    Text("Pausar")
+                    Text(stringResource(R.string.playback_pause))
                 }
             } else {
                 Button(onClick = onPlayClick, enabled = duration > 0L) {
-                    Text("Reproducir")
+                    Text(stringResource(R.string.playback_play))
                 }
             }
-            playbackState.errorMessage?.let { error ->
+            playbackState.error?.let { error ->
                 Spacer(Modifier.width(16.dp))
                 Text(
-                    text = error,
+                    text = error.toMessage(),
                     color = MaterialTheme.colorScheme.error,
                     style = MaterialTheme.typography.bodyMedium,
                 )
@@ -65,6 +68,12 @@ fun PlaybackControls(
         }
     }
 }
+
+@Composable
+private fun PlaybackError.toMessage(): String =
+    when (this) {
+        PlaybackError.UnableToPlay -> stringResource(R.string.playback_error_unable_to_play)
+    }
 
 private fun formatTime(millis: Long): String {
     val totalSeconds = millis.coerceAtLeast(0L) / 1000L

@@ -6,6 +6,7 @@ import android.net.Uri
 import android.os.Build
 import android.provider.OpenableColumns
 import androidx.annotation.RequiresApi
+import com.mrmustard.activelistening.R
 import com.mrmustard.activelistening.domain.ImportSongError
 import com.mrmustard.activelistening.domain.ImportedSong
 import com.mrmustard.activelistening.domain.SongImportResult
@@ -60,7 +61,8 @@ class AndroidSongImportRepository @Inject constructor(
                 cursor.getString(nameIndex)?.takeIf { it.isNotBlank() }?.let { return it }
             }
         }
-        return uri.lastPathSegment?.substringAfterLast('/')?.takeIf { it.isNotBlank() } ?: "Cancion importada"
+        return uri.lastPathSegment?.substringAfterLast('/')?.takeIf { it.isNotBlank() }
+            ?: context.getString(R.string.imported_song_default_name)
     }
 
     private fun canOpen(uri: Uri): Boolean =

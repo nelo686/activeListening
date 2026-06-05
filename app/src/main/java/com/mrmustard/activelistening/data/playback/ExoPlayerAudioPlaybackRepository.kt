@@ -7,6 +7,7 @@ import androidx.media3.common.PlaybackException
 import androidx.media3.common.Player
 import androidx.media3.exoplayer.ExoPlayer
 import com.mrmustard.activelistening.domain.ImportedSong
+import com.mrmustard.activelistening.domain.PlaybackError
 import com.mrmustard.activelistening.domain.PlaybackState
 import dagger.hilt.android.qualifiers.ApplicationContext
 import dagger.hilt.android.scopes.ViewModelScoped
@@ -52,7 +53,7 @@ class ExoPlayerAudioPlaybackRepository @Inject constructor(
         override fun onPlayerError(error: PlaybackException) {
             _playbackState.value = _playbackState.value.copy(
                 isPlaying = false,
-                errorMessage = "No se ha podido reproducir este archivo.",
+                error = PlaybackError.UnableToPlay,
             )
         }
     }
@@ -114,7 +115,7 @@ class ExoPlayerAudioPlaybackRepository @Inject constructor(
             isPlaying = player.isPlaying,
             positionMillis = player.currentPosition.coerceAtLeast(0L),
             durationMillis = playerDuration.takeIf { it > 0L } ?: _playbackState.value.durationMillis,
-            errorMessage = null,
+            error = null,
         )
     }
 

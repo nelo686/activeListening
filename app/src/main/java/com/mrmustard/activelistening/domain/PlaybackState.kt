@@ -5,5 +5,5 @@ data class PlaybackState(
     val isPlaying: Boolean = false,
     val positionMillis: Long = 0L,
     val durationMillis: Long = 0L,
-    val errorMessage: String? = null,
+    val error: PlaybackError? = null,
 )

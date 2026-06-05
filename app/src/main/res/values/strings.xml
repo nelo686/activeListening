@@ -1,3 +1,18 @@
 <resources>
     <string name="app_name">Active Listening</string>
+    <string name="screen_import_song_title">Escucha activa</string>
+    <string name="import_song_header_title">Importa una cancion para empezar</string>
+    <string name="import_song_header_description">Escucha, pausa, vuelve atras y localiza los primeros cambios antes de dibujar la estructura.</string>
+    <string name="import_song_change_song">Cambiar cancion</string>
+    <string name="import_song_import_song">Importar cancion</string>
+    <string name="import_song_supported_formats_title">Formatos compatibles</string>
+    <string name="import_song_supported_formats_description">MP3, WAV, M4A y AAC. El limite inicial es de 15 minutos.</string>
+    <string name="import_song_listening_prompt">Primera escucha: marca mentalmente donde cambia la energia, el ritmo o la instrumentacion.</string>
+    <string name="playback_pause">Pausar</string>
+    <string name="playback_play">Reproducir</string>
+    <string name="import_song_error_unsupported_format">Formato no compatible. Usa %1$s.</string>
+    <string name="import_song_error_unreadable_file">No se ha podido leer o procesar este archivo. Prueba con otra copia de la cancion.</string>
+    <string name="import_song_error_too_long">La cancion supera el limite de %1$d minutos para este MVP.</string>
+    <string name="playback_error_unable_to_play">No se ha podido reproducir este archivo.</string>
+    <string name="imported_song_default_name">Cancion importada</string>
 </resources>

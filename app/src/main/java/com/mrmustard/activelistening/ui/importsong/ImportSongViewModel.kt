@@ -3,9 +3,7 @@ package com.mrmustard.activelistening.ui.importsong
 import android.net.Uri
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.mrmustard.activelistening.data.importing.SongImportValidator
 import com.mrmustard.activelistening.data.playback.AudioPlaybackRepository
-import com.mrmustard.activelistening.domain.ImportSongError
 import com.mrmustard.activelistening.domain.SongImportResult
 import com.mrmustard.activelistening.domain.usecase.ImportSongUseCase
 import dagger.hilt.android.lifecycle.HiltViewModel
@@ -38,7 +36,7 @@ class ImportSongViewModel @Inject constructor(
             _uiState.update {
                 it.copy(
                     isImporting = true,
-                    importErrorMessage = null,
+                    importError = null,
                 )
             }
 
@@ -48,7 +46,7 @@ class ImportSongViewModel @Inject constructor(
                         it.copy(
                             isImporting = false,
                             importedSong = result.song,
-                            importErrorMessage = null,
+                            importError = null,
                         )
                     }
                 }
@@ -57,7 +55,7 @@ class ImportSongViewModel @Inject constructor(
                     _uiState.update {
                         it.copy(
                             isImporting = false,
-                            importErrorMessage = result.error.toMessage(),
+                            importError = result.error,
                         )
                     }
                 }
@@ -78,7 +76,7 @@ class ImportSongViewModel @Inject constructor(
     }
 
     fun clearError() {
-        _uiState.update { it.copy(importErrorMessage = null) }
+        _uiState.update { it.copy(importError = null) }
     }
 
     override fun onCleared() {
@@ -86,20 +84,4 @@ class ImportSongViewModel @Inject constructor(
         super.onCleared()
     }
 
-    private fun ImportSongError.toMessage(): String =
-        when (this) {
-            ImportSongError.UnsupportedFormat -> {
-                "Formato no compatible. Usa ${SongImportValidator.SUPPORTED_FORMATS.joinToString(", ")}."
-            }
-
-            ImportSongError.UnreadableFile -> {
-                "No se ha podido leer o procesar este archivo. Prueba con otra copia de la cancion."
-            }
-
-            is ImportSongError.TooLong -> {
-                "La cancion supera el limite de ${maxDurationMillis.toMinutes()} minutos para este MVP."
-            }
-        }
-
-    private fun Long.toMinutes(): Long = this / 60_000L
 }
