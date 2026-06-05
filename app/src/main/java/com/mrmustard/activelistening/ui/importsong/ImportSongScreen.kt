@@ -1,5 +1,6 @@
 package com.mrmustard.activelistening.ui.importsong
 
+import android.net.Uri
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
@@ -19,6 +20,8 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.mrmustard.activelistening.R
+import com.mrmustard.activelistening.domain.ImportedSong
+import com.mrmustard.activelistening.domain.PlaybackState
 import com.mrmustard.activelistening.ui.theme.ActiveListeningTheme
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -29,6 +32,11 @@ fun ImportSongScreen(
     onPlayClick: () -> Unit,
     onPauseClick: () -> Unit,
     onSeek: (Long) -> Unit,
+    onStartGuidedSession: () -> Unit,
+    onConfirmGuidedMarker: () -> Unit,
+    onMarkGuidedMarkerUncertain: () -> Unit,
+    onSkipGuidedMarker: () -> Unit,
+    onRepeatGuidedMarker: () -> Unit,
     onErrorShown: () -> Unit,
     modifier: Modifier = Modifier,
 ) {
@@ -73,9 +81,17 @@ fun ImportSongScreen(
                     ListeningSession(
                         title = song.displayName,
                         playbackState = state.playbackState,
+                        isGuidedSessionActive = state.isGuidedSessionActive,
+                        guidedTimeline = state.guidedTimeline,
+                        currentGuidedMarker = state.currentGuidedMarker,
                         onPlayClick = onPlayClick,
                         onPauseClick = onPauseClick,
                         onSeek = onSeek,
+                        onStartGuidedSession = onStartGuidedSession,
+                        onConfirmGuidedMarker = onConfirmGuidedMarker,
+                        onMarkGuidedMarkerUncertain = onMarkGuidedMarkerUncertain,
+                        onSkipGuidedMarker = onSkipGuidedMarker,
+                        onRepeatGuidedMarker = onRepeatGuidedMarker,
                     )
                 }
             }
@@ -93,6 +109,51 @@ private fun ImportSongScreenPreview() {
             onPlayClick = {},
             onPauseClick = {},
             onSeek = {},
+            onStartGuidedSession = {},
+            onConfirmGuidedMarker = {},
+            onMarkGuidedMarkerUncertain = {},
+            onSkipGuidedMarker = {},
+            onRepeatGuidedMarker = {},
+            onErrorShown = {},
+        )
+    }
+}
+
+@Preview(showBackground = true)
+@Composable
+private fun GuidedImportSongScreenPreview() {
+    val durationMillis = 180_000L
+    val timeline = GuidedListeningTimelineFactory.create(durationMillis)
+
+    ActiveListeningTheme {
+        ImportSongScreen(
+            state = ImportSongUiState(
+                importedSong = ImportedSong(
+                    uri = Uri.EMPTY,
+                    displayName = "Cancion de practica",
+                    mimeType = "audio/mpeg",
+                    durationMillis = durationMillis,
+                ),
+                playbackState = PlaybackState(
+                    isReady = true,
+                    positionMillis = 45_000L,
+                    durationMillis = durationMillis,
+                ),
+                isGuidedSessionActive = true,
+                guidedTimeline = timeline,
+                currentGuidedMarker = timeline.getOrNull(1)?.copy(
+                    status = GuidedListeningMarkerStatus.Current,
+                ),
+            ),
+            onImportClick = {},
+            onPlayClick = {},
+            onPauseClick = {},
+            onSeek = {},
+            onStartGuidedSession = {},
+            onConfirmGuidedMarker = {},
+            onMarkGuidedMarkerUncertain = {},
+            onSkipGuidedMarker = {},
+            onRepeatGuidedMarker = {},
             onErrorShown = {},
         )
     }

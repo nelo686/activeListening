@@ -26,7 +26,10 @@ class ImportSongViewModel @Inject constructor(
     init {
         viewModelScope.launch {
             audioPlaybackRepository.playbackState.collect { playbackState ->
-                _uiState.update { it.copy(playbackState = playbackState) }
+                _uiState.update { state ->
+                    state.copy(playbackState = playbackState)
+                        .withGuidedProgress(playbackState.positionMillis)
+                }
             }
         }
     }
@@ -47,6 +50,9 @@ class ImportSongViewModel @Inject constructor(
                             isImporting = false,
                             importedSong = result.song,
                             importError = null,
+                            isGuidedSessionActive = false,
+                            guidedTimeline = emptyList(),
+                            currentGuidedMarker = null,
                         )
                     }
                 }
@@ -67,12 +73,49 @@ class ImportSongViewModel @Inject constructor(
         audioPlaybackRepository.play()
     }
 
+    fun startGuidedSession() {
+        _uiState.update { state ->
+            val durationMillis = state.playbackState.durationMillis
+                .takeIf { it > 0L }
+                ?: state.importedSong?.durationMillis
+                ?: 0L
+
+            val timeline = GuidedListeningTimelineFactory.create(durationMillis)
+            state.copy(
+                isGuidedSessionActive = true,
+                guidedTimeline = timeline,
+                currentGuidedMarker = timeline.firstOrNull()?.copy(
+                    status = GuidedListeningMarkerStatus.Current,
+                ),
+            ).withGuidedProgress(state.playbackState.positionMillis)
+        }
+        audioPlaybackRepository.play()
+    }
+
     fun pause() {
         audioPlaybackRepository.pause()
     }
 
     fun seekTo(positionMillis: Long) {
         audioPlaybackRepository.seekTo(positionMillis)
+    }
+
+    fun confirmGuidedMarker() {
+        updateCurrentMarkerStatus(GuidedListeningMarkerStatus.Reviewed)
+    }
+
+    fun markGuidedMarkerUncertain() {
+        updateCurrentMarkerStatus(GuidedListeningMarkerStatus.Uncertain)
+    }
+
+    fun skipGuidedMarker() {
+        updateCurrentMarkerStatus(GuidedListeningMarkerStatus.Skipped)
+    }
+
+    fun repeatGuidedMarker() {
+        val marker = _uiState.value.currentGuidedMarker ?: return
+        audioPlaybackRepository.seekTo((marker.positionMillis - REPEAT_OFFSET_MILLIS).coerceAtLeast(0L))
+        audioPlaybackRepository.play()
     }
 
     fun clearError() {
@@ -84,4 +127,44 @@ class ImportSongViewModel @Inject constructor(
         super.onCleared()
     }
 
+    private fun updateCurrentMarkerStatus(status: GuidedListeningMarkerStatus) {
+        _uiState.update { state ->
+            val currentMarker = state.currentGuidedMarker ?: return@update state
+            val timeline = state.guidedTimeline.map { marker ->
+                if (marker.id == currentMarker.id) marker.copy(status = status) else marker
+            }
+            state.copy(
+                guidedTimeline = timeline,
+                currentGuidedMarker = timeline.firstOrNull { it.id == currentMarker.id },
+            )
+        }
+    }
+
+    private fun ImportSongUiState.withGuidedProgress(positionMillis: Long): ImportSongUiState {
+        if (!isGuidedSessionActive || guidedTimeline.isEmpty()) return this
+
+        val currentMarker = guidedTimeline.lastOrNull { it.positionMillis <= positionMillis }
+            ?: guidedTimeline.first()
+        val updatedTimeline = guidedTimeline.map { marker ->
+            when {
+                marker.id == currentMarker.id &&
+                    marker.status == GuidedListeningMarkerStatus.Pending ->
+                    marker.copy(status = GuidedListeningMarkerStatus.Current)
+
+                marker.id != currentMarker.id &&
+                    marker.status == GuidedListeningMarkerStatus.Current ->
+                    marker.copy(status = GuidedListeningMarkerStatus.Pending)
+
+                else -> marker
+            }
+        }
+        return copy(
+            guidedTimeline = updatedTimeline,
+            currentGuidedMarker = updatedTimeline.firstOrNull { it.id == currentMarker.id },
+        )
+    }
+
+    private companion object {
+        const val REPEAT_OFFSET_MILLIS = 8_000L
+    }
 }

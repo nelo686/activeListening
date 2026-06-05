@@ -4,6 +4,7 @@ import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
+import androidx.compose.material3.Button
 import androidx.compose.material3.Card
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
@@ -20,9 +21,17 @@ import com.mrmustard.activelistening.domain.PlaybackState
 fun ListeningSession(
     title: String,
     playbackState: PlaybackState,
+    isGuidedSessionActive: Boolean,
+    guidedTimeline: List<GuidedListeningMarker>,
+    currentGuidedMarker: GuidedListeningMarker?,
     onPlayClick: () -> Unit,
     onPauseClick: () -> Unit,
     onSeek: (Long) -> Unit,
+    onStartGuidedSession: () -> Unit,
+    onConfirmGuidedMarker: () -> Unit,
+    onMarkGuidedMarkerUncertain: () -> Unit,
+    onSkipGuidedMarker: () -> Unit,
+    onRepeatGuidedMarker: () -> Unit,
     modifier: Modifier = Modifier,
 ) {
     Card(modifier = modifier.fillMaxWidth()) {
@@ -51,6 +60,29 @@ fun ListeningSession(
                 onPauseClick = onPauseClick,
                 onSeek = onSeek,
             )
+
+            if (isGuidedSessionActive) {
+                GuidedListeningTimeline(
+                    markers = guidedTimeline,
+                    currentMarker = currentGuidedMarker,
+                    positionMillis = playbackState.positionMillis,
+                    durationMillis = playbackState.durationMillis,
+                )
+                GuidedListeningPrompt(
+                    marker = currentGuidedMarker,
+                    onConfirmClick = onConfirmGuidedMarker,
+                    onUncertainClick = onMarkGuidedMarkerUncertain,
+                    onSkipClick = onSkipGuidedMarker,
+                    onRepeatClick = onRepeatGuidedMarker,
+                )
+            } else {
+                Button(
+                    onClick = onStartGuidedSession,
+                    enabled = playbackState.durationMillis > 0L,
+                ) {
+                    Text(stringResource(R.string.guided_listening_start))
+                }
+            }
         }
     }
 }

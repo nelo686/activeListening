@@ -39,6 +39,11 @@ class MainActivity : ComponentActivity() {
                     onPlayClick = viewModel::play,
                     onPauseClick = viewModel::pause,
                     onSeek = viewModel::seekTo,
+                    onStartGuidedSession = viewModel::startGuidedSession,
+                    onConfirmGuidedMarker = viewModel::confirmGuidedMarker,
+                    onMarkGuidedMarkerUncertain = viewModel::markGuidedMarkerUncertain,
+                    onSkipGuidedMarker = viewModel::skipGuidedMarker,
+                    onRepeatGuidedMarker = viewModel::repeatGuidedMarker,
                     onErrorShown = viewModel::clearError,
                 )
             }

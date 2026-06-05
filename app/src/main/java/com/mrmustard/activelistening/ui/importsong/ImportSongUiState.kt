@@ -9,4 +9,7 @@ data class ImportSongUiState(
     val importedSong: ImportedSong? = null,
     val importError: ImportSongError? = null,
     val playbackState: PlaybackState = PlaybackState(),
+    val isGuidedSessionActive: Boolean = false,
+    val guidedTimeline: List<GuidedListeningMarker> = emptyList(),
+    val currentGuidedMarker: GuidedListeningMarker? = null,
 )
