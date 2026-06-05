@@ -3,11 +3,11 @@ package com.mrmustard.activelistening.ui.importsong
 import android.net.Uri
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.mrmustard.activelistening.data.importing.SongImportRepository
 import com.mrmustard.activelistening.data.importing.SongImportValidator
 import com.mrmustard.activelistening.data.playback.AudioPlaybackRepository
 import com.mrmustard.activelistening.domain.ImportSongError
 import com.mrmustard.activelistening.domain.SongImportResult
+import com.mrmustard.activelistening.domain.usecase.ImportSongUseCase
 import dagger.hilt.android.lifecycle.HiltViewModel
 import javax.inject.Inject
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -18,7 +18,7 @@ import kotlinx.coroutines.launch
 
 @HiltViewModel
 class ImportSongViewModel @Inject constructor(
-    private val songImportRepository: SongImportRepository,
+    private val importSongUseCase: ImportSongUseCase,
     private val audioPlaybackRepository: AudioPlaybackRepository,
 ) : ViewModel() {
 
@@ -42,9 +42,8 @@ class ImportSongViewModel @Inject constructor(
                 )
             }
 
-            when (val result = songImportRepository.importSong(uri)) {
+            when (val result = importSongUseCase(uri)) {
                 is SongImportResult.Success -> {
-                    audioPlaybackRepository.load(result.song)
                     _uiState.update {
                         it.copy(
                             isImporting = false,
@@ -55,7 +54,6 @@ class ImportSongViewModel @Inject constructor(
                 }
 
                 is SongImportResult.Error -> {
-                    audioPlaybackRepository.pause()
                     _uiState.update {
                         it.copy(
                             isImporting = false,
