@@ -3,11 +3,11 @@ package com.mrmustard.activelistening.ui.song
 import android.net.Uri
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.mrmustard.activelistening.data.guidance.GuidedListeningMarkerRequest
-import com.mrmustard.activelistening.data.guidance.GuidedListeningRepository
-import com.mrmustard.activelistening.data.guidance.GuidedListeningRequest
-import com.mrmustard.activelistening.data.guidance.GuidedListeningResult
 import com.mrmustard.activelistening.data.playback.AudioPlaybackRepository
+import com.mrmustard.activelistening.domain.guidance.GuidedListeningMarkerRequest
+import com.mrmustard.activelistening.domain.guidance.GuidedListeningRepository
+import com.mrmustard.activelistening.domain.guidance.GuidedListeningRequest
+import com.mrmustard.activelistening.domain.guidance.GuidedListeningResult
 import com.mrmustard.activelistening.domain.ImportedSong
 import com.mrmustard.activelistening.domain.SongImportResult
 import com.mrmustard.activelistening.domain.usecase.ImportSongUseCase

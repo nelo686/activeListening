@@ -1,5 +1,7 @@
 package com.mrmustard.activelistening.data.guidance
 
+import com.mrmustard.activelistening.domain.guidance.GuidedListeningMarkerSuggestion
+
 object GuidedListeningPlanParser {
 
     fun parse(content: String): List<GuidedListeningMarkerSuggestion> =
@@ -27,4 +29,3 @@ object GuidedListeningPlanParser {
         )
     }
 }
-

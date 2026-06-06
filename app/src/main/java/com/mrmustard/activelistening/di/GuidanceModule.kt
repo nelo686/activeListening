@@ -3,9 +3,9 @@ package com.mrmustard.activelistening.di
 import com.aallam.openai.client.OpenAI
 import com.aallam.openai.client.OpenAIHost
 import com.mrmustard.activelistening.BuildConfig
-import com.mrmustard.activelistening.data.guidance.GuidedListeningRepository
 import com.mrmustard.activelistening.data.guidance.OpenAiGuidanceConfig
 import com.mrmustard.activelistening.data.guidance.OpenAiGuidedListeningRepository
+import com.mrmustard.activelistening.domain.guidance.GuidedListeningRepository
 import dagger.Binds
 import dagger.Module
 import dagger.Provides

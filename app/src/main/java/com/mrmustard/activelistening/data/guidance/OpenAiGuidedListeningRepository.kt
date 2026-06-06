@@ -5,6 +5,9 @@ import com.aallam.openai.api.chat.ChatMessage
 import com.aallam.openai.api.chat.ChatRole
 import com.aallam.openai.api.model.ModelId
 import com.aallam.openai.client.OpenAI
+import com.mrmustard.activelistening.domain.guidance.GuidedListeningRequest
+import com.mrmustard.activelistening.domain.guidance.GuidedListeningRepository
+import com.mrmustard.activelistening.domain.guidance.GuidedListeningResult
 import javax.inject.Inject
 
 class OpenAiGuidedListeningRepository @Inject constructor(
@@ -82,4 +85,3 @@ class OpenAiGuidedListeningRepository @Inject constructor(
         """.trimIndent()
     }
 }
-

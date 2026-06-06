@@ -1,4 +1,4 @@
-package com.mrmustard.activelistening.data.guidance
+package com.mrmustard.activelistening.domain.guidance
 
 interface GuidedListeningRepository {
     suspend fun createGuidedListeningPlan(
@@ -33,4 +33,3 @@ data class GuidedListeningMarkerSuggestion(
     val title: String,
     val prompt: String,
 )
-

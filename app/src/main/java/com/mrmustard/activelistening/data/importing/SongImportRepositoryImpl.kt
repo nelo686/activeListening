@@ -3,9 +3,7 @@ package com.mrmustard.activelistening.data.importing
 import android.content.Context
 import android.media.MediaMetadataRetriever
 import android.net.Uri
-import android.os.Build
 import android.provider.OpenableColumns
-import androidx.annotation.RequiresApi
 import com.mrmustard.activelistening.R
 import com.mrmustard.activelistening.domain.ImportSongError
 import com.mrmustard.activelistening.domain.ImportedSong
@@ -15,7 +13,7 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import javax.inject.Inject
 
-class AndroidSongImportRepository @Inject constructor(
+class SongImportRepositoryImpl @Inject constructor(
     @ApplicationContext private val context: Context,
     private val validator: SongImportValidator,
 ) : SongImportRepository {
@@ -72,7 +70,6 @@ class AndroidSongImportRepository @Inject constructor(
             } != null
         }.getOrDefault(false)
 
-    @RequiresApi(Build.VERSION_CODES.Q)
     private fun readDurationMillis(uri: Uri): Long? =
         runCatching {
             MediaMetadataRetriever().use { retriever ->
