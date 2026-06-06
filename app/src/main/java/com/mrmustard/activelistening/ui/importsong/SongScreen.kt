@@ -26,8 +26,8 @@ import com.mrmustard.activelistening.ui.theme.ActiveListeningTheme
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun ImportSongScreen(
-    state: ImportSongUiState,
+fun SongScreen(
+    state: ActiveListeningUiState,
     onImportClick: () -> Unit,
     onPlayClick: () -> Unit,
     onPauseClick: () -> Unit,
@@ -82,6 +82,8 @@ fun ImportSongScreen(
                         title = song.displayName,
                         playbackState = state.playbackState,
                         isGuidedSessionActive = state.isGuidedSessionActive,
+                        isGuidanceLoading = state.isGuidanceLoading,
+                        guidanceError = state.guidanceError,
                         guidedTimeline = state.guidedTimeline,
                         currentGuidedMarker = state.currentGuidedMarker,
                         onPlayClick = onPlayClick,
@@ -101,10 +103,10 @@ fun ImportSongScreen(
 
 @Preview(showBackground = true)
 @Composable
-private fun ImportSongScreenPreview() {
+private fun SongScreenPreview() {
     ActiveListeningTheme {
-        ImportSongScreen(
-            state = ImportSongUiState(),
+        SongScreen(
+            state = ActiveListeningUiState(),
             onImportClick = {},
             onPlayClick = {},
             onPauseClick = {},
@@ -121,13 +123,13 @@ private fun ImportSongScreenPreview() {
 
 @Preview(showBackground = true)
 @Composable
-private fun GuidedImportSongScreenPreview() {
+private fun GuidedSongScreenPreview() {
     val durationMillis = 180_000L
     val timeline = GuidedListeningTimelineFactory.create(durationMillis)
 
     ActiveListeningTheme {
-        ImportSongScreen(
-            state = ImportSongUiState(
+        SongScreen(
+            state = ActiveListeningUiState(
                 importedSong = ImportedSong(
                     uri = Uri.EMPTY,
                     displayName = "Cancion de practica",

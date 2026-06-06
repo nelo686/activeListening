@@ -22,6 +22,8 @@ fun ListeningSession(
     title: String,
     playbackState: PlaybackState,
     isGuidedSessionActive: Boolean,
+    isGuidanceLoading: Boolean,
+    guidanceError: GuidanceError?,
     guidedTimeline: List<GuidedListeningMarker>,
     currentGuidedMarker: GuidedListeningMarker?,
     onPlayClick: () -> Unit,
@@ -70,6 +72,8 @@ fun ListeningSession(
                 )
                 GuidedListeningPrompt(
                     marker = currentGuidedMarker,
+                    isGuidanceLoading = isGuidanceLoading,
+                    guidanceError = guidanceError,
                     onConfirmClick = onConfirmGuidedMarker,
                     onUncertainClick = onMarkGuidedMarkerUncertain,
                     onSkipClick = onSkipGuidedMarker,

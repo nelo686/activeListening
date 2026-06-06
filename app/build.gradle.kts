@@ -1,9 +1,21 @@
+import java.util.Properties
+
 plugins {
     alias(libs.plugins.android.application)
     alias(libs.plugins.kotlin.compose)
     alias(libs.plugins.ksp)
     alias(libs.plugins.hilt.android)
 }
+
+val localProperties = Properties().apply {
+    val file = rootProject.file("local.properties")
+    if (file.exists()) {
+        file.inputStream().use(::load)
+    }
+}
+
+fun String.asBuildConfigString(): String =
+    "\"${replace("\\", "\\\\").replace("\"", "\\\"")}\""
 
 android {
     namespace = "com.mrmustard.activelistening"
@@ -19,6 +31,16 @@ android {
         versionName = "1.0"
 
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
+        buildConfigField(
+            "String",
+            "OPENAI_API_KEY",
+            (localProperties.getProperty("openai.apiKey") ?: "").asBuildConfigString(),
+        )
+        buildConfigField(
+            "String",
+            "OPENAI_GUIDANCE_MODEL",
+            (localProperties.getProperty("openai.guidanceModel") ?: "gpt-5.4-mini").asBuildConfigString(),
+        )
     }
 
     buildTypes {
@@ -34,6 +56,7 @@ android {
     }
     buildFeatures {
         compose = true
+        buildConfig = true
     }
 }
 
@@ -54,6 +77,9 @@ dependencies {
     implementation(libs.androidx.lifecycle.viewmodel.ktx)
     implementation(libs.hilt.android)
     implementation(libs.media3.exoplayer)
+    implementation(platform(libs.openai.client.bom))
+    implementation(libs.openai.client)
+    runtimeOnly(libs.ktor.client.okhttp)
     ksp(libs.hilt.compiler)
     ksp(libs.kotlin.metadata.jvm)
     testImplementation(libs.junit)

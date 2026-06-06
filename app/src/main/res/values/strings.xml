@@ -22,6 +22,10 @@
     <string name="guided_status_reviewed">Revisado</string>
     <string name="guided_status_uncertain">Dudoso</string>
     <string name="guided_status_skipped">Saltado</string>
+    <string name="guidance_status_loading">Preparando guia con IA...</string>
+    <string name="guidance_status_ready">Guia generada por IA. Revisa y ajusta segun lo que escuches.</string>
+    <string name="guidance_status_missing_api_key">Sin clave de OpenAI: usando guia local.</string>
+    <string name="guidance_status_unable_to_generate">No se pudo generar la guia IA: usando guia local.</string>
     <string name="import_song_error_unsupported_format">Formato no compatible. Usa %1$s.</string>
     <string name="import_song_error_unreadable_file">No se ha podido leer o procesar este archivo. Prueba con otra copia de la cancion.</string>
     <string name="import_song_error_too_long">La cancion supera el limite de %1$d minutos para este MVP.</string>

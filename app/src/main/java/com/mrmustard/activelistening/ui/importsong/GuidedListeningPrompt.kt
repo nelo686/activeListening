@@ -18,6 +18,8 @@ import com.mrmustard.activelistening.R
 @Composable
 fun GuidedListeningPrompt(
     marker: GuidedListeningMarker?,
+    isGuidanceLoading: Boolean,
+    guidanceError: GuidanceError?,
     onConfirmClick: () -> Unit,
     onUncertainClick: () -> Unit,
     onSkipClick: () -> Unit,
@@ -28,6 +30,11 @@ fun GuidedListeningPrompt(
         modifier = modifier.fillMaxWidth(),
         verticalArrangement = Arrangement.spacedBy(12.dp),
     ) {
+        GuidanceStatus(
+            isLoading = isGuidanceLoading,
+            error = guidanceError,
+        )
+
         if (marker == null) {
             Text(
                 text = stringResource(R.string.guided_prompt_waiting),
@@ -92,6 +99,30 @@ fun GuidedListeningPrompt(
             }
         }
     }
+}
+
+@Composable
+private fun GuidanceStatus(
+    isLoading: Boolean,
+    error: GuidanceError?,
+) {
+    val message = when {
+        isLoading -> stringResource(R.string.guidance_status_loading)
+        error == GuidanceError.MissingApiKey -> stringResource(R.string.guidance_status_missing_api_key)
+        error == GuidanceError.UnableToGenerate -> stringResource(R.string.guidance_status_unable_to_generate)
+        else -> stringResource(R.string.guidance_status_ready)
+    }
+    val color = if (error == null) {
+        MaterialTheme.colorScheme.onSurfaceVariant
+    } else {
+        MaterialTheme.colorScheme.error
+    }
+
+    Text(
+        text = message,
+        style = MaterialTheme.typography.bodySmall,
+        color = color,
+    )
 }
 
 @Composable

@@ -3,7 +3,12 @@ package com.mrmustard.activelistening.ui.importsong
 import android.net.Uri
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.mrmustard.activelistening.data.guidance.GuidedListeningMarkerRequest
+import com.mrmustard.activelistening.data.guidance.GuidedListeningRepository
+import com.mrmustard.activelistening.data.guidance.GuidedListeningRequest
+import com.mrmustard.activelistening.data.guidance.GuidedListeningResult
 import com.mrmustard.activelistening.data.playback.AudioPlaybackRepository
+import com.mrmustard.activelistening.domain.ImportedSong
 import com.mrmustard.activelistening.domain.SongImportResult
 import com.mrmustard.activelistening.domain.usecase.ImportSongUseCase
 import dagger.hilt.android.lifecycle.HiltViewModel
@@ -15,13 +20,14 @@ import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 
 @HiltViewModel
-class ImportSongViewModel @Inject constructor(
+class ActiveListeningViewModel @Inject constructor(
     private val importSongUseCase: ImportSongUseCase,
     private val audioPlaybackRepository: AudioPlaybackRepository,
+    private val guidedListeningRepository: GuidedListeningRepository,
 ) : ViewModel() {
 
-    private val _uiState = MutableStateFlow(ImportSongUiState())
-    val uiState: StateFlow<ImportSongUiState> = _uiState.asStateFlow()
+    private val _uiState = MutableStateFlow(ActiveListeningUiState())
+    val uiState: StateFlow<ActiveListeningUiState> = _uiState.asStateFlow()
 
     init {
         viewModelScope.launch {
@@ -51,6 +57,8 @@ class ImportSongViewModel @Inject constructor(
                             importedSong = result.song,
                             importError = null,
                             isGuidedSessionActive = false,
+                            isGuidanceLoading = false,
+                            guidanceError = null,
                             guidedTimeline = emptyList(),
                             currentGuidedMarker = null,
                         )
@@ -74,6 +82,7 @@ class ImportSongViewModel @Inject constructor(
     }
 
     fun startGuidedSession() {
+        val song = _uiState.value.importedSong
         _uiState.update { state ->
             val durationMillis = state.playbackState.durationMillis
                 .takeIf { it > 0L }
@@ -83,6 +92,8 @@ class ImportSongViewModel @Inject constructor(
             val timeline = GuidedListeningTimelineFactory.create(durationMillis)
             state.copy(
                 isGuidedSessionActive = true,
+                isGuidanceLoading = true,
+                guidanceError = null,
                 guidedTimeline = timeline,
                 currentGuidedMarker = timeline.firstOrNull()?.copy(
                     status = GuidedListeningMarkerStatus.Current,
@@ -90,6 +101,17 @@ class ImportSongViewModel @Inject constructor(
             ).withGuidedProgress(state.playbackState.positionMillis)
         }
         audioPlaybackRepository.play()
+
+        if (song != null) {
+            loadAiGuidance(song)
+        } else {
+            _uiState.update {
+                it.copy(
+                    isGuidanceLoading = false,
+                    guidanceError = GuidanceError.UnableToGenerate,
+                )
+            }
+        }
     }
 
     fun pause() {
@@ -140,7 +162,64 @@ class ImportSongViewModel @Inject constructor(
         }
     }
 
-    private fun ImportSongUiState.withGuidedProgress(positionMillis: Long): ImportSongUiState {
+    private fun loadAiGuidance(song: ImportedSong) {
+        viewModelScope.launch {
+            val state = _uiState.value
+            val result = guidedListeningRepository.createGuidedListeningPlan(
+                GuidedListeningRequest(
+                    songTitle = song.displayName,
+                    durationMillis = state.playbackState.durationMillis
+                        .takeIf { it > 0L }
+                        ?: song.durationMillis,
+                    markers = state.guidedTimeline.map { marker ->
+                        GuidedListeningMarkerRequest(
+                            id = marker.id,
+                            positionMillis = marker.positionMillis,
+                            title = marker.title,
+                            prompt = marker.prompt,
+                        )
+                    },
+                ),
+            )
+
+            _uiState.update { currentState ->
+                when (result) {
+                    is GuidedListeningResult.Success -> {
+                        currentState.copy(
+                            isGuidanceLoading = false,
+                            guidanceError = null,
+                            guidedTimeline = currentState.guidedTimeline.merge(result),
+                        ).withGuidedProgress(currentState.playbackState.positionMillis)
+                    }
+
+                    GuidedListeningResult.MissingApiKey -> currentState.copy(
+                        isGuidanceLoading = false,
+                        guidanceError = GuidanceError.MissingApiKey,
+                    )
+
+                    GuidedListeningResult.UnableToGenerate -> currentState.copy(
+                        isGuidanceLoading = false,
+                        guidanceError = GuidanceError.UnableToGenerate,
+                    )
+                }
+            }
+        }
+    }
+
+    private fun List<GuidedListeningMarker>.merge(
+        result: GuidedListeningResult.Success,
+    ): List<GuidedListeningMarker> {
+        val suggestions = result.markers.associateBy { it.id }
+        return map { marker ->
+            val suggestion = suggestions[marker.id] ?: return@map marker
+            marker.copy(
+                title = suggestion.title,
+                prompt = suggestion.prompt,
+            )
+        }
+    }
+
+    private fun ActiveListeningUiState.withGuidedProgress(positionMillis: Long): ActiveListeningUiState {
         if (!isGuidedSessionActive || guidedTimeline.isEmpty()) return this
 
         val currentMarker = guidedTimeline.lastOrNull { it.positionMillis <= positionMillis }

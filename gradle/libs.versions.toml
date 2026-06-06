@@ -11,6 +11,8 @@ composeBom = "2026.05.01"
 hilt = "2.59.2"
 ksp = "2.3.7"
 media3 = "1.10.1"
+openaiClient = "4.1.0"
+ktor = "3.0.0"
 
 [libraries]
 androidx-core-ktx = { group = "androidx.core", name = "core-ktx", version.ref = "coreKtx" }
@@ -33,6 +35,9 @@ hilt-android = { group = "com.google.dagger", name = "hilt-android", version.ref
 hilt-compiler = { group = "com.google.dagger", name = "hilt-compiler", version.ref = "hilt" }
 kotlin-metadata-jvm = { group = "org.jetbrains.kotlin", name = "kotlin-metadata-jvm", version.ref = "kotlin" }
 media3-exoplayer = { group = "androidx.media3", name = "media3-exoplayer", version.ref = "media3" }
+openai-client-bom = { group = "com.aallam.openai", name = "openai-client-bom", version.ref = "openaiClient" }
+openai-client = { group = "com.aallam.openai", name = "openai-client" }
+ktor-client-okhttp = { group = "io.ktor", name = "ktor-client-okhttp", version.ref = "ktor" }
 
 [plugins]
 android-application = { id = "com.android.application", version.ref = "agp" }
