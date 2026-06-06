@@ -17,7 +17,6 @@ import androidx.compose.ui.unit.dp
 import com.mrmustard.activelistening.R
 import com.mrmustard.activelistening.domain.PlaybackState
 import com.mrmustard.activelistening.domain.learning.GuidanceIntensity
-import com.mrmustard.activelistening.domain.learning.LearningLevel
 import com.mrmustard.activelistening.domain.learning.SectionLearningContent
 import com.mrmustard.activelistening.domain.structure.SectionLabel
 import com.mrmustard.activelistening.domain.structure.SongSection
@@ -35,7 +34,6 @@ fun ListeningSession(
     selectedSectionId: Int?,
     activeSectionId: Int?,
     guidanceIntensity: GuidanceIntensity,
-    learningLevel: LearningLevel,
     isSectionDetailsExpanded: Boolean,
     selectedSectionLearningContent: SectionLearningContent?,
     onPlayClick: () -> Unit,
@@ -49,8 +47,6 @@ fun ListeningSession(
     onRepeatGuidedMarker: () -> Unit,
     onAdjustSectionStart: (Long) -> Unit,
     onAdjustSectionEnd: (Long) -> Unit,
-    onGuidanceIntensitySelected: (GuidanceIntensity) -> Unit,
-    onLearningLevelSelected: (LearningLevel) -> Unit,
     onToggleSectionDetails: () -> Unit,
     modifier: Modifier = Modifier,
 ) {
@@ -95,11 +91,8 @@ fun ListeningSession(
                     isGuidanceLoading = isGuidanceLoading,
                     guidanceError = guidanceError,
                     guidanceIntensity = guidanceIntensity,
-                    learningLevel = learningLevel,
                     isSectionDetailsExpanded = isSectionDetailsExpanded,
                     learningContent = selectedSectionLearningContent,
-                    onGuidanceIntensitySelected = onGuidanceIntensitySelected,
-                    onLearningLevelSelected = onLearningLevelSelected,
                     onToggleSectionDetails = onToggleSectionDetails,
                     onLabelSelected = onSectionLabelSelected,
                     onConfirmClick = onConfirmSection,

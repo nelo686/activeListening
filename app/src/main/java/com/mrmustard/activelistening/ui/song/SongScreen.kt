@@ -8,6 +8,8 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.SnackbarHost
@@ -19,6 +21,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
@@ -26,8 +29,6 @@ import androidx.compose.ui.unit.dp
 import com.mrmustard.activelistening.R
 import com.mrmustard.activelistening.domain.importsong.ImportedSong
 import com.mrmustard.activelistening.domain.PlaybackState
-import com.mrmustard.activelistening.domain.learning.GuidanceIntensity
-import com.mrmustard.activelistening.domain.learning.LearningLevel
 import com.mrmustard.activelistening.domain.structure.SectionLabel
 import com.mrmustard.activelistening.domain.structure.SongStructureFactory
 import com.mrmustard.activelistening.ui.song.importsong.ImportAction
@@ -39,6 +40,7 @@ import com.mrmustard.activelistening.ui.theme.ActiveListeningTheme
 fun SongScreen(
     state: ActiveListeningUiState,
     onImportClick: () -> Unit,
+    onSettingsClick: () -> Unit,
     onPlayClick: () -> Unit,
     onPauseClick: () -> Unit,
     onSeek: (Long) -> Unit,
@@ -50,8 +52,6 @@ fun SongScreen(
     onRepeatGuidedMarker: () -> Unit,
     onAdjustSectionStart: (Long) -> Unit,
     onAdjustSectionEnd: (Long) -> Unit,
-    onGuidanceIntensitySelected: (GuidanceIntensity) -> Unit,
-    onLearningLevelSelected: (LearningLevel) -> Unit,
     onToggleSectionDetails: () -> Unit,
     onErrorShown: () -> Unit,
     modifier: Modifier = Modifier,
@@ -68,7 +68,17 @@ fun SongScreen(
     Scaffold(
         modifier = modifier,
         topBar = {
-            TopAppBar(title = { Text(stringResource(R.string.screen_import_song_title)) })
+            TopAppBar(
+                title = { Text(stringResource(R.string.screen_import_song_title)) },
+                actions = {
+                    IconButton(onClick = onSettingsClick) {
+                        Icon(
+                            painter = painterResource(R.drawable.ic_settings_24),
+                            contentDescription = stringResource(R.string.settings_open),
+                        )
+                    }
+                },
+            )
         },
         snackbarHost = { SnackbarHost(snackbarHostState) },
     ) { innerPadding ->
@@ -114,7 +124,6 @@ fun SongScreen(
                             selectedSectionId = state.selectedSectionId,
                             activeSectionId = state.activeSectionId,
                             guidanceIntensity = state.guidanceIntensity,
-                            learningLevel = state.learningLevel,
                             isSectionDetailsExpanded = state.isSectionDetailsExpanded,
                             selectedSectionLearningContent = state.selectedSectionLearningContent,
                             onPlayClick = onPlayClick,
@@ -128,8 +137,6 @@ fun SongScreen(
                             onRepeatGuidedMarker = onRepeatGuidedMarker,
                             onAdjustSectionStart = onAdjustSectionStart,
                             onAdjustSectionEnd = onAdjustSectionEnd,
-                            onGuidanceIntensitySelected = onGuidanceIntensitySelected,
-                            onLearningLevelSelected = onLearningLevelSelected,
                             onToggleSectionDetails = onToggleSectionDetails,
                         )
                     }
@@ -162,6 +169,7 @@ private fun SongScreenPreview() {
         SongScreen(
             state = ActiveListeningUiState(),
             onImportClick = {},
+            onSettingsClick = {},
             onPlayClick = {},
             onPauseClick = {},
             onSeek = {},
@@ -173,8 +181,6 @@ private fun SongScreenPreview() {
             onRepeatGuidedMarker = {},
             onAdjustSectionStart = {},
             onAdjustSectionEnd = {},
-            onGuidanceIntensitySelected = {},
-            onLearningLevelSelected = {},
             onToggleSectionDetails = {},
             onErrorShown = {},
         )
@@ -207,6 +213,7 @@ private fun GuidedSongScreenPreview() {
                 activeSectionId = sections.getOrNull(1)?.id,
             ),
             onImportClick = {},
+            onSettingsClick = {},
             onPlayClick = {},
             onPauseClick = {},
             onSeek = {},
@@ -218,8 +225,6 @@ private fun GuidedSongScreenPreview() {
             onRepeatGuidedMarker = {},
             onAdjustSectionStart = {},
             onAdjustSectionEnd = {},
-            onGuidanceIntensitySelected = {},
-            onLearningLevelSelected = {},
             onToggleSectionDetails = {},
             onErrorShown = {},
         )

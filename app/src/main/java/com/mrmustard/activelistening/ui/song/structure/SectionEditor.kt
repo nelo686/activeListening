@@ -23,7 +23,6 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import com.mrmustard.activelistening.R
 import com.mrmustard.activelistening.domain.learning.GuidanceIntensity
-import com.mrmustard.activelistening.domain.learning.LearningLevel
 import com.mrmustard.activelistening.domain.learning.SectionLearningContent
 import com.mrmustard.activelistening.domain.structure.SectionLabel
 import com.mrmustard.activelistening.domain.structure.SongSection
@@ -36,11 +35,8 @@ fun SectionEditor(
     isGuidanceLoading: Boolean,
     guidanceError: GuidanceError?,
     guidanceIntensity: GuidanceIntensity,
-    learningLevel: LearningLevel,
     isSectionDetailsExpanded: Boolean,
     learningContent: SectionLearningContent?,
-    onGuidanceIntensitySelected: (GuidanceIntensity) -> Unit,
-    onLearningLevelSelected: (LearningLevel) -> Unit,
     onToggleSectionDetails: () -> Unit,
     onLabelSelected: (SectionLabel) -> Unit,
     onConfirmClick: () -> Unit,
@@ -91,11 +87,6 @@ fun SectionEditor(
             )
         }
 
-        GuidanceIntensitySelector(
-            selectedIntensity = guidanceIntensity,
-            onIntensitySelected = onGuidanceIntensitySelected,
-        )
-
         if (guidanceIntensity == GuidanceIntensity.Normal) {
             Text(
                 text = section.prompt,
@@ -132,9 +123,7 @@ fun SectionEditor(
 
         LearningPanel(
             content = learningContent,
-            selectedLevel = learningLevel,
             isExpanded = isSectionDetailsExpanded,
-            onLevelSelected = onLearningLevelSelected,
             onToggleDetails = onToggleSectionDetails,
         )
 
@@ -177,37 +166,9 @@ fun SectionEditor(
 }
 
 @Composable
-private fun GuidanceIntensitySelector(
-    selectedIntensity: GuidanceIntensity,
-    onIntensitySelected: (GuidanceIntensity) -> Unit,
-) {
-    Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
-        Text(
-            text = stringResource(R.string.guidance_intensity_title),
-            style = MaterialTheme.typography.titleSmall,
-            fontWeight = FontWeight.SemiBold,
-        )
-        FlowRow(
-            horizontalArrangement = Arrangement.spacedBy(8.dp),
-            verticalArrangement = Arrangement.spacedBy(8.dp),
-        ) {
-            GuidanceIntensity.entries.forEach { intensity ->
-                FilterChip(
-                    selected = selectedIntensity == intensity,
-                    onClick = { onIntensitySelected(intensity) },
-                    label = { Text(intensity.toDisplayName()) },
-                )
-            }
-        }
-    }
-}
-
-@Composable
 private fun LearningPanel(
     content: SectionLearningContent?,
-    selectedLevel: LearningLevel,
     isExpanded: Boolean,
-    onLevelSelected: (LearningLevel) -> Unit,
     onToggleDetails: () -> Unit,
 ) {
     Column(verticalArrangement = Arrangement.spacedBy(10.dp)) {
@@ -215,11 +176,6 @@ private fun LearningPanel(
             text = stringResource(R.string.section_learning_title),
             style = MaterialTheme.typography.titleSmall,
             fontWeight = FontWeight.SemiBold,
-        )
-
-        LearningLevelSelector(
-            selectedLevel = selectedLevel,
-            onLevelSelected = onLevelSelected,
         )
 
         if (content != null) {
@@ -254,31 +210,6 @@ private fun LearningPanel(
                             R.string.section_learning_more
                         },
                     ),
-                )
-            }
-        }
-    }
-}
-
-@Composable
-private fun LearningLevelSelector(
-    selectedLevel: LearningLevel,
-    onLevelSelected: (LearningLevel) -> Unit,
-) {
-    Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
-        Text(
-            text = stringResource(R.string.section_learning_level_title),
-            style = MaterialTheme.typography.bodyMedium,
-        )
-        FlowRow(
-            horizontalArrangement = Arrangement.spacedBy(8.dp),
-            verticalArrangement = Arrangement.spacedBy(8.dp),
-        ) {
-            LearningLevel.entries.forEach { level ->
-                FilterChip(
-                    selected = selectedLevel == level,
-                    onClick = { onLevelSelected(level) },
-                    label = { Text(level.toDisplayName()) },
                 )
             }
         }

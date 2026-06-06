@@ -19,6 +19,7 @@ import com.mrmustard.activelistening.domain.structure.SectionStatus
 import com.mrmustard.activelistening.domain.structure.SongSection
 import com.mrmustard.activelistening.domain.structure.SongStructureEditor
 import com.mrmustard.activelistening.domain.structure.SongStructureFactory
+import com.mrmustard.activelistening.domain.settings.UserSettingsRepository
 import com.mrmustard.activelistening.domain.usecase.ImportSongUseCase
 import dagger.hilt.android.lifecycle.HiltViewModel
 import javax.inject.Inject
@@ -33,6 +34,7 @@ class ActiveListeningViewModel @Inject constructor(
     private val importSongUseCase: ImportSongUseCase,
     private val audioPlaybackRepository: AudioPlaybackRepository,
     private val guidedListeningRepository: GuidedListeningRepository,
+    private val userSettingsRepository: UserSettingsRepository,
 ) : ViewModel() {
 
     private val _uiState = MutableStateFlow(ActiveListeningUiState())
@@ -45,6 +47,16 @@ class ActiveListeningViewModel @Inject constructor(
                     state.copy(playbackState = playbackState)
                         .withSectionProgress(playbackState.positionMillis)
                         .withSelectedSectionLearningContent()
+                }
+            }
+        }
+        viewModelScope.launch {
+            userSettingsRepository.settings.collect { settings ->
+                _uiState.update { state ->
+                    state.copy(
+                        learningLevel = settings.learningLevel,
+                        guidanceIntensity = settings.guidanceIntensity,
+                    ).withSelectedSectionLearningContent()
                 }
             }
         }
@@ -72,7 +84,6 @@ class ActiveListeningViewModel @Inject constructor(
                             sections = emptyList(),
                             selectedSectionId = null,
                             activeSectionId = null,
-                            guidanceIntensity = GuidanceIntensity.Normal,
                             isSectionDetailsExpanded = false,
                             selectedSectionLearningContent = null,
                         )
@@ -181,12 +192,18 @@ class ActiveListeningViewModel @Inject constructor(
 
     fun changeGuidanceIntensity(intensity: GuidanceIntensity) {
         _uiState.update { it.copy(guidanceIntensity = intensity) }
+        viewModelScope.launch {
+            userSettingsRepository.updateGuidanceIntensity(intensity)
+        }
     }
 
     fun changeLearningLevel(level: LearningLevel) {
         _uiState.update {
             it.copy(learningLevel = level)
                 .withSelectedSectionLearningContent()
+        }
+        viewModelScope.launch {
+            userSettingsRepository.updateLearningLevel(level)
         }
     }
 

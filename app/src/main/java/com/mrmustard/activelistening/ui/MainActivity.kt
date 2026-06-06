@@ -4,13 +4,18 @@ import android.content.Intent
 import android.net.Uri
 import android.os.Bundle
 import androidx.activity.ComponentActivity
+import androidx.activity.compose.BackHandler
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
 import androidx.activity.result.ActivityResultLauncher
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.activity.viewModels
+import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import com.mrmustard.activelistening.ui.config.ConfigScreen
 import com.mrmustard.activelistening.ui.song.SongScreen
 import com.mrmustard.activelistening.ui.song.ActiveListeningViewModel
 import com.mrmustard.activelistening.ui.theme.ActiveListeningTheme
@@ -33,25 +38,40 @@ class MainActivity : ComponentActivity() {
         setContent {
             ActiveListeningTheme {
                 val state by viewModel.uiState.collectAsStateWithLifecycle()
-                SongScreen(
-                    state = state,
-                    onImportClick = { openSongLauncher.launch(arrayOf("*/*")) },
-                    onPlayClick = viewModel::play,
-                    onPauseClick = viewModel::pause,
-                    onSeek = viewModel::seekTo,
-                    onStartGuidedSession = viewModel::startGuidedSession,
-                    onSectionSelected = viewModel::selectSection,
-                    onSectionLabelSelected = viewModel::changeSelectedSectionLabel,
-                    onConfirmSection = viewModel::confirmSelectedSection,
-                    onMarkSectionUncertain = viewModel::markSelectedSectionUncertain,
-                    onRepeatGuidedMarker = viewModel::repeatGuidedMarker,
-                    onAdjustSectionStart = viewModel::adjustSelectedSectionStart,
-                    onAdjustSectionEnd = viewModel::adjustSelectedSectionEnd,
-                    onGuidanceIntensitySelected = viewModel::changeGuidanceIntensity,
-                    onLearningLevelSelected = viewModel::changeLearningLevel,
-                    onToggleSectionDetails = viewModel::toggleSelectedSectionDetails,
-                    onErrorShown = viewModel::clearError,
-                )
+                var currentScreen by remember { mutableStateOf(MainScreen.Song) }
+
+                BackHandler(enabled = currentScreen == MainScreen.Config) {
+                    currentScreen = MainScreen.Song
+                }
+
+                when (currentScreen) {
+                    MainScreen.Song -> SongScreen(
+                        state = state,
+                        onImportClick = { openSongLauncher.launch(arrayOf("*/*")) },
+                        onSettingsClick = { currentScreen = MainScreen.Config },
+                        onPlayClick = viewModel::play,
+                        onPauseClick = viewModel::pause,
+                        onSeek = viewModel::seekTo,
+                        onStartGuidedSession = viewModel::startGuidedSession,
+                        onSectionSelected = viewModel::selectSection,
+                        onSectionLabelSelected = viewModel::changeSelectedSectionLabel,
+                        onConfirmSection = viewModel::confirmSelectedSection,
+                        onMarkSectionUncertain = viewModel::markSelectedSectionUncertain,
+                        onRepeatGuidedMarker = viewModel::repeatGuidedMarker,
+                        onAdjustSectionStart = viewModel::adjustSelectedSectionStart,
+                        onAdjustSectionEnd = viewModel::adjustSelectedSectionEnd,
+                        onToggleSectionDetails = viewModel::toggleSelectedSectionDetails,
+                        onErrorShown = viewModel::clearError,
+                    )
+
+                    MainScreen.Config -> ConfigScreen(
+                        learningLevel = state.learningLevel,
+                        guidanceIntensity = state.guidanceIntensity,
+                        onLearningLevelSelected = viewModel::changeLearningLevel,
+                        onGuidanceIntensitySelected = viewModel::changeGuidanceIntensity,
+                        onBackClick = { currentScreen = MainScreen.Song },
+                    )
+                }
             }
         }
     }
@@ -69,4 +89,9 @@ class MainActivity : ComponentActivity() {
             )
         }
     }
+}
+
+private enum class MainScreen {
+    Song,
+    Config,
 }
