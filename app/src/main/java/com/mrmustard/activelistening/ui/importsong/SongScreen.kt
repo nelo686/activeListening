@@ -3,9 +3,12 @@ package com.mrmustard.activelistening.ui.importsong
 import android.net.Uri
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.SnackbarHost
 import androidx.compose.material3.SnackbarHostState
@@ -17,6 +20,7 @@ import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.mrmustard.activelistening.R
@@ -61,43 +65,70 @@ fun SongScreen(
                 .fillMaxSize()
                 .padding(innerPadding),
         ) {
-            Column(
+            val song = state.importedSong
+            LazyColumn(
                 modifier = Modifier
-                    .fillMaxSize()
-                    .padding(24.dp),
+                    .fillMaxSize(),
+                contentPadding = PaddingValues(24.dp),
                 verticalArrangement = Arrangement.spacedBy(24.dp),
             ) {
-                Header()
-                ImportAction(
-                    isImporting = state.isImporting,
-                    hasSong = state.importedSong != null,
-                    onImportClick = onImportClick,
-                )
-
-                val song = state.importedSong
                 if (song == null) {
-                    EmptySession()
+                    item { Header() }
+                    item {
+                        ImportAction(
+                            isImporting = state.isImporting,
+                            hasSong = false,
+                            onImportClick = onImportClick,
+                        )
+                    }
+                    item { EmptySession() }
                 } else {
-                    ListeningSession(
-                        title = song.displayName,
-                        playbackState = state.playbackState,
-                        isGuidedSessionActive = state.isGuidedSessionActive,
-                        isGuidanceLoading = state.isGuidanceLoading,
-                        guidanceError = state.guidanceError,
-                        guidedTimeline = state.guidedTimeline,
-                        currentGuidedMarker = state.currentGuidedMarker,
-                        onPlayClick = onPlayClick,
-                        onPauseClick = onPauseClick,
-                        onSeek = onSeek,
-                        onStartGuidedSession = onStartGuidedSession,
-                        onConfirmGuidedMarker = onConfirmGuidedMarker,
-                        onMarkGuidedMarkerUncertain = onMarkGuidedMarkerUncertain,
-                        onSkipGuidedMarker = onSkipGuidedMarker,
-                        onRepeatGuidedMarker = onRepeatGuidedMarker,
-                    )
+                    item { ImportedSongHeader() }
+                    item {
+                        ImportAction(
+                            isImporting = state.isImporting,
+                            hasSong = true,
+                            onImportClick = onImportClick,
+                        )
+                    }
+                    item {
+                        ListeningSession(
+                            title = song.displayName,
+                            playbackState = state.playbackState,
+                            isGuidedSessionActive = state.isGuidedSessionActive,
+                            isGuidanceLoading = state.isGuidanceLoading,
+                            guidanceError = state.guidanceError,
+                            guidedTimeline = state.guidedTimeline,
+                            currentGuidedMarker = state.currentGuidedMarker,
+                            onPlayClick = onPlayClick,
+                            onPauseClick = onPauseClick,
+                            onSeek = onSeek,
+                            onStartGuidedSession = onStartGuidedSession,
+                            onConfirmGuidedMarker = onConfirmGuidedMarker,
+                            onMarkGuidedMarkerUncertain = onMarkGuidedMarkerUncertain,
+                            onSkipGuidedMarker = onSkipGuidedMarker,
+                            onRepeatGuidedMarker = onRepeatGuidedMarker,
+                        )
+                    }
                 }
             }
         }
+    }
+}
+
+@Composable
+private fun ImportedSongHeader() {
+    Column(verticalArrangement = Arrangement.spacedBy(4.dp)) {
+        Text(
+            text = stringResource(R.string.import_song_ready_title),
+            style = MaterialTheme.typography.titleLarge,
+            fontWeight = FontWeight.SemiBold,
+        )
+        Text(
+            text = stringResource(R.string.import_song_ready_description),
+            style = MaterialTheme.typography.bodyMedium,
+            color = MaterialTheme.colorScheme.onSurfaceVariant,
+        )
     }
 }
 
