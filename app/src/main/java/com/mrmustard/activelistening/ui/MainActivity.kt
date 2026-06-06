@@ -47,7 +47,9 @@ class MainActivity : ComponentActivity() {
                     onRepeatGuidedMarker = viewModel::repeatGuidedMarker,
                     onAdjustSectionStart = viewModel::adjustSelectedSectionStart,
                     onAdjustSectionEnd = viewModel::adjustSelectedSectionEnd,
-                    onToggleGuidanceReduced = viewModel::toggleGuidanceReduced,
+                    onGuidanceIntensitySelected = viewModel::changeGuidanceIntensity,
+                    onLearningLevelSelected = viewModel::changeLearningLevel,
+                    onToggleSectionDetails = viewModel::toggleSelectedSectionDetails,
                     onErrorShown = viewModel::clearError,
                 )
             }

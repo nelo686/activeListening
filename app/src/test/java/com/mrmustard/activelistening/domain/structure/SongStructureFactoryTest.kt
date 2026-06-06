@@ -29,6 +29,17 @@ class SongStructureFactoryTest {
     }
 
     @Test
+    fun `local prompts guide active listening decisions`() {
+        val sections = SongStructureFactory.createInitialSections(durationMillis = 240_000L)
+        val combinedPrompts = sections.joinToString(separator = " ") { it.prompt.lowercase() }
+
+        assertTrue(combinedPrompts.contains("energia"))
+        assertTrue(combinedPrompts.contains("instrumentacion"))
+        assertTrue(combinedPrompts.contains("repite") || combinedPrompts.contains("repeticion"))
+        assertTrue(combinedPrompts.contains("ritmo") || combinedPrompts.contains("ritmico"))
+    }
+
+    @Test
     fun `creates one section for short songs`() {
         val durationMillis = 8_000L
 

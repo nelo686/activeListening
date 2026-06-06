@@ -116,12 +116,12 @@ object SongStructureFactory {
 
     private fun SectionLabel.defaultPrompt(): String =
         when (this) {
-            SectionLabel.Intro -> "Escucha como entra la cancion: pulso, energia e instrumentos principales."
-            SectionLabel.Verse -> "Compara esta parte con el inicio y busca si aparece una idea vocal o ritmica estable."
+            SectionLabel.Intro -> "Escucha como entra la cancion: cambia la energia, el ritmo o la instrumentacion desde el primer pulso?"
+            SectionLabel.Verse -> "Compara esta parte con el inicio: se repite una idea vocal o cambia la sensacion del acompanamiento?"
             SectionLabel.Chorus -> "Pregunta guia: sube la energia, se repite una frase central o cambia la instrumentacion?"
-            SectionLabel.Bridge -> "Busca contraste: otro patron, una pausa, un puente o una preparacion hacia el cierre."
-            SectionLabel.Outro -> "Identifica como termina: outro, corte seco, repeticion o bajada de energia."
-            SectionLabel.Other -> "Escucha esta seccion y decide que funcion musical cumple dentro de la cancion."
+            SectionLabel.Bridge -> "Busca contraste: cambia el patron ritmico, aparece otra textura o funciona como transicion?"
+            SectionLabel.Outro -> "Identifica como termina: repeticion, corte seco, bajada de energia o cambio de instrumentacion?"
+            SectionLabel.Other -> "Escucha esta seccion: que cambia en energia, repeticion, ritmo, instrumentacion o sensacion general?"
         }
 
     private val DEFAULT_LABELS = listOf(

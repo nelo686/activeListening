@@ -24,8 +24,10 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.mrmustard.activelistening.R
-import com.mrmustard.activelistening.domain.ImportedSong
+import com.mrmustard.activelistening.domain.importsong.ImportedSong
 import com.mrmustard.activelistening.domain.PlaybackState
+import com.mrmustard.activelistening.domain.learning.GuidanceIntensity
+import com.mrmustard.activelistening.domain.learning.LearningLevel
 import com.mrmustard.activelistening.domain.structure.SectionLabel
 import com.mrmustard.activelistening.domain.structure.SongStructureFactory
 import com.mrmustard.activelistening.ui.song.importsong.ImportAction
@@ -48,7 +50,9 @@ fun SongScreen(
     onRepeatGuidedMarker: () -> Unit,
     onAdjustSectionStart: (Long) -> Unit,
     onAdjustSectionEnd: (Long) -> Unit,
-    onToggleGuidanceReduced: () -> Unit,
+    onGuidanceIntensitySelected: (GuidanceIntensity) -> Unit,
+    onLearningLevelSelected: (LearningLevel) -> Unit,
+    onToggleSectionDetails: () -> Unit,
     onErrorShown: () -> Unit,
     modifier: Modifier = Modifier,
 ) {
@@ -109,7 +113,10 @@ fun SongScreen(
                             sections = state.sections,
                             selectedSectionId = state.selectedSectionId,
                             activeSectionId = state.activeSectionId,
-                            isGuidanceReduced = state.isGuidanceReduced,
+                            guidanceIntensity = state.guidanceIntensity,
+                            learningLevel = state.learningLevel,
+                            isSectionDetailsExpanded = state.isSectionDetailsExpanded,
+                            selectedSectionLearningContent = state.selectedSectionLearningContent,
                             onPlayClick = onPlayClick,
                             onPauseClick = onPauseClick,
                             onSeek = onSeek,
@@ -121,7 +128,9 @@ fun SongScreen(
                             onRepeatGuidedMarker = onRepeatGuidedMarker,
                             onAdjustSectionStart = onAdjustSectionStart,
                             onAdjustSectionEnd = onAdjustSectionEnd,
-                            onToggleGuidanceReduced = onToggleGuidanceReduced,
+                            onGuidanceIntensitySelected = onGuidanceIntensitySelected,
+                            onLearningLevelSelected = onLearningLevelSelected,
+                            onToggleSectionDetails = onToggleSectionDetails,
                         )
                     }
                 }
@@ -164,7 +173,9 @@ private fun SongScreenPreview() {
             onRepeatGuidedMarker = {},
             onAdjustSectionStart = {},
             onAdjustSectionEnd = {},
-            onToggleGuidanceReduced = {},
+            onGuidanceIntensitySelected = {},
+            onLearningLevelSelected = {},
+            onToggleSectionDetails = {},
             onErrorShown = {},
         )
     }
@@ -207,7 +218,9 @@ private fun GuidedSongScreenPreview() {
             onRepeatGuidedMarker = {},
             onAdjustSectionStart = {},
             onAdjustSectionEnd = {},
-            onToggleGuidanceReduced = {},
+            onGuidanceIntensitySelected = {},
+            onLearningLevelSelected = {},
+            onToggleSectionDetails = {},
             onErrorShown = {},
         )
     }

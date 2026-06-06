@@ -16,6 +16,9 @@ import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import com.mrmustard.activelistening.R
 import com.mrmustard.activelistening.domain.PlaybackState
+import com.mrmustard.activelistening.domain.learning.GuidanceIntensity
+import com.mrmustard.activelistening.domain.learning.LearningLevel
+import com.mrmustard.activelistening.domain.learning.SectionLearningContent
 import com.mrmustard.activelistening.domain.structure.SectionLabel
 import com.mrmustard.activelistening.domain.structure.SongSection
 import com.mrmustard.activelistening.ui.song.structure.SectionEditor
@@ -31,7 +34,10 @@ fun ListeningSession(
     sections: List<SongSection>,
     selectedSectionId: Int?,
     activeSectionId: Int?,
-    isGuidanceReduced: Boolean,
+    guidanceIntensity: GuidanceIntensity,
+    learningLevel: LearningLevel,
+    isSectionDetailsExpanded: Boolean,
+    selectedSectionLearningContent: SectionLearningContent?,
     onPlayClick: () -> Unit,
     onPauseClick: () -> Unit,
     onSeek: (Long) -> Unit,
@@ -43,7 +49,9 @@ fun ListeningSession(
     onRepeatGuidedMarker: () -> Unit,
     onAdjustSectionStart: (Long) -> Unit,
     onAdjustSectionEnd: (Long) -> Unit,
-    onToggleGuidanceReduced: () -> Unit,
+    onGuidanceIntensitySelected: (GuidanceIntensity) -> Unit,
+    onLearningLevelSelected: (LearningLevel) -> Unit,
+    onToggleSectionDetails: () -> Unit,
     modifier: Modifier = Modifier,
 ) {
     Card(modifier = modifier.fillMaxWidth()) {
@@ -86,8 +94,13 @@ fun ListeningSession(
                     section = sections.firstOrNull { it.id == selectedSectionId },
                     isGuidanceLoading = isGuidanceLoading,
                     guidanceError = guidanceError,
-                    isGuidanceReduced = isGuidanceReduced,
-                    onGuidanceReducedChange = onToggleGuidanceReduced,
+                    guidanceIntensity = guidanceIntensity,
+                    learningLevel = learningLevel,
+                    isSectionDetailsExpanded = isSectionDetailsExpanded,
+                    learningContent = selectedSectionLearningContent,
+                    onGuidanceIntensitySelected = onGuidanceIntensitySelected,
+                    onLearningLevelSelected = onLearningLevelSelected,
+                    onToggleSectionDetails = onToggleSectionDetails,
                     onLabelSelected = onSectionLabelSelected,
                     onConfirmClick = onConfirmSection,
                     onUncertainClick = onMarkSectionUncertain,

@@ -1,6 +1,6 @@
 package com.mrmustard.activelistening.data.playback
 
-import com.mrmustard.activelistening.domain.ImportedSong
+import com.mrmustard.activelistening.domain.importsong.ImportedSong
 import com.mrmustard.activelistening.domain.PlaybackState
 import kotlinx.coroutines.flow.StateFlow
 

@@ -1,8 +1,11 @@
 package com.mrmustard.activelistening.ui.song
 
-import com.mrmustard.activelistening.domain.ImportSongError
-import com.mrmustard.activelistening.domain.ImportedSong
+import com.mrmustard.activelistening.domain.importsong.ImportSongError
+import com.mrmustard.activelistening.domain.importsong.ImportedSong
 import com.mrmustard.activelistening.domain.PlaybackState
+import com.mrmustard.activelistening.domain.learning.GuidanceIntensity
+import com.mrmustard.activelistening.domain.learning.LearningLevel
+import com.mrmustard.activelistening.domain.learning.SectionLearningContent
 import com.mrmustard.activelistening.domain.structure.SongSection
 
 data class ActiveListeningUiState(
@@ -16,7 +19,10 @@ data class ActiveListeningUiState(
     val sections: List<SongSection> = emptyList(),
     val selectedSectionId: Int? = null,
     val activeSectionId: Int? = null,
-    val isGuidanceReduced: Boolean = false,
+    val guidanceIntensity: GuidanceIntensity = GuidanceIntensity.Normal,
+    val learningLevel: LearningLevel = LearningLevel.Introductory,
+    val isSectionDetailsExpanded: Boolean = false,
+    val selectedSectionLearningContent: SectionLearningContent? = null,
 )
 
 enum class GuidanceError {

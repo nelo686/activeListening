@@ -8,8 +8,11 @@ import com.mrmustard.activelistening.domain.guidance.GuidedListeningMarkerReques
 import com.mrmustard.activelistening.domain.guidance.GuidedListeningRepository
 import com.mrmustard.activelistening.domain.guidance.GuidedListeningRequest
 import com.mrmustard.activelistening.domain.guidance.GuidedListeningResult
-import com.mrmustard.activelistening.domain.ImportedSong
-import com.mrmustard.activelistening.domain.SongImportResult
+import com.mrmustard.activelistening.domain.importsong.ImportedSong
+import com.mrmustard.activelistening.domain.importsong.SongImportResult
+import com.mrmustard.activelistening.domain.learning.GuidanceIntensity
+import com.mrmustard.activelistening.domain.learning.LearningLevel
+import com.mrmustard.activelistening.domain.learning.SectionExplanationProvider
 import com.mrmustard.activelistening.domain.structure.SectionBoundary
 import com.mrmustard.activelistening.domain.structure.SectionLabel
 import com.mrmustard.activelistening.domain.structure.SectionStatus
@@ -41,6 +44,7 @@ class ActiveListeningViewModel @Inject constructor(
                 _uiState.update { state ->
                     state.copy(playbackState = playbackState)
                         .withSectionProgress(playbackState.positionMillis)
+                        .withSelectedSectionLearningContent()
                 }
             }
         }
@@ -68,7 +72,9 @@ class ActiveListeningViewModel @Inject constructor(
                             sections = emptyList(),
                             selectedSectionId = null,
                             activeSectionId = null,
-                            isGuidanceReduced = false,
+                            guidanceIntensity = GuidanceIntensity.Normal,
+                            isSectionDetailsExpanded = false,
+                            selectedSectionLearningContent = null,
                         )
                     }
                 }
@@ -109,7 +115,9 @@ class ActiveListeningViewModel @Inject constructor(
                 sections = sections,
                 selectedSectionId = activeSectionId ?: sections.firstOrNull()?.id,
                 activeSectionId = activeSectionId,
+                isSectionDetailsExpanded = false,
             ).withSectionProgress(state.playbackState.positionMillis)
+                .withSelectedSectionLearningContent()
         }
         audioPlaybackRepository.play()
 
@@ -135,7 +143,10 @@ class ActiveListeningViewModel @Inject constructor(
 
     fun selectSection(sectionId: Int) {
         _uiState.update { state ->
-            state.copy(selectedSectionId = sectionId.takeIf { id -> state.sections.any { it.id == id } })
+            state.copy(
+                selectedSectionId = sectionId.takeIf { id -> state.sections.any { it.id == id } },
+                isSectionDetailsExpanded = false,
+            ).withSelectedSectionLearningContent()
         }
     }
 
@@ -148,7 +159,7 @@ class ActiveListeningViewModel @Inject constructor(
                     sectionId = selectedSectionId,
                     label = label,
                 ),
-            )
+            ).withSelectedSectionLearningContent()
         }
     }
 
@@ -168,8 +179,19 @@ class ActiveListeningViewModel @Inject constructor(
         adjustSelectedSectionBoundary(SectionBoundary.End, deltaMillis)
     }
 
-    fun toggleGuidanceReduced() {
-        _uiState.update { it.copy(isGuidanceReduced = !it.isGuidanceReduced) }
+    fun changeGuidanceIntensity(intensity: GuidanceIntensity) {
+        _uiState.update { it.copy(guidanceIntensity = intensity) }
+    }
+
+    fun changeLearningLevel(level: LearningLevel) {
+        _uiState.update {
+            it.copy(learningLevel = level)
+                .withSelectedSectionLearningContent()
+        }
+    }
+
+    fun toggleSelectedSectionDetails() {
+        _uiState.update { it.copy(isSectionDetailsExpanded = !it.isSectionDetailsExpanded) }
     }
 
     fun repeatGuidedMarker() {
@@ -199,7 +221,7 @@ class ActiveListeningViewModel @Inject constructor(
                     sectionId = selectedSectionId,
                     status = status,
                 ),
-            )
+            ).withSelectedSectionLearningContent()
         }
     }
 
@@ -217,6 +239,7 @@ class ActiveListeningViewModel @Inject constructor(
                     deltaMillis = deltaMillis,
                 ),
             ).withSectionProgress(state.playbackState.positionMillis)
+                .withSelectedSectionLearningContent()
         }
     }
 
@@ -248,6 +271,7 @@ class ActiveListeningViewModel @Inject constructor(
                             guidanceError = null,
                             sections = currentState.sections.merge(result),
                         ).withSectionProgress(currentState.playbackState.positionMillis)
+                            .withSelectedSectionLearningContent()
                     }
 
                     GuidedListeningResult.MissingApiKey -> currentState.copy(
@@ -299,7 +323,23 @@ class ActiveListeningViewModel @Inject constructor(
         )
         return copy(
             activeSectionId = activeSectionId,
-            selectedSectionId = selectedSectionId ?: activeSectionId,
+            selectedSectionId = when (selectedSectionId) {
+                null, this.activeSectionId -> activeSectionId
+                else -> selectedSectionId
+            },
+        )
+    }
+
+    private fun ActiveListeningUiState.withSelectedSectionLearningContent(): ActiveListeningUiState {
+        val section = sections.firstOrNull { it.id == selectedSectionId }
+        return copy(
+            selectedSectionLearningContent = section?.let {
+                SectionExplanationProvider.contentFor(
+                    label = it.label,
+                    level = learningLevel,
+                    status = it.status,
+                )
+            },
         )
     }
 }

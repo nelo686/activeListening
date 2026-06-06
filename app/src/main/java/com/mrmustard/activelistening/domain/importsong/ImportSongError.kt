@@ -1,4 +1,4 @@
-package com.mrmustard.activelistening.domain
+package com.mrmustard.activelistening.domain.importsong
 
 sealed interface ImportSongError {
     data object UnsupportedFormat : ImportSongError

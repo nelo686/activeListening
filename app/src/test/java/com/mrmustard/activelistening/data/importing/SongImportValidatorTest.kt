@@ -1,6 +1,6 @@
 package com.mrmustard.activelistening.data.importing
 
-import com.mrmustard.activelistening.domain.ImportSongError
+import com.mrmustard.activelistening.domain.importsong.ImportSongError
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertNull
 import org.junit.Test

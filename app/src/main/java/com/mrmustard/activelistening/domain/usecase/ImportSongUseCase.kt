@@ -3,7 +3,7 @@ package com.mrmustard.activelistening.domain.usecase
 import android.net.Uri
 import com.mrmustard.activelistening.data.importing.SongImportRepository
 import com.mrmustard.activelistening.data.playback.AudioPlaybackRepository
-import com.mrmustard.activelistening.domain.SongImportResult
+import com.mrmustard.activelistening.domain.importsong.SongImportResult
 import javax.inject.Inject
 
 class ImportSongUseCase @Inject constructor(

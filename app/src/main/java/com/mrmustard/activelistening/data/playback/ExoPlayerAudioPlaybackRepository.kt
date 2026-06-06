@@ -5,7 +5,7 @@ import androidx.media3.common.MediaItem
 import androidx.media3.common.PlaybackException
 import androidx.media3.common.Player
 import androidx.media3.exoplayer.ExoPlayer
-import com.mrmustard.activelistening.domain.ImportedSong
+import com.mrmustard.activelistening.domain.importsong.ImportedSong
 import com.mrmustard.activelistening.domain.PlaybackError
 import com.mrmustard.activelistening.domain.PlaybackState
 import dagger.hilt.android.scopes.ViewModelScoped

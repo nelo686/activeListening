@@ -1,6 +1,6 @@
 package com.mrmustard.activelistening.data.importing
 
-import com.mrmustard.activelistening.domain.ImportSongError
+import com.mrmustard.activelistening.domain.importsong.ImportSongError
 import javax.inject.Inject
 
 class SongImportValidator @Inject constructor() {

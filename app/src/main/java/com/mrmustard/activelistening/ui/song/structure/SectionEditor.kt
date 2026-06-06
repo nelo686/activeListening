@@ -13,8 +13,8 @@ import androidx.compose.material3.FilterChip
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedButton
-import androidx.compose.material3.Switch
 import androidx.compose.material3.Text
+import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -22,6 +22,9 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import com.mrmustard.activelistening.R
+import com.mrmustard.activelistening.domain.learning.GuidanceIntensity
+import com.mrmustard.activelistening.domain.learning.LearningLevel
+import com.mrmustard.activelistening.domain.learning.SectionLearningContent
 import com.mrmustard.activelistening.domain.structure.SectionLabel
 import com.mrmustard.activelistening.domain.structure.SongSection
 import com.mrmustard.activelistening.ui.song.GuidanceError
@@ -32,8 +35,13 @@ fun SectionEditor(
     section: SongSection?,
     isGuidanceLoading: Boolean,
     guidanceError: GuidanceError?,
-    isGuidanceReduced: Boolean,
-    onGuidanceReducedChange: () -> Unit,
+    guidanceIntensity: GuidanceIntensity,
+    learningLevel: LearningLevel,
+    isSectionDetailsExpanded: Boolean,
+    learningContent: SectionLearningContent?,
+    onGuidanceIntensitySelected: (GuidanceIntensity) -> Unit,
+    onLearningLevelSelected: (LearningLevel) -> Unit,
+    onToggleSectionDetails: () -> Unit,
     onLabelSelected: (SectionLabel) -> Unit,
     onConfirmClick: () -> Unit,
     onUncertainClick: () -> Unit,
@@ -83,26 +91,22 @@ fun SectionEditor(
             )
         }
 
-        if (!isGuidanceReduced) {
+        GuidanceIntensitySelector(
+            selectedIntensity = guidanceIntensity,
+            onIntensitySelected = onGuidanceIntensitySelected,
+        )
+
+        if (guidanceIntensity == GuidanceIntensity.Normal) {
             Text(
                 text = section.prompt,
                 style = MaterialTheme.typography.bodyMedium,
                 color = MaterialTheme.colorScheme.onSurfaceVariant,
             )
-        }
-
-        Row(
-            modifier = Modifier.fillMaxWidth(),
-            horizontalArrangement = Arrangement.SpaceBetween,
-            verticalAlignment = Alignment.CenterVertically,
-        ) {
+        } else {
             Text(
-                text = stringResource(R.string.guidance_reduced_label),
+                text = stringResource(R.string.guidance_reduced_description),
                 style = MaterialTheme.typography.bodyMedium,
-            )
-            Switch(
-                checked = isGuidanceReduced,
-                onCheckedChange = { onGuidanceReducedChange() },
+                color = MaterialTheme.colorScheme.onSurfaceVariant,
             )
         }
 
@@ -125,6 +129,16 @@ fun SectionEditor(
                 )
             }
         }
+
+        LearningPanel(
+            content = learningContent,
+            selectedLevel = learningLevel,
+            isExpanded = isSectionDetailsExpanded,
+            onLevelSelected = onLearningLevelSelected,
+            onToggleDetails = onToggleSectionDetails,
+        )
+
+        HorizontalDivider()
 
         Row(
             modifier = Modifier.fillMaxWidth(),
@@ -158,6 +172,115 @@ fun SectionEditor(
             modifier = Modifier.fillMaxWidth(),
         ) {
             Text(stringResource(R.string.structure_repeat_section))
+        }
+    }
+}
+
+@Composable
+private fun GuidanceIntensitySelector(
+    selectedIntensity: GuidanceIntensity,
+    onIntensitySelected: (GuidanceIntensity) -> Unit,
+) {
+    Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
+        Text(
+            text = stringResource(R.string.guidance_intensity_title),
+            style = MaterialTheme.typography.titleSmall,
+            fontWeight = FontWeight.SemiBold,
+        )
+        FlowRow(
+            horizontalArrangement = Arrangement.spacedBy(8.dp),
+            verticalArrangement = Arrangement.spacedBy(8.dp),
+        ) {
+            GuidanceIntensity.entries.forEach { intensity ->
+                FilterChip(
+                    selected = selectedIntensity == intensity,
+                    onClick = { onIntensitySelected(intensity) },
+                    label = { Text(intensity.toDisplayName()) },
+                )
+            }
+        }
+    }
+}
+
+@Composable
+private fun LearningPanel(
+    content: SectionLearningContent?,
+    selectedLevel: LearningLevel,
+    isExpanded: Boolean,
+    onLevelSelected: (LearningLevel) -> Unit,
+    onToggleDetails: () -> Unit,
+) {
+    Column(verticalArrangement = Arrangement.spacedBy(10.dp)) {
+        Text(
+            text = stringResource(R.string.section_learning_title),
+            style = MaterialTheme.typography.titleSmall,
+            fontWeight = FontWeight.SemiBold,
+        )
+
+        LearningLevelSelector(
+            selectedLevel = selectedLevel,
+            onLevelSelected = onLevelSelected,
+        )
+
+        if (content != null) {
+            Text(
+                text = content.summary,
+                style = MaterialTheme.typography.bodyMedium,
+                color = MaterialTheme.colorScheme.onSurfaceVariant,
+            )
+
+            content.uncertainNote?.let { note ->
+                Text(
+                    text = note,
+                    style = MaterialTheme.typography.bodySmall,
+                    color = MaterialTheme.colorScheme.error,
+                )
+            }
+
+            if (isExpanded) {
+                Text(
+                    text = content.details,
+                    style = MaterialTheme.typography.bodyMedium,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant,
+                )
+            }
+
+            TextButton(onClick = onToggleDetails) {
+                Text(
+                    text = stringResource(
+                        if (isExpanded) {
+                            R.string.section_learning_less
+                        } else {
+                            R.string.section_learning_more
+                        },
+                    ),
+                )
+            }
+        }
+    }
+}
+
+@Composable
+private fun LearningLevelSelector(
+    selectedLevel: LearningLevel,
+    onLevelSelected: (LearningLevel) -> Unit,
+) {
+    Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
+        Text(
+            text = stringResource(R.string.section_learning_level_title),
+            style = MaterialTheme.typography.bodyMedium,
+        )
+        FlowRow(
+            horizontalArrangement = Arrangement.spacedBy(8.dp),
+            verticalArrangement = Arrangement.spacedBy(8.dp),
+        ) {
+            LearningLevel.entries.forEach { level ->
+                FilterChip(
+                    selected = selectedLevel == level,
+                    onClick = { onLevelSelected(level) },
+                    label = { Text(level.toDisplayName()) },
+                )
+            }
         }
     }
 }

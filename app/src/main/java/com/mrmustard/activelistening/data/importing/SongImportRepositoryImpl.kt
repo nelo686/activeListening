@@ -5,9 +5,9 @@ import android.media.MediaMetadataRetriever
 import android.net.Uri
 import android.provider.OpenableColumns
 import com.mrmustard.activelistening.R
-import com.mrmustard.activelistening.domain.ImportSongError
-import com.mrmustard.activelistening.domain.ImportedSong
-import com.mrmustard.activelistening.domain.SongImportResult
+import com.mrmustard.activelistening.domain.importsong.ImportSongError
+import com.mrmustard.activelistening.domain.importsong.ImportedSong
+import com.mrmustard.activelistening.domain.importsong.SongImportResult
 import dagger.hilt.android.qualifiers.ApplicationContext
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext

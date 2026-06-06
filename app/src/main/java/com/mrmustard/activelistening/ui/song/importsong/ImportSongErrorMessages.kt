@@ -4,7 +4,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.res.stringResource
 import com.mrmustard.activelistening.R
 import com.mrmustard.activelistening.data.importing.SongImportValidator
-import com.mrmustard.activelistening.domain.ImportSongError
+import com.mrmustard.activelistening.domain.importsong.ImportSongError
 
 @Composable
 fun ImportSongError.toMessage(): String =
