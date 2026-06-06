@@ -1,8 +1,9 @@
-package com.mrmustard.activelistening.ui.importsong
+package com.mrmustard.activelistening.ui.song
 
 import com.mrmustard.activelistening.domain.ImportSongError
 import com.mrmustard.activelistening.domain.ImportedSong
 import com.mrmustard.activelistening.domain.PlaybackState
+import com.mrmustard.activelistening.ui.song.guide.GuidedListeningMarker
 
 data class ActiveListeningUiState(
     val isImporting: Boolean = false,

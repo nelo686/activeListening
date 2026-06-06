@@ -1,4 +1,4 @@
-package com.mrmustard.activelistening.ui.importsong
+package com.mrmustard.activelistening.ui.song.guide
 
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
@@ -15,6 +15,7 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import com.mrmustard.activelistening.R
+import com.mrmustard.activelistening.ui.song.GuidanceError
 
 @Composable
 fun GuidedListeningPrompt(

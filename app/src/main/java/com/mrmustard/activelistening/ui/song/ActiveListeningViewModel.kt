@@ -1,4 +1,4 @@
-package com.mrmustard.activelistening.ui.importsong
+package com.mrmustard.activelistening.ui.song
 
 import android.net.Uri
 import androidx.lifecycle.ViewModel
@@ -11,6 +11,9 @@ import com.mrmustard.activelistening.data.playback.AudioPlaybackRepository
 import com.mrmustard.activelistening.domain.ImportedSong
 import com.mrmustard.activelistening.domain.SongImportResult
 import com.mrmustard.activelistening.domain.usecase.ImportSongUseCase
+import com.mrmustard.activelistening.ui.song.guide.GuidedListeningMarker
+import com.mrmustard.activelistening.ui.song.guide.GuidedListeningMarkerStatus
+import com.mrmustard.activelistening.ui.song.guide.GuidedListeningTimelineFactory
 import dagger.hilt.android.lifecycle.HiltViewModel
 import javax.inject.Inject
 import kotlinx.coroutines.flow.MutableStateFlow

@@ -1,4 +1,4 @@
-package com.mrmustard.activelistening.ui.importsong
+package com.mrmustard.activelistening.ui.song.guide
 
 import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.layout.Column

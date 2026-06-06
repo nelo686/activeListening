@@ -1,4 +1,4 @@
-package com.mrmustard.activelistening.ui.importsong
+package com.mrmustard.activelistening.ui.song
 
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
@@ -16,6 +16,9 @@ import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import com.mrmustard.activelistening.R
 import com.mrmustard.activelistening.domain.PlaybackState
+import com.mrmustard.activelistening.ui.song.guide.GuidedListeningMarker
+import com.mrmustard.activelistening.ui.song.guide.GuidedListeningPrompt
+import com.mrmustard.activelistening.ui.song.guide.GuidedListeningTimeline
 
 @Composable
 fun ListeningSession(

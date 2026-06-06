@@ -11,8 +11,8 @@ import androidx.activity.result.contract.ActivityResultContracts
 import androidx.activity.viewModels
 import androidx.compose.runtime.getValue
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
-import com.mrmustard.activelistening.ui.importsong.SongScreen
-import com.mrmustard.activelistening.ui.importsong.ActiveListeningViewModel
+import com.mrmustard.activelistening.ui.song.SongScreen
+import com.mrmustard.activelistening.ui.song.ActiveListeningViewModel
 import com.mrmustard.activelistening.ui.theme.ActiveListeningTheme
 import dagger.hilt.android.AndroidEntryPoint
 

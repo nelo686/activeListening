@@ -1,4 +1,4 @@
-package com.mrmustard.activelistening.ui.importsong
+package com.mrmustard.activelistening.ui.song.importsong
 
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
