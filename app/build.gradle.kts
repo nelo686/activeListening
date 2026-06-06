@@ -33,13 +33,30 @@ android {
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
         buildConfigField(
             "String",
-            "OPENAI_API_KEY",
-            (localProperties.getProperty("openai.apiKey") ?: "").asBuildConfigString(),
+            "DEVEXPERT_API_KEY",
+            (
+                localProperties.getProperty("devexpert.apiKey")
+                    ?: localProperties.getProperty("openai.apiKey")
+                    ?: System.getenv("DEVEXPERT_API_KEY")
+                    ?: ""
+                ).asBuildConfigString(),
         )
         buildConfigField(
             "String",
-            "OPENAI_GUIDANCE_MODEL",
-            (localProperties.getProperty("openai.guidanceModel") ?: "gpt-5.4-mini").asBuildConfigString(),
+            "DEVEXPERT_GUIDANCE_MODEL",
+            (
+                localProperties.getProperty("devexpert.guidanceModel")
+                    ?: localProperties.getProperty("openai.guidanceModel")
+                    ?: "mimo-v2.5"
+                ).asBuildConfigString(),
+        )
+        buildConfigField(
+            "String",
+            "DEVEXPERT_BASE_URL",
+            (
+                localProperties.getProperty("devexpert.baseUrl")
+                    ?: "https://inference.devexpert.io/v1/"
+                ).asBuildConfigString(),
         )
     }
 

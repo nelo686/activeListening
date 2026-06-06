@@ -1,6 +1,7 @@
 package com.mrmustard.activelistening.di
 
 import com.aallam.openai.client.OpenAI
+import com.aallam.openai.client.OpenAIHost
 import com.mrmustard.activelistening.BuildConfig
 import com.mrmustard.activelistening.data.guidance.GuidedListeningRepository
 import com.mrmustard.activelistening.data.guidance.OpenAiGuidanceConfig
@@ -26,14 +27,20 @@ abstract class GuidanceModule {
         @ViewModelScoped
         fun provideOpenAiGuidanceConfig(): OpenAiGuidanceConfig =
             OpenAiGuidanceConfig(
-                apiKey = BuildConfig.OPENAI_API_KEY,
-                model = BuildConfig.OPENAI_GUIDANCE_MODEL,
+                apiKey = BuildConfig.DEVEXPERT_API_KEY,
+                model = BuildConfig.DEVEXPERT_GUIDANCE_MODEL,
+                baseUrl = BuildConfig.DEVEXPERT_BASE_URL,
             )
 
         @Provides
         @ViewModelScoped
         fun provideOpenAI(config: OpenAiGuidanceConfig): OpenAI =
-            OpenAI(token = config.apiKey)
+            OpenAI(
+                token = config.apiKey,
+                host = OpenAIHost(baseUrl = config.baseUrl.ensureTrailingSlash()),
+            )
+
+        private fun String.ensureTrailingSlash(): String =
+            if (endsWith("/")) this else "$this/"
     }
 }
-
