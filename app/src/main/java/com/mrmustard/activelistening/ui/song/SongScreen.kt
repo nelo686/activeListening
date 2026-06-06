@@ -1,6 +1,11 @@
 package com.mrmustard.activelistening.ui.song
 
 import android.net.Uri
+import androidx.compose.animation.AnimatedVisibility
+import androidx.compose.animation.expandHorizontally
+import androidx.compose.animation.fadeIn
+import androidx.compose.animation.fadeOut
+import androidx.compose.animation.shrinkHorizontally
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
@@ -71,6 +76,18 @@ fun SongScreen(
             TopAppBar(
                 title = { Text(stringResource(R.string.screen_import_song_title)) },
                 actions = {
+                    AnimatedVisibility(
+                        visible = state.importedSong != null,
+                        enter = expandHorizontally(expandFrom = androidx.compose.ui.Alignment.End) + fadeIn(),
+                        exit = shrinkHorizontally(shrinkTowards = androidx.compose.ui.Alignment.End) + fadeOut(),
+                    ) {
+                        IconButton(onClick = onImportClick) {
+                            Icon(
+                                painter = painterResource(R.drawable.ic_music_note_24),
+                                contentDescription = stringResource(R.string.import_song_change_song),
+                            )
+                        }
+                    }
                     IconButton(onClick = onSettingsClick) {
                         Icon(
                             painter = painterResource(R.drawable.ic_settings_24),
@@ -105,14 +122,6 @@ fun SongScreen(
                     }
                     item { EmptySession() }
                 } else {
-                    item { ImportedSongHeader() }
-                    item {
-                        ImportAction(
-                            isImporting = state.isImporting,
-                            hasSong = true,
-                            onImportClick = onImportClick,
-                        )
-                    }
                     item {
                         ListeningSession(
                             title = song.displayName,
@@ -143,22 +152,6 @@ fun SongScreen(
                 }
             }
         }
-    }
-}
-
-@Composable
-private fun ImportedSongHeader() {
-    Column(verticalArrangement = Arrangement.spacedBy(4.dp)) {
-        Text(
-            text = stringResource(R.string.import_song_ready_title),
-            style = MaterialTheme.typography.titleLarge,
-            fontWeight = FontWeight.SemiBold,
-        )
-        Text(
-            text = stringResource(R.string.import_song_ready_description),
-            style = MaterialTheme.typography.bodyMedium,
-            color = MaterialTheme.colorScheme.onSurfaceVariant,
-        )
     }
 }
 
