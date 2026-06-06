@@ -10,10 +10,13 @@ import com.mrmustard.activelistening.domain.guidance.GuidedListeningRequest
 import com.mrmustard.activelistening.domain.guidance.GuidedListeningResult
 import com.mrmustard.activelistening.domain.ImportedSong
 import com.mrmustard.activelistening.domain.SongImportResult
+import com.mrmustard.activelistening.domain.structure.SectionBoundary
+import com.mrmustard.activelistening.domain.structure.SectionLabel
+import com.mrmustard.activelistening.domain.structure.SectionStatus
+import com.mrmustard.activelistening.domain.structure.SongSection
+import com.mrmustard.activelistening.domain.structure.SongStructureEditor
+import com.mrmustard.activelistening.domain.structure.SongStructureFactory
 import com.mrmustard.activelistening.domain.usecase.ImportSongUseCase
-import com.mrmustard.activelistening.ui.song.guide.GuidedListeningMarker
-import com.mrmustard.activelistening.ui.song.guide.GuidedListeningMarkerStatus
-import com.mrmustard.activelistening.ui.song.guide.GuidedListeningTimelineFactory
 import dagger.hilt.android.lifecycle.HiltViewModel
 import javax.inject.Inject
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -37,7 +40,7 @@ class ActiveListeningViewModel @Inject constructor(
             audioPlaybackRepository.playbackState.collect { playbackState ->
                 _uiState.update { state ->
                     state.copy(playbackState = playbackState)
-                        .withGuidedProgress(playbackState.positionMillis)
+                        .withSectionProgress(playbackState.positionMillis)
                 }
             }
         }
@@ -62,8 +65,10 @@ class ActiveListeningViewModel @Inject constructor(
                             isGuidedSessionActive = false,
                             isGuidanceLoading = false,
                             guidanceError = null,
-                            guidedTimeline = emptyList(),
-                            currentGuidedMarker = null,
+                            sections = emptyList(),
+                            selectedSectionId = null,
+                            activeSectionId = null,
+                            isGuidanceReduced = false,
                         )
                     }
                 }
@@ -92,16 +97,19 @@ class ActiveListeningViewModel @Inject constructor(
                 ?: state.importedSong?.durationMillis
                 ?: 0L
 
-            val timeline = GuidedListeningTimelineFactory.create(durationMillis)
+            val sections = SongStructureFactory.createInitialSections(durationMillis)
+            val activeSectionId = SongStructureFactory.activeSectionId(
+                sections = sections,
+                positionMillis = state.playbackState.positionMillis,
+            )
             state.copy(
                 isGuidedSessionActive = true,
                 isGuidanceLoading = true,
                 guidanceError = null,
-                guidedTimeline = timeline,
-                currentGuidedMarker = timeline.firstOrNull()?.copy(
-                    status = GuidedListeningMarkerStatus.Current,
-                ),
-            ).withGuidedProgress(state.playbackState.positionMillis)
+                sections = sections,
+                selectedSectionId = activeSectionId ?: sections.firstOrNull()?.id,
+                activeSectionId = activeSectionId,
+            ).withSectionProgress(state.playbackState.positionMillis)
         }
         audioPlaybackRepository.play()
 
@@ -125,21 +133,51 @@ class ActiveListeningViewModel @Inject constructor(
         audioPlaybackRepository.seekTo(positionMillis)
     }
 
-    fun confirmGuidedMarker() {
-        updateCurrentMarkerStatus(GuidedListeningMarkerStatus.Reviewed)
+    fun selectSection(sectionId: Int) {
+        _uiState.update { state ->
+            state.copy(selectedSectionId = sectionId.takeIf { id -> state.sections.any { it.id == id } })
+        }
     }
 
-    fun markGuidedMarkerUncertain() {
-        updateCurrentMarkerStatus(GuidedListeningMarkerStatus.Uncertain)
+    fun changeSelectedSectionLabel(label: SectionLabel) {
+        _uiState.update { state ->
+            val selectedSectionId = state.selectedSectionId ?: return@update state
+            state.copy(
+                sections = SongStructureEditor.changeLabel(
+                    sections = state.sections,
+                    sectionId = selectedSectionId,
+                    label = label,
+                ),
+            )
+        }
     }
 
-    fun skipGuidedMarker() {
-        updateCurrentMarkerStatus(GuidedListeningMarkerStatus.Skipped)
+    fun confirmSelectedSection() {
+        updateSelectedSectionStatus(SectionStatus.Confirmed)
+    }
+
+    fun markSelectedSectionUncertain() {
+        updateSelectedSectionStatus(SectionStatus.Uncertain)
+    }
+
+    fun adjustSelectedSectionStart(deltaMillis: Long) {
+        adjustSelectedSectionBoundary(SectionBoundary.Start, deltaMillis)
+    }
+
+    fun adjustSelectedSectionEnd(deltaMillis: Long) {
+        adjustSelectedSectionBoundary(SectionBoundary.End, deltaMillis)
+    }
+
+    fun toggleGuidanceReduced() {
+        _uiState.update { it.copy(isGuidanceReduced = !it.isGuidanceReduced) }
     }
 
     fun repeatGuidedMarker() {
-        val marker = _uiState.value.currentGuidedMarker ?: return
-        audioPlaybackRepository.seekTo((marker.positionMillis - REPEAT_OFFSET_MILLIS).coerceAtLeast(0L))
+        val state = _uiState.value
+        val section = state.sections.firstOrNull { it.id == state.selectedSectionId }
+            ?: state.sections.firstOrNull { it.id == state.activeSectionId }
+            ?: return
+        audioPlaybackRepository.seekTo(section.startMillis)
         audioPlaybackRepository.play()
     }
 
@@ -152,16 +190,33 @@ class ActiveListeningViewModel @Inject constructor(
         super.onCleared()
     }
 
-    private fun updateCurrentMarkerStatus(status: GuidedListeningMarkerStatus) {
+    private fun updateSelectedSectionStatus(status: SectionStatus) {
         _uiState.update { state ->
-            val currentMarker = state.currentGuidedMarker ?: return@update state
-            val timeline = state.guidedTimeline.map { marker ->
-                if (marker.id == currentMarker.id) marker.copy(status = status) else marker
-            }
+            val selectedSectionId = state.selectedSectionId ?: return@update state
             state.copy(
-                guidedTimeline = timeline,
-                currentGuidedMarker = timeline.firstOrNull { it.id == currentMarker.id },
+                sections = SongStructureEditor.changeStatus(
+                    sections = state.sections,
+                    sectionId = selectedSectionId,
+                    status = status,
+                ),
             )
+        }
+    }
+
+    private fun adjustSelectedSectionBoundary(
+        boundary: SectionBoundary,
+        deltaMillis: Long,
+    ) {
+        _uiState.update { state ->
+            val selectedSectionId = state.selectedSectionId ?: return@update state
+            state.copy(
+                sections = SongStructureFactory.adjustSectionBoundary(
+                    sections = state.sections,
+                    sectionId = selectedSectionId,
+                    boundary = boundary,
+                    deltaMillis = deltaMillis,
+                ),
+            ).withSectionProgress(state.playbackState.positionMillis)
         }
     }
 
@@ -174,12 +229,12 @@ class ActiveListeningViewModel @Inject constructor(
                     durationMillis = state.playbackState.durationMillis
                         .takeIf { it > 0L }
                         ?: song.durationMillis,
-                    markers = state.guidedTimeline.map { marker ->
+                    markers = state.sections.map { section ->
                         GuidedListeningMarkerRequest(
-                            id = marker.id,
-                            positionMillis = marker.positionMillis,
-                            title = marker.title,
-                            prompt = marker.prompt,
+                            id = section.id,
+                            positionMillis = section.startMillis,
+                            title = section.label.name,
+                            prompt = section.prompt,
                         )
                     },
                 ),
@@ -191,8 +246,8 @@ class ActiveListeningViewModel @Inject constructor(
                         currentState.copy(
                             isGuidanceLoading = false,
                             guidanceError = null,
-                            guidedTimeline = currentState.guidedTimeline.merge(result),
-                        ).withGuidedProgress(currentState.playbackState.positionMillis)
+                            sections = currentState.sections.merge(result),
+                        ).withSectionProgress(currentState.playbackState.positionMillis)
                     }
 
                     GuidedListeningResult.MissingApiKey -> currentState.copy(
@@ -209,44 +264,42 @@ class ActiveListeningViewModel @Inject constructor(
         }
     }
 
-    private fun List<GuidedListeningMarker>.merge(
+    private fun List<SongSection>.merge(
         result: GuidedListeningResult.Success,
-    ): List<GuidedListeningMarker> {
+    ): List<SongSection> {
         val suggestions = result.markers.associateBy { it.id }
-        return map { marker ->
-            val suggestion = suggestions[marker.id] ?: return@map marker
-            marker.copy(
-                title = suggestion.title,
+        return map { section ->
+            val suggestion = suggestions[section.id] ?: return@map section
+            section.copy(
+                label = suggestion.title.toSectionLabel() ?: section.label,
                 prompt = suggestion.prompt,
             )
         }
     }
 
-    private fun ActiveListeningUiState.withGuidedProgress(positionMillis: Long): ActiveListeningUiState {
-        if (!isGuidedSessionActive || guidedTimeline.isEmpty()) return this
-
-        val currentMarker = guidedTimeline.lastOrNull { it.positionMillis <= positionMillis }
-            ?: guidedTimeline.first()
-        val updatedTimeline = guidedTimeline.map { marker ->
-            when {
-                marker.id == currentMarker.id &&
-                    marker.status == GuidedListeningMarkerStatus.Pending ->
-                    marker.copy(status = GuidedListeningMarkerStatus.Current)
-
-                marker.id != currentMarker.id &&
-                    marker.status == GuidedListeningMarkerStatus.Current ->
-                    marker.copy(status = GuidedListeningMarkerStatus.Pending)
-
-                else -> marker
-            }
+    private fun String.toSectionLabel(): SectionLabel? {
+        val normalized = lowercase()
+        return when {
+            "intro" in normalized || "inicio" in normalized -> SectionLabel.Intro
+            "verso" in normalized || "verse" in normalized -> SectionLabel.Verse
+            "coro" in normalized || "chorus" in normalized || "estribillo" in normalized -> SectionLabel.Chorus
+            "puente" in normalized || "bridge" in normalized -> SectionLabel.Bridge
+            "outro" in normalized || "cierre" in normalized || "final" in normalized -> SectionLabel.Outro
+            "otra" in normalized || "other" in normalized -> SectionLabel.Other
+            else -> null
         }
-        return copy(
-            guidedTimeline = updatedTimeline,
-            currentGuidedMarker = updatedTimeline.firstOrNull { it.id == currentMarker.id },
-        )
     }
 
-    private companion object {
-        const val REPEAT_OFFSET_MILLIS = 8_000L
+    private fun ActiveListeningUiState.withSectionProgress(positionMillis: Long): ActiveListeningUiState {
+        if (!isGuidedSessionActive || sections.isEmpty()) return this
+
+        val activeSectionId = SongStructureFactory.activeSectionId(
+            sections = sections,
+            positionMillis = positionMillis,
+        )
+        return copy(
+            activeSectionId = activeSectionId,
+            selectedSectionId = selectedSectionId ?: activeSectionId,
+        )
     }
 }

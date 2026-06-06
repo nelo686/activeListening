@@ -26,8 +26,8 @@ import androidx.compose.ui.unit.dp
 import com.mrmustard.activelistening.R
 import com.mrmustard.activelistening.domain.ImportedSong
 import com.mrmustard.activelistening.domain.PlaybackState
-import com.mrmustard.activelistening.ui.song.guide.GuidedListeningMarkerStatus
-import com.mrmustard.activelistening.ui.song.guide.GuidedListeningTimelineFactory
+import com.mrmustard.activelistening.domain.structure.SectionLabel
+import com.mrmustard.activelistening.domain.structure.SongStructureFactory
 import com.mrmustard.activelistening.ui.song.importsong.ImportAction
 import com.mrmustard.activelistening.ui.song.importsong.toMessage
 import com.mrmustard.activelistening.ui.theme.ActiveListeningTheme
@@ -41,10 +41,14 @@ fun SongScreen(
     onPauseClick: () -> Unit,
     onSeek: (Long) -> Unit,
     onStartGuidedSession: () -> Unit,
-    onConfirmGuidedMarker: () -> Unit,
-    onMarkGuidedMarkerUncertain: () -> Unit,
-    onSkipGuidedMarker: () -> Unit,
+    onSectionSelected: (Int) -> Unit,
+    onSectionLabelSelected: (SectionLabel) -> Unit,
+    onConfirmSection: () -> Unit,
+    onMarkSectionUncertain: () -> Unit,
     onRepeatGuidedMarker: () -> Unit,
+    onAdjustSectionStart: (Long) -> Unit,
+    onAdjustSectionEnd: (Long) -> Unit,
+    onToggleGuidanceReduced: () -> Unit,
     onErrorShown: () -> Unit,
     modifier: Modifier = Modifier,
 ) {
@@ -102,16 +106,22 @@ fun SongScreen(
                             isGuidedSessionActive = state.isGuidedSessionActive,
                             isGuidanceLoading = state.isGuidanceLoading,
                             guidanceError = state.guidanceError,
-                            guidedTimeline = state.guidedTimeline,
-                            currentGuidedMarker = state.currentGuidedMarker,
+                            sections = state.sections,
+                            selectedSectionId = state.selectedSectionId,
+                            activeSectionId = state.activeSectionId,
+                            isGuidanceReduced = state.isGuidanceReduced,
                             onPlayClick = onPlayClick,
                             onPauseClick = onPauseClick,
                             onSeek = onSeek,
                             onStartGuidedSession = onStartGuidedSession,
-                            onConfirmGuidedMarker = onConfirmGuidedMarker,
-                            onMarkGuidedMarkerUncertain = onMarkGuidedMarkerUncertain,
-                            onSkipGuidedMarker = onSkipGuidedMarker,
+                            onSectionSelected = onSectionSelected,
+                            onSectionLabelSelected = onSectionLabelSelected,
+                            onConfirmSection = onConfirmSection,
+                            onMarkSectionUncertain = onMarkSectionUncertain,
                             onRepeatGuidedMarker = onRepeatGuidedMarker,
+                            onAdjustSectionStart = onAdjustSectionStart,
+                            onAdjustSectionEnd = onAdjustSectionEnd,
+                            onToggleGuidanceReduced = onToggleGuidanceReduced,
                         )
                     }
                 }
@@ -147,10 +157,14 @@ private fun SongScreenPreview() {
             onPauseClick = {},
             onSeek = {},
             onStartGuidedSession = {},
-            onConfirmGuidedMarker = {},
-            onMarkGuidedMarkerUncertain = {},
-            onSkipGuidedMarker = {},
+            onSectionSelected = {},
+            onSectionLabelSelected = {},
+            onConfirmSection = {},
+            onMarkSectionUncertain = {},
             onRepeatGuidedMarker = {},
+            onAdjustSectionStart = {},
+            onAdjustSectionEnd = {},
+            onToggleGuidanceReduced = {},
             onErrorShown = {},
         )
     }
@@ -160,7 +174,7 @@ private fun SongScreenPreview() {
 @Composable
 private fun GuidedSongScreenPreview() {
     val durationMillis = 180_000L
-    val timeline = GuidedListeningTimelineFactory.create(durationMillis)
+    val sections = SongStructureFactory.createInitialSections(durationMillis)
 
     ActiveListeningTheme {
         SongScreen(
@@ -177,20 +191,23 @@ private fun GuidedSongScreenPreview() {
                     durationMillis = durationMillis,
                 ),
                 isGuidedSessionActive = true,
-                guidedTimeline = timeline,
-                currentGuidedMarker = timeline.getOrNull(1)?.copy(
-                    status = GuidedListeningMarkerStatus.Current,
-                ),
+                sections = sections,
+                selectedSectionId = sections.getOrNull(1)?.id,
+                activeSectionId = sections.getOrNull(1)?.id,
             ),
             onImportClick = {},
             onPlayClick = {},
             onPauseClick = {},
             onSeek = {},
             onStartGuidedSession = {},
-            onConfirmGuidedMarker = {},
-            onMarkGuidedMarkerUncertain = {},
-            onSkipGuidedMarker = {},
+            onSectionSelected = {},
+            onSectionLabelSelected = {},
+            onConfirmSection = {},
+            onMarkSectionUncertain = {},
             onRepeatGuidedMarker = {},
+            onAdjustSectionStart = {},
+            onAdjustSectionEnd = {},
+            onToggleGuidanceReduced = {},
             onErrorShown = {},
         )
     }

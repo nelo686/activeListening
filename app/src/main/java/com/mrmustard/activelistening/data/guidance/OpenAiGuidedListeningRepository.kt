@@ -49,7 +49,7 @@ class OpenAiGuidedListeningRepository @Inject constructor(
     }
 
     private fun GuidedListeningRequest.toPrompt(): String {
-        val markerLines = markers.joinToString(separator = "\n") { marker ->
+        val sectionLines = markers.joinToString(separator = "\n") { marker ->
             "${marker.id}|${formatTime(marker.positionMillis)}|${marker.title}|${marker.prompt}"
         }
 
@@ -57,11 +57,11 @@ class OpenAiGuidedListeningRepository @Inject constructor(
             Cancion: $songTitle
             Duracion: ${formatTime(durationMillis)}
 
-            Hitos propuestos por la app:
-            $markerLines
+            Secciones aproximadas propuestas por la app:
+            $sectionLines
 
-            Devuelve exactamente una linea por hito con este formato:
-            id|titulo breve|pregunta o pista pedagogica
+            Devuelve exactamente una linea por seccion con este formato:
+            id|etiqueta musical breve|pregunta o pista pedagogica
         """.trimIndent()
     }
 

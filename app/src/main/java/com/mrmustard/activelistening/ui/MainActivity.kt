@@ -40,10 +40,14 @@ class MainActivity : ComponentActivity() {
                     onPauseClick = viewModel::pause,
                     onSeek = viewModel::seekTo,
                     onStartGuidedSession = viewModel::startGuidedSession,
-                    onConfirmGuidedMarker = viewModel::confirmGuidedMarker,
-                    onMarkGuidedMarkerUncertain = viewModel::markGuidedMarkerUncertain,
-                    onSkipGuidedMarker = viewModel::skipGuidedMarker,
+                    onSectionSelected = viewModel::selectSection,
+                    onSectionLabelSelected = viewModel::changeSelectedSectionLabel,
+                    onConfirmSection = viewModel::confirmSelectedSection,
+                    onMarkSectionUncertain = viewModel::markSelectedSectionUncertain,
                     onRepeatGuidedMarker = viewModel::repeatGuidedMarker,
+                    onAdjustSectionStart = viewModel::adjustSelectedSectionStart,
+                    onAdjustSectionEnd = viewModel::adjustSelectedSectionEnd,
+                    onToggleGuidanceReduced = viewModel::toggleGuidanceReduced,
                     onErrorShown = viewModel::clearError,
                 )
             }

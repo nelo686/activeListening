@@ -16,9 +16,10 @@ import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import com.mrmustard.activelistening.R
 import com.mrmustard.activelistening.domain.PlaybackState
-import com.mrmustard.activelistening.ui.song.guide.GuidedListeningMarker
-import com.mrmustard.activelistening.ui.song.guide.GuidedListeningPrompt
-import com.mrmustard.activelistening.ui.song.guide.GuidedListeningTimeline
+import com.mrmustard.activelistening.domain.structure.SectionLabel
+import com.mrmustard.activelistening.domain.structure.SongSection
+import com.mrmustard.activelistening.ui.song.structure.SectionEditor
+import com.mrmustard.activelistening.ui.song.structure.StructureTimeline
 
 @Composable
 fun ListeningSession(
@@ -27,16 +28,22 @@ fun ListeningSession(
     isGuidedSessionActive: Boolean,
     isGuidanceLoading: Boolean,
     guidanceError: GuidanceError?,
-    guidedTimeline: List<GuidedListeningMarker>,
-    currentGuidedMarker: GuidedListeningMarker?,
+    sections: List<SongSection>,
+    selectedSectionId: Int?,
+    activeSectionId: Int?,
+    isGuidanceReduced: Boolean,
     onPlayClick: () -> Unit,
     onPauseClick: () -> Unit,
     onSeek: (Long) -> Unit,
     onStartGuidedSession: () -> Unit,
-    onConfirmGuidedMarker: () -> Unit,
-    onMarkGuidedMarkerUncertain: () -> Unit,
-    onSkipGuidedMarker: () -> Unit,
+    onSectionSelected: (Int) -> Unit,
+    onSectionLabelSelected: (SectionLabel) -> Unit,
+    onConfirmSection: () -> Unit,
+    onMarkSectionUncertain: () -> Unit,
     onRepeatGuidedMarker: () -> Unit,
+    onAdjustSectionStart: (Long) -> Unit,
+    onAdjustSectionEnd: (Long) -> Unit,
+    onToggleGuidanceReduced: () -> Unit,
     modifier: Modifier = Modifier,
 ) {
     Card(modifier = modifier.fillMaxWidth()) {
@@ -67,20 +74,26 @@ fun ListeningSession(
             )
 
             if (isGuidedSessionActive) {
-                GuidedListeningTimeline(
-                    markers = guidedTimeline,
-                    currentMarker = currentGuidedMarker,
+                StructureTimeline(
+                    sections = sections,
+                    selectedSectionId = selectedSectionId,
+                    activeSectionId = activeSectionId,
                     positionMillis = playbackState.positionMillis,
                     durationMillis = playbackState.durationMillis,
+                    onSectionClick = onSectionSelected,
                 )
-                GuidedListeningPrompt(
-                    marker = currentGuidedMarker,
+                SectionEditor(
+                    section = sections.firstOrNull { it.id == selectedSectionId },
                     isGuidanceLoading = isGuidanceLoading,
                     guidanceError = guidanceError,
-                    onConfirmClick = onConfirmGuidedMarker,
-                    onUncertainClick = onMarkGuidedMarkerUncertain,
-                    onSkipClick = onSkipGuidedMarker,
+                    isGuidanceReduced = isGuidanceReduced,
+                    onGuidanceReducedChange = onToggleGuidanceReduced,
+                    onLabelSelected = onSectionLabelSelected,
+                    onConfirmClick = onConfirmSection,
+                    onUncertainClick = onMarkSectionUncertain,
                     onRepeatClick = onRepeatGuidedMarker,
+                    onAdjustStart = onAdjustSectionStart,
+                    onAdjustEnd = onAdjustSectionEnd,
                 )
             } else {
                 Button(
