@@ -55,14 +55,10 @@ class MainActivity : ComponentActivity() {
                         onStartGuidedSession = viewModel::startGuidedSession,
                         onSectionSelected = viewModel::selectSection,
                         onSectionLabelSelected = viewModel::changeSelectedSectionLabel,
-                        onConfirmSection = viewModel::confirmSelectedSection,
-                        onMarkSectionUncertain = viewModel::markSelectedSectionUncertain,
-                        onRepeatGuidedMarker = viewModel::repeatGuidedMarker,
                         onAdjustSectionStart = viewModel::setSelectedSectionStart,
                         onAdjustSectionEnd = viewModel::setSelectedSectionEnd,
-                        onToggleSectionDetails = viewModel::toggleSelectedSectionDetails,
-                        onErrorShown = viewModel::clearError
-                )
+                        onErrorShown = viewModel::clearError,
+                    )
 
                     MainScreen.Config -> ConfigScreen(
                         learningLevel = state.learningLevel,

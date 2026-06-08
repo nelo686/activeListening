@@ -7,44 +7,47 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.ui.Alignment
 import androidx.compose.material3.Button
 import androidx.compose.material3.Card
+import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.ModalBottomSheet
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import com.mrmustard.activelistening.R
 import com.mrmustard.activelistening.domain.PlaybackState
-import com.mrmustard.activelistening.domain.learning.GuidanceIntensity
 import com.mrmustard.activelistening.domain.learning.SectionLearningContent
 import com.mrmustard.activelistening.domain.structure.SectionLabel
 import com.mrmustard.activelistening.domain.structure.SongSection
-import com.mrmustard.activelistening.ui.song.structure.SectionEditor
+import com.mrmustard.activelistening.ui.song.structure.SectionDetailsSheetContent
 import com.mrmustard.activelistening.ui.song.structure.StructureTimeline
 
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun ListeningSession(
     playbackState: PlaybackState,
     isGuidedSessionActive: Boolean,
-    isGuidanceLoading: Boolean,
-    guidanceError: GuidanceError?,
     sections: List<SongSection>,
     selectedSectionId: Int?,
     activeSectionId: Int?,
-    guidanceIntensity: GuidanceIntensity,
-    isSectionDetailsExpanded: Boolean,
     selectedSectionLearningContent: SectionLearningContent?,
     onStartGuidedSession: () -> Unit,
     onSectionSelected: (Int) -> Unit,
     onSectionLabelSelected: (SectionLabel) -> Unit,
-    onConfirmSection: () -> Unit,
-    onMarkSectionUncertain: () -> Unit,
-    onRepeatGuidedMarker: () -> Unit,
     onAdjustSectionStart: (Long) -> Unit,
     onAdjustSectionEnd: (Long) -> Unit,
-    onToggleSectionDetails: () -> Unit,
     modifier: Modifier = Modifier,
 ) {
+    var sheetSectionId by remember { mutableStateOf<Int?>(null) }
+    val sheetSection = sections.firstOrNull { it.id == sheetSectionId }
+    val sheetLearningContent = selectedSectionLearningContent
+        .takeIf { selectedSectionId == sheetSectionId }
+
     Card(modifier = modifier.fillMaxWidth()) {
         Column(
             modifier = Modifier.padding(20.dp),
@@ -57,22 +60,10 @@ fun ListeningSession(
                     activeSectionId = activeSectionId,
                     positionMillis = playbackState.positionMillis,
                     durationMillis = playbackState.durationMillis,
-                    onSectionClick = onSectionSelected,
-                )
-                SectionEditor(
-                    section = sections.firstOrNull { it.id == selectedSectionId },
-                    isGuidanceLoading = isGuidanceLoading,
-                    guidanceError = guidanceError,
-                    guidanceIntensity = guidanceIntensity,
-                    isSectionDetailsExpanded = isSectionDetailsExpanded,
-                    learningContent = selectedSectionLearningContent,
-                    onToggleSectionDetails = onToggleSectionDetails,
-                    onLabelSelected = onSectionLabelSelected,
-                    onConfirmClick = onConfirmSection,
-                    onUncertainClick = onMarkSectionUncertain,
-                    onRepeatClick = onRepeatGuidedMarker,
-                    onAdjustStart = onAdjustSectionStart,
-                    onAdjustEnd = onAdjustSectionEnd,
+                    onSectionClick = { sectionId ->
+                        sheetSectionId = sectionId
+                        onSectionSelected(sectionId)
+                    },
                 )
             } else {
                 Text(
@@ -88,6 +79,21 @@ fun ListeningSession(
                     Text(stringResource(R.string.guided_listening_start))
                 }
             }
+        }
+    }
+
+    if (sheetSection != null) {
+        ModalBottomSheet(
+            onDismissRequest = { sheetSectionId = null },
+        ) {
+            SectionDetailsSheetContent(
+                section = sheetSection,
+                learningContent = sheetLearningContent,
+                onLabelSelected = onSectionLabelSelected,
+                onAdjustStart = onAdjustSectionStart,
+                onAdjustEnd = onAdjustSectionEnd,
+                modifier = Modifier.padding(horizontal = 24.dp, vertical = 12.dp),
+            )
         }
     }
 }

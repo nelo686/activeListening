@@ -48,12 +48,8 @@ fun SongScreen(
     onStartGuidedSession: () -> Unit,
     onSectionSelected: (Int) -> Unit,
     onSectionLabelSelected: (SectionLabel) -> Unit,
-    onConfirmSection: () -> Unit,
-    onMarkSectionUncertain: () -> Unit,
-    onRepeatGuidedMarker: () -> Unit,
     onAdjustSectionStart: (Long) -> Unit,
     onAdjustSectionEnd: (Long) -> Unit,
-    onToggleSectionDetails: () -> Unit,
     onErrorShown: () -> Unit,
     modifier: Modifier = Modifier,
 ) {
@@ -129,23 +125,15 @@ fun SongScreen(
                         ListeningSession(
                             playbackState = state.playbackState,
                             isGuidedSessionActive = state.isGuidedSessionActive,
-                            isGuidanceLoading = state.isGuidanceLoading,
-                            guidanceError = state.guidanceError,
                             sections = state.sections,
                             selectedSectionId = state.selectedSectionId,
                             activeSectionId = state.activeSectionId,
-                            guidanceIntensity = state.guidanceIntensity,
-                            isSectionDetailsExpanded = state.isSectionDetailsExpanded,
                             selectedSectionLearningContent = state.selectedSectionLearningContent,
                             onStartGuidedSession = onStartGuidedSession,
                             onSectionSelected = onSectionSelected,
                             onSectionLabelSelected = onSectionLabelSelected,
-                            onConfirmSection = onConfirmSection,
-                            onMarkSectionUncertain = onMarkSectionUncertain,
-                            onRepeatGuidedMarker = onRepeatGuidedMarker,
                             onAdjustSectionStart = onAdjustSectionStart,
                             onAdjustSectionEnd = onAdjustSectionEnd,
-                            onToggleSectionDetails = onToggleSectionDetails,
                         )
                     }
                     }
@@ -203,12 +191,8 @@ private fun SongScreenPreview() {
             onStartGuidedSession = {},
             onSectionSelected = {},
             onSectionLabelSelected = {},
-            onConfirmSection = {},
-            onMarkSectionUncertain = {},
-            onRepeatGuidedMarker = {},
             onAdjustSectionStart = {},
             onAdjustSectionEnd = {},
-            onToggleSectionDetails = {},
             onErrorShown = {},
         )
     }
@@ -247,12 +231,8 @@ private fun GuidedSongScreenPreview() {
             onStartGuidedSession = {},
             onSectionSelected = {},
             onSectionLabelSelected = {},
-            onConfirmSection = {},
-            onMarkSectionUncertain = {},
-            onRepeatGuidedMarker = {},
             onAdjustSectionStart = {},
             onAdjustSectionEnd = {},
-            onToggleSectionDetails = {},
             onErrorShown = {},
         )
     }
