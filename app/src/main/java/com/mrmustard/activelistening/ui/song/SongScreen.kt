@@ -1,20 +1,18 @@
 package com.mrmustard.activelistening.ui.song
 
 import android.net.Uri
-import androidx.compose.animation.AnimatedVisibility
-import androidx.compose.animation.expandHorizontally
-import androidx.compose.animation.fadeIn
-import androidx.compose.animation.fadeOut
-import androidx.compose.animation.shrinkHorizontally
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.imePadding
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.SnackbarHost
 import androidx.compose.material3.SnackbarHostState
@@ -74,18 +72,6 @@ fun SongScreen(
             TopAppBar(
                 title = { Text(stringResource(R.string.screen_import_song_title)) },
                 actions = {
-                    AnimatedVisibility(
-                        visible = state.importedSong != null,
-                        enter = expandHorizontally(expandFrom = androidx.compose.ui.Alignment.End) + fadeIn(),
-                        exit = shrinkHorizontally(shrinkTowards = androidx.compose.ui.Alignment.End) + fadeOut(),
-                    ) {
-                        IconButton(onClick = onImportClick) {
-                            Icon(
-                                painter = painterResource(R.drawable.ic_music_note_24),
-                                contentDescription = stringResource(R.string.import_song_change_song),
-                            )
-                        }
-                    }
                     IconButton(onClick = onSettingsClick) {
                         Icon(
                             painter = painterResource(R.drawable.ic_settings_24),
@@ -103,14 +89,14 @@ fun SongScreen(
                 .padding(innerPadding),
         ) {
             val song = state.importedSong
-            LazyColumn(
-                modifier = Modifier
-                    .fillMaxSize()
-                    .imePadding(),
-                contentPadding = PaddingValues(24.dp),
-                verticalArrangement = Arrangement.spacedBy(24.dp),
-            ) {
-                if (song == null) {
+            if (song == null) {
+                LazyColumn(
+                    modifier = Modifier
+                        .fillMaxSize()
+                        .imePadding(),
+                    contentPadding = PaddingValues(24.dp),
+                    verticalArrangement = Arrangement.spacedBy(24.dp),
+                ) {
                     item { Header() }
                     item {
                         ImportAction(
@@ -120,10 +106,27 @@ fun SongScreen(
                         )
                     }
                     item { EmptySession() }
-                } else {
+                }
+            } else {
+                Column(modifier = Modifier.fillMaxSize()) {
+                    SongPlayerHeader(
+                        title = song.displayName,
+                        playbackState = state.playbackState,
+                        onPlayClick = onPlayClick,
+                        onPauseClick = onPauseClick,
+                        onSeek = onSeek,
+                        onChangeSongClick = onImportClick,
+                    )
+                    LazyColumn(
+                        modifier = Modifier
+                            .fillMaxSize()
+                            .weight(1f)
+                            .imePadding(),
+                        contentPadding = PaddingValues(24.dp),
+                        verticalArrangement = Arrangement.spacedBy(24.dp),
+                    ) {
                     item {
                         ListeningSession(
-                            title = song.displayName,
                             playbackState = state.playbackState,
                             isGuidedSessionActive = state.isGuidedSessionActive,
                             isGuidanceLoading = state.isGuidanceLoading,
@@ -134,9 +137,6 @@ fun SongScreen(
                             guidanceIntensity = state.guidanceIntensity,
                             isSectionDetailsExpanded = state.isSectionDetailsExpanded,
                             selectedSectionLearningContent = state.selectedSectionLearningContent,
-                            onPlayClick = onPlayClick,
-                            onPauseClick = onPauseClick,
-                            onSeek = onSeek,
                             onStartGuidedSession = onStartGuidedSession,
                             onSectionSelected = onSectionSelected,
                             onSectionLabelSelected = onSectionLabelSelected,
@@ -148,8 +148,43 @@ fun SongScreen(
                             onToggleSectionDetails = onToggleSectionDetails,
                         )
                     }
+                    }
                 }
             }
+        }
+    }
+}
+
+@Composable
+private fun SongPlayerHeader(
+    title: String,
+    playbackState: PlaybackState,
+    onPlayClick: () -> Unit,
+    onPauseClick: () -> Unit,
+    onSeek: (Long) -> Unit,
+    onChangeSongClick: () -> Unit,
+    modifier: Modifier = Modifier,
+) {
+    Surface(
+        modifier = modifier.fillMaxWidth(),
+        tonalElevation = 3.dp,
+        shadowElevation = 2.dp,
+        color = MaterialTheme.colorScheme.surface,
+    ) {
+        Column(
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(horizontal = 24.dp, vertical = 14.dp),
+            verticalArrangement = Arrangement.spacedBy(8.dp),
+        ) {
+            PlaybackControls(
+                title = title,
+                playbackState = playbackState,
+                onPlayClick = onPlayClick,
+                onPauseClick = onPauseClick,
+                onSeek = onSeek,
+                onChangeSongClick = onChangeSongClick,
+            )
         }
     }
 }
