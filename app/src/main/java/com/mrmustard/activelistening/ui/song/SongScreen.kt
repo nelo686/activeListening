@@ -125,6 +125,8 @@ fun SongScreen(
                         ListeningSession(
                             playbackState = state.playbackState,
                             isGuidedSessionActive = state.isGuidedSessionActive,
+                            isGuidanceLoading = state.isGuidanceLoading,
+                            guidanceError = state.guidanceError,
                             sections = state.sections,
                             selectedSectionId = state.selectedSectionId,
                             activeSectionId = state.activeSectionId,
