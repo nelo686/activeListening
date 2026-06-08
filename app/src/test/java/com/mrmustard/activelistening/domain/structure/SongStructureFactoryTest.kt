@@ -78,6 +78,38 @@ class SongStructureFactoryTest {
     }
 
     @Test
+    fun `sets section start from an absolute time and keeps neighboring boundaries aligned`() {
+        val sections = SongStructureFactory.createInitialSections(durationMillis = 120_000L)
+
+        val adjusted = SongStructureFactory.setSectionBoundary(
+            sections = sections,
+            sectionId = 1,
+            boundary = SectionBoundary.Start,
+            positionMillis = 32_000L,
+        )
+
+        assertEquals(32_000L, adjusted[0].endMillis)
+        assertEquals(32_000L, adjusted[1].startMillis)
+        assertTrue(adjusted.zipWithNext().all { (left, right) -> left.endMillis == right.startMillis })
+    }
+
+    @Test
+    fun `sets section end from an absolute time and keeps neighboring boundaries aligned`() {
+        val sections = SongStructureFactory.createInitialSections(durationMillis = 120_000L)
+
+        val adjusted = SongStructureFactory.setSectionBoundary(
+            sections = sections,
+            sectionId = 1,
+            boundary = SectionBoundary.End,
+            positionMillis = 70_000L,
+        )
+
+        assertEquals(70_000L, adjusted[1].endMillis)
+        assertEquals(70_000L, adjusted[2].startMillis)
+        assertTrue(adjusted.zipWithNext().all { (left, right) -> left.endMillis == right.startMillis })
+    }
+
+    @Test
     fun `adjusts section start and keeps minimum duration`() {
         val sections = SongStructureFactory.createInitialSections(durationMillis = 120_000L)
 

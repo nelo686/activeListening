@@ -2,20 +2,24 @@ package com.mrmustard.activelistening.ui.song.structure
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.horizontalScroll
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.BoxWithConstraints
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.widthIn
 import androidx.compose.foundation.layout.width
 import androidx.compose.material3.LinearProgressIndicator
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.foundation.rememberScrollState
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
@@ -52,20 +56,28 @@ fun StructureTimeline(
             fontWeight = FontWeight.SemiBold,
         )
 
-        Row(
-            modifier = Modifier
-                .fillMaxWidth()
-                .height(96.dp),
-            horizontalArrangement = Arrangement.spacedBy(4.dp),
-        ) {
-            sections.forEach { section ->
-                SectionBlock(
-                    section = section,
-                    isSelected = section.id == selectedSectionId,
-                    isActive = section.id == activeSectionId,
-                    onClick = { onSectionClick(section.id) },
-                    modifier = Modifier.weight(section.durationMillis.coerceAtLeast(1L).toFloat()),
-                )
+        BoxWithConstraints(modifier = Modifier.fillMaxWidth()) {
+            val minSectionWidth = 72.dp
+            val timelineWidth = this.maxWidth
+            Row(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .height(96.dp)
+                    .horizontalScroll(rememberScrollState()),
+                horizontalArrangement = Arrangement.spacedBy(4.dp),
+            ) {
+                sections.forEach { section ->
+                    val proportionalWidth = timelineWidth *
+                        (section.durationMillis.coerceAtLeast(1L).toFloat() / safeDuration.toFloat())
+                    SectionBlock(
+                        section = section,
+                        isSelected = section.id == selectedSectionId,
+                        isActive = section.id == activeSectionId,
+                        onClick = { onSectionClick(section.id) },
+                        modifier = Modifier.widthIn(min = minSectionWidth)
+                            .width(proportionalWidth.coerceAtLeast(minSectionWidth)),
+                    )
+                }
             }
         }
 

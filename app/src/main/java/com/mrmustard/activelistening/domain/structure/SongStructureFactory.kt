@@ -66,6 +66,21 @@ object SongStructureFactory {
         }
     }
 
+    fun setSectionBoundary(
+        sections: List<SongSection>,
+        sectionId: Int,
+        boundary: SectionBoundary,
+        positionMillis: Long,
+    ): List<SongSection> {
+        val index = sections.indexOfFirst { it.id == sectionId }
+        if (index == -1) return sections
+
+        return when (boundary) {
+            SectionBoundary.Start -> setStartBoundary(sections, index, positionMillis)
+            SectionBoundary.End -> setEndBoundary(sections, index, positionMillis)
+        }
+    }
+
     private fun adjustStartBoundary(
         sections: List<SongSection>,
         index: Int,
@@ -100,6 +115,54 @@ object SongStructureFactory {
         val current = sections[index]
         val next = sections[index + 1]
         val newEnd = (current.endMillis + deltaMillis).coerceIn(
+            current.startMillis + MIN_SECTION_DURATION_MILLIS,
+            next.endMillis - MIN_SECTION_DURATION_MILLIS,
+        )
+
+        if (newEnd == current.endMillis) return sections
+        return sections.mapIndexed { currentIndex, section ->
+            when (currentIndex) {
+                index -> current.copy(endMillis = newEnd, isApproximate = true)
+                index + 1 -> next.copy(startMillis = newEnd, isApproximate = true)
+                else -> section
+            }
+        }
+    }
+
+    private fun setStartBoundary(
+        sections: List<SongSection>,
+        index: Int,
+        positionMillis: Long,
+    ): List<SongSection> {
+        if (index == 0) return sections
+
+        val previous = sections[index - 1]
+        val current = sections[index]
+        val newStart = positionMillis.coerceIn(
+            previous.startMillis + MIN_SECTION_DURATION_MILLIS,
+            current.endMillis - MIN_SECTION_DURATION_MILLIS,
+        )
+
+        if (newStart == current.startMillis) return sections
+        return sections.mapIndexed { currentIndex, section ->
+            when (currentIndex) {
+                index - 1 -> previous.copy(endMillis = newStart, isApproximate = true)
+                index -> current.copy(startMillis = newStart, isApproximate = true)
+                else -> section
+            }
+        }
+    }
+
+    private fun setEndBoundary(
+        sections: List<SongSection>,
+        index: Int,
+        positionMillis: Long,
+    ): List<SongSection> {
+        if (index == sections.lastIndex) return sections
+
+        val current = sections[index]
+        val next = sections[index + 1]
+        val newEnd = positionMillis.coerceIn(
             current.startMillis + MIN_SECTION_DURATION_MILLIS,
             next.endMillis - MIN_SECTION_DURATION_MILLIS,
         )

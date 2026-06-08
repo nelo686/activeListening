@@ -182,12 +182,12 @@ class ActiveListeningViewModel @Inject constructor(
         updateSelectedSectionStatus(SectionStatus.Uncertain)
     }
 
-    fun adjustSelectedSectionStart(deltaMillis: Long) {
-        adjustSelectedSectionBoundary(SectionBoundary.Start, deltaMillis)
+    fun setSelectedSectionStart(positionMillis: Long) {
+        setSelectedSectionBoundary(SectionBoundary.Start, positionMillis)
     }
 
-    fun adjustSelectedSectionEnd(deltaMillis: Long) {
-        adjustSelectedSectionBoundary(SectionBoundary.End, deltaMillis)
+    fun setSelectedSectionEnd(positionMillis: Long) {
+        setSelectedSectionBoundary(SectionBoundary.End, positionMillis)
     }
 
     fun changeGuidanceIntensity(intensity: GuidanceIntensity) {
@@ -242,20 +242,21 @@ class ActiveListeningViewModel @Inject constructor(
         }
     }
 
-    private fun adjustSelectedSectionBoundary(
+    private fun setSelectedSectionBoundary(
         boundary: SectionBoundary,
-        deltaMillis: Long,
+        positionMillis: Long,
     ) {
         _uiState.update { state ->
             val selectedSectionId = state.selectedSectionId ?: return@update state
             state.copy(
-                sections = SongStructureFactory.adjustSectionBoundary(
+                sections = SongStructureFactory.setSectionBoundary(
                     sections = state.sections,
                     sectionId = selectedSectionId,
                     boundary = boundary,
-                    deltaMillis = deltaMillis,
+                    positionMillis = positionMillis,
                 ),
             ).withSectionProgress(state.playbackState.positionMillis)
+                .copy(selectedSectionId = selectedSectionId)
                 .withSelectedSectionLearningContent()
         }
     }
