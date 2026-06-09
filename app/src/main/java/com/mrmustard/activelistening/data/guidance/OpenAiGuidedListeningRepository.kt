@@ -8,6 +8,7 @@ import com.aallam.openai.client.OpenAI
 import com.mrmustard.activelistening.domain.guidance.GuidedListeningRequest
 import com.mrmustard.activelistening.domain.guidance.GuidedListeningRepository
 import com.mrmustard.activelistening.domain.guidance.GuidedListeningResult
+import com.mrmustard.activelistening.domain.time.formatTimeCode
 import javax.inject.Inject
 
 class OpenAiGuidedListeningRepository @Inject constructor(
@@ -50,12 +51,12 @@ class OpenAiGuidedListeningRepository @Inject constructor(
 
     private fun GuidedListeningRequest.toPrompt(): String {
         val sectionLines = markers.joinToString(separator = "\n") { marker ->
-            "${marker.id}|${formatTime(marker.positionMillis)}|${marker.title}|${marker.prompt}"
+            "${marker.id}|${formatTimeCode(marker.positionMillis)}|${marker.title}|${marker.prompt}"
         }
 
         return """
             Cancion: $songTitle
-            Duracion: ${formatTime(durationMillis)}
+            Duracion: ${formatTimeCode(durationMillis)}
 
             Secciones aproximadas propuestas por la app:
             $sectionLines
@@ -67,13 +68,6 @@ class OpenAiGuidedListeningRepository @Inject constructor(
             Diferencialos de cambios de instrumentacion, energia o melodia.
             Si no hay base para sugerir contraste, escribe "sin contraste".
         """.trimIndent()
-    }
-
-    private fun formatTime(millis: Long): String {
-        val totalSeconds = millis.coerceAtLeast(0L) / 1000L
-        val minutes = totalSeconds / 60L
-        val seconds = totalSeconds % 60L
-        return "%d:%02d".format(minutes, seconds)
     }
 
     private companion object {

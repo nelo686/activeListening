@@ -26,6 +26,7 @@ class MainActivity : ComponentActivity() {
 
     private val viewModel: ActiveListeningViewModel by viewModels()
     private lateinit var openSongLauncher: ActivityResultLauncher<Array<String>>
+    private lateinit var createMapPdfLauncher: ActivityResultLauncher<String>
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -33,6 +34,11 @@ class MainActivity : ComponentActivity() {
 
         openSongLauncher = registerForActivityResult(ActivityResultContracts.OpenDocument()) { uri ->
             uri?.let(::handleSelectedSong)
+        }
+        createMapPdfLauncher = registerForActivityResult(
+            ActivityResultContracts.CreateDocument("application/pdf"),
+        ) { uri ->
+            uri?.let(viewModel::exportMap)
         }
 
         setContent {
@@ -48,6 +54,7 @@ class MainActivity : ComponentActivity() {
                     MainScreen.Song -> SongScreen(
                         state = state,
                         onImportClick = { openSongLauncher.launch(arrayOf("*/*")) },
+                        onSavedSessionClick = viewModel::resumeSavedSession,
                         onSettingsClick = { currentScreen = MainScreen.Config },
                         onPlayClick = viewModel::play,
                         onPauseClick = viewModel::pause,
@@ -62,7 +69,11 @@ class MainActivity : ComponentActivity() {
                         onMergeWithPrevious = viewModel::mergeSelectedSectionWithPrevious,
                         onMergeWithNext = viewModel::mergeSelectedSectionWithNext,
                         onRestoreOriginalProposal = viewModel::restoreOriginalProposal,
+                        onExportMapClick = {
+                            createMapPdfLauncher.launch(state.exportFileName())
+                        },
                         onErrorShown = viewModel::clearError,
+                        onMapExportMessageShown = viewModel::clearMapExportMessage,
                     )
 
                     MainScreen.Config -> ConfigScreen(
@@ -90,6 +101,19 @@ class MainActivity : ComponentActivity() {
             )
         }
     }
+}
+
+private fun com.mrmustard.activelistening.ui.song.ActiveListeningUiState.exportFileName(): String {
+    val baseName = importedSong?.displayName
+        ?.substringBeforeLast('.')
+        ?.takeIf { it.isNotBlank() }
+        ?: "mapa-estructural"
+    val sanitized = baseName
+        .replace(Regex("[^A-Za-z0-9._-]+"), "-")
+        .trim('-')
+        .takeIf { it.isNotBlank() }
+        ?: "mapa-estructural"
+    return "$sanitized.pdf"
 }
 
 private enum class MainScreen {

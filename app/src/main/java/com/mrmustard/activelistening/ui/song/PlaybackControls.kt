@@ -20,6 +20,7 @@ import androidx.compose.ui.unit.dp
 import com.mrmustard.activelistening.R
 import com.mrmustard.activelistening.domain.PlaybackError
 import com.mrmustard.activelistening.domain.PlaybackState
+import com.mrmustard.activelistening.domain.time.formatTimeCode
 
 @OptIn(ExperimentalFoundationApi::class)
 @Composable
@@ -78,8 +79,8 @@ fun PlaybackControls(
             modifier = Modifier.fillMaxWidth(),
             horizontalArrangement = Arrangement.SpaceBetween,
         ) {
-            Text(formatTime(position), style = MaterialTheme.typography.bodySmall)
-            Text(formatTime(duration), style = MaterialTheme.typography.bodySmall)
+            Text(formatTimeCode(position), style = MaterialTheme.typography.bodySmall)
+            Text(formatTimeCode(duration), style = MaterialTheme.typography.bodySmall)
         }
         val playbackError = playbackState.error
         if (playbackError != null) {
@@ -131,10 +132,3 @@ private fun PlaybackError.toMessage(): String =
     when (this) {
         PlaybackError.UnableToPlay -> stringResource(R.string.playback_error_unable_to_play)
     }
-
-private fun formatTime(millis: Long): String {
-    val totalSeconds = millis.coerceAtLeast(0L) / 1000L
-    val minutes = totalSeconds / 60L
-    val seconds = totalSeconds % 60L
-    return "%d:%02d".format(minutes, seconds)
-}

@@ -28,9 +28,9 @@ import androidx.compose.ui.unit.dp
 import com.mrmustard.activelistening.R
 import com.mrmustard.activelistening.domain.PlaybackState
 import com.mrmustard.activelistening.domain.importsong.ImportedSong
+import com.mrmustard.activelistening.domain.session.SavedListeningSession
 import com.mrmustard.activelistening.domain.structure.SectionLabel
 import com.mrmustard.activelistening.domain.structure.SongStructureFactory
-import com.mrmustard.activelistening.ui.song.importsong.ImportAction
 import com.mrmustard.activelistening.ui.song.importsong.toMessage
 import com.mrmustard.activelistening.ui.theme.ActiveListeningTheme
 
@@ -39,6 +39,7 @@ import com.mrmustard.activelistening.ui.theme.ActiveListeningTheme
 fun SongScreen(
     state: ActiveListeningUiState,
     onImportClick: () -> Unit,
+    onSavedSessionClick: (SavedListeningSession) -> Unit,
     onSettingsClick: () -> Unit,
     onPlayClick: () -> Unit,
     onPauseClick: () -> Unit,
@@ -53,16 +54,28 @@ fun SongScreen(
     onMergeWithPrevious: () -> Unit,
     onMergeWithNext: () -> Unit,
     onRestoreOriginalProposal: () -> Unit,
+    onExportMapClick: () -> Unit,
     onErrorShown: () -> Unit,
+    onMapExportMessageShown: () -> Unit,
     modifier: Modifier = Modifier,
 ) {
     val snackbarHostState = remember { SnackbarHostState() }
     val importErrorMessage = state.importError?.let { error -> error.toMessage() }
+    val mapExportMessage = state.mapExportError?.let { error -> error.toMessage() }
+        ?: state.exportedMapFileName?.let {
+            stringResource(R.string.map_export_success)
+        }
 
     LaunchedEffect(importErrorMessage) {
         val message = importErrorMessage ?: return@LaunchedEffect
         snackbarHostState.showSnackbar(message)
         onErrorShown()
+    }
+
+    LaunchedEffect(mapExportMessage) {
+        val message = mapExportMessage ?: return@LaunchedEffect
+        snackbarHostState.showSnackbar(message)
+        onMapExportMessageShown()
     }
 
     Scaffold(
@@ -98,13 +111,17 @@ fun SongScreen(
                 ) {
                     item { Header() }
                     item {
-                        ImportAction(
+                        EmptySession(
                             isImporting = state.isImporting,
-                            hasSong = false,
                             onImportClick = onImportClick,
                         )
                     }
-                    item { EmptySession() }
+                    item {
+                        SavedSessions(
+                            sessions = state.savedSessions,
+                            onSessionClick = onSavedSessionClick,
+                        )
+                    }
                 }
             } else {
                 Column(modifier = Modifier.fillMaxSize()) {
@@ -136,6 +153,8 @@ fun SongScreen(
                             editingSectionId = state.editingSectionId,
                             editingSectionLearningContent = state.editingSectionLearningContent,
                             canRestoreOriginalProposal = state.canRestoreOriginalProposal,
+                            canExportMap = state.canExportMap,
+                            isExportingMap = state.isExportingMap,
                             onStartGuidedSession = onStartGuidedSession,
                             onSectionSelected = onSectionSelected,
                             onSectionEditorDismiss = onSectionEditorDismiss,
@@ -146,6 +165,7 @@ fun SongScreen(
                             onMergeWithPrevious = onMergeWithPrevious,
                             onMergeWithNext = onMergeWithNext,
                             onRestoreOriginalProposal = onRestoreOriginalProposal,
+                            onExportMapClick = onExportMapClick,
                         )
                     }
                     }
@@ -162,6 +182,7 @@ private fun SongScreenPreview() {
         SongScreen(
             state = ActiveListeningUiState(),
             onImportClick = {},
+            onSavedSessionClick = {},
             onSettingsClick = {},
             onPlayClick = {},
             onPauseClick = {},
@@ -176,7 +197,9 @@ private fun SongScreenPreview() {
             onMergeWithPrevious = {},
             onMergeWithNext = {},
             onRestoreOriginalProposal = {},
+            onExportMapClick = {},
             onErrorShown = {},
+            onMapExportMessageShown = {},
         )
     }
 }
@@ -207,6 +230,7 @@ private fun GuidedSongScreenPreview() {
                 activeSectionId = sections.getOrNull(1)?.id,
             ),
             onImportClick = {},
+            onSavedSessionClick = {},
             onSettingsClick = {},
             onPlayClick = {},
             onPauseClick = {},
@@ -221,7 +245,16 @@ private fun GuidedSongScreenPreview() {
             onMergeWithPrevious = {},
             onMergeWithNext = {},
             onRestoreOriginalProposal = {},
+            onExportMapClick = {},
             onErrorShown = {},
+            onMapExportMessageShown = {},
         )
     }
 }
+
+@Composable
+private fun MapExportError.toMessage(): String =
+    when (this) {
+        MapExportError.InsufficientStructure -> stringResource(R.string.map_export_error_incomplete)
+        MapExportError.UnableToWrite -> stringResource(R.string.map_export_error_unable_to_write)
+    }

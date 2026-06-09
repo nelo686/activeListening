@@ -5,10 +5,13 @@ import androidx.room.Room
 import androidx.room.migration.Migration
 import androidx.sqlite.db.SupportSQLiteDatabase
 import com.mrmustard.activelistening.data.local.ActiveListeningDatabase
+import com.mrmustard.activelistening.data.session.RoomSavedListeningSessionRepository
+import com.mrmustard.activelistening.data.session.SavedListeningSessionDao
 import com.mrmustard.activelistening.data.settings.RoomUserSettingsRepository
 import com.mrmustard.activelistening.data.settings.UserSettingsDao
 import com.mrmustard.activelistening.data.structure.RoomSongStructureRepository
 import com.mrmustard.activelistening.data.structure.SongStructureDao
+import com.mrmustard.activelistening.domain.session.SavedListeningSessionRepository
 import com.mrmustard.activelistening.domain.settings.UserSettingsRepository
 import com.mrmustard.activelistening.domain.structure.SongStructureRepository
 import dagger.Binds
@@ -35,6 +38,12 @@ abstract class DatabaseModule {
         repository: RoomSongStructureRepository,
     ): SongStructureRepository
 
+    @Binds
+    @Singleton
+    abstract fun bindSavedListeningSessionRepository(
+        repository: RoomSavedListeningSessionRepository,
+    ): SavedListeningSessionRepository
+
     companion object {
         @Provides
         @Singleton
@@ -46,7 +55,7 @@ abstract class DatabaseModule {
                 ActiveListeningDatabase::class.java,
                 "active-listening.db",
             )
-                .addMigrations(MIGRATION_1_2)
+                .addMigrations(MIGRATION_1_2, MIGRATION_2_3)
                 .build()
 
         @Provides
@@ -56,6 +65,10 @@ abstract class DatabaseModule {
         @Provides
         fun provideSongStructureDao(database: ActiveListeningDatabase): SongStructureDao =
             database.songStructureDao()
+
+        @Provides
+        fun provideSavedListeningSessionDao(database: ActiveListeningDatabase): SavedListeningSessionDao =
+            database.savedListeningSessionDao()
 
         private val MIGRATION_1_2 = object : Migration(1, 2) {
             override fun migrate(db: SupportSQLiteDatabase) {
@@ -75,6 +88,24 @@ abstract class DatabaseModule {
                         musical_contrast_confidence TEXT,
                         musical_contrast_explanation TEXT,
                         PRIMARY KEY(song_key, version, section_id)
+                    )
+                    """.trimIndent(),
+                )
+            }
+        }
+
+        private val MIGRATION_2_3 = object : Migration(2, 3) {
+            override fun migrate(db: SupportSQLiteDatabase) {
+                db.execSQL(
+                    """
+                    CREATE TABLE IF NOT EXISTS saved_listening_sessions (
+                        song_key TEXT NOT NULL PRIMARY KEY,
+                        display_name TEXT NOT NULL,
+                        mime_type TEXT,
+                        duration_millis INTEGER NOT NULL,
+                        last_position_millis INTEGER NOT NULL,
+                        created_at_millis INTEGER NOT NULL,
+                        updated_at_millis INTEGER NOT NULL
                     )
                     """.trimIndent(),
                 )

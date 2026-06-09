@@ -14,6 +14,9 @@
     <string name="import_song_import_song">Importar cancion</string>
     <string name="import_song_supported_formats_title">Formatos compatibles</string>
     <string name="import_song_supported_formats_description">MP3, WAV, M4A y AAC. El limite inicial es de 15 minutos.</string>
+    <string name="saved_sessions_title">Canciones guardadas</string>
+    <string name="saved_sessions_resume">Continuar</string>
+    <string name="saved_sessions_resume_context">%1$s de %2$s</string>
     <string name="import_song_listening_prompt">Primera escucha: marca mentalmente donde cambia la energia, el ritmo o la instrumentacion.</string>
     <string name="playback_pause">Pausar</string>
     <string name="playback_play">Reproducir</string>
@@ -62,6 +65,11 @@
     <string name="structure_merge_previous">Fusionar anterior</string>
     <string name="structure_merge_next">Fusionar siguiente</string>
     <string name="structure_restore_original">Restaurar propuesta original</string>
+    <string name="map_export_action">Exportar mapa PDF</string>
+    <string name="map_export_generating">Generando PDF…</string>
+    <string name="map_export_success">Mapa exportado</string>
+    <string name="map_export_error_incomplete">Completa primero una estructura minima antes de exportar.</string>
+    <string name="map_export_error_unable_to_write">No se ha podido guardar el PDF.</string>
     <string name="structure_repeat_section">Repetir esta seccion</string>
     <string name="guidance_intensity_title">Intensidad de guia</string>
     <string name="guidance_intensity_normal">Normal</string>

@@ -3,12 +3,20 @@ package com.mrmustard.activelistening.ui.song
 import android.net.Uri
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.mrmustard.activelistening.domain.export.SongMapExportFactory
+import com.mrmustard.activelistening.domain.export.SongMapExportRepository
+import com.mrmustard.activelistening.domain.export.SongMapExportResult
+import com.mrmustard.activelistening.domain.export.SongMapExportValidation
+import com.mrmustard.activelistening.domain.export.SongMapExportValidator
 import com.mrmustard.activelistening.domain.guidance.GuidedListeningRepository
 import com.mrmustard.activelistening.domain.guidance.GuidedListeningResult
+import com.mrmustard.activelistening.domain.importsong.ImportedSong
 import com.mrmustard.activelistening.domain.importsong.SongImportResult
 import com.mrmustard.activelistening.domain.learning.GuidanceIntensity
 import com.mrmustard.activelistening.domain.learning.LearningLevel
 import com.mrmustard.activelistening.domain.playback.AudioPlayer
+import com.mrmustard.activelistening.domain.session.SavedListeningSession
+import com.mrmustard.activelistening.domain.session.SavedListeningSessionRepository
 import com.mrmustard.activelistening.domain.settings.UserSettingsRepository
 import com.mrmustard.activelistening.domain.structure.SectionBoundary
 import com.mrmustard.activelistening.domain.structure.SectionLabel
@@ -25,6 +33,8 @@ import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
+import kotlin.math.abs
+import androidx.core.net.toUri
 
 @HiltViewModel
 class ActiveListeningViewModel @Inject constructor(
@@ -33,14 +43,19 @@ class ActiveListeningViewModel @Inject constructor(
     private val guidedListeningRepository: GuidedListeningRepository,
     private val userSettingsRepository: UserSettingsRepository,
     private val songStructureRepository: SongStructureRepository,
+    private val savedListeningSessionRepository: SavedListeningSessionRepository,
+    private val songMapExportRepository: SongMapExportRepository,
     private val guidedSessionUseCase: GuidedSessionUseCase,
     private val sectionEditingUseCase: SectionEditingUseCase,
 ) : ViewModel() {
 
     private val _uiState = MutableStateFlow(ActiveListeningUiState())
     val uiState: StateFlow<ActiveListeningUiState> = _uiState.asStateFlow()
+    private var lastPersistedSongKey: String? = null
+    private var lastPersistedPositionMillis: Long = 0L
 
     init {
+        observeSavedSessions()
         observePlaybackState()
         observeUserSettings()
     }
@@ -51,25 +66,7 @@ class ActiveListeningViewModel @Inject constructor(
 
             when (val result = importSongUseCase(uri)) {
                 is SongImportResult.Success -> {
-                    val savedStructure = songStructureRepository.getStructure(result.song.uri.toString())
-                    _uiState.update {
-                        val restoredSections = savedStructure?.editedSections.orEmpty()
-                        it.copy(
-                            isImporting = false,
-                            importedSong = result.song,
-                            importError = null,
-                            isGuidedSessionActive = savedStructure != null,
-                            isGuidanceLoading = false,
-                            guidanceError = null,
-                            sections = restoredSections,
-                            originalSections = savedStructure?.originalSections.orEmpty(),
-                            selectedSectionId = restoredSections.firstOrNull()?.id,
-                            activeSectionId = null,
-                            editingSectionId = null,
-                            editingSectionLearningContent = null,
-                        )
-                            .withSectionProgress(it.playbackState.positionMillis)
-                    }
+                    loadImportedSong(result.song)
                 }
 
                 is SongImportResult.Error -> _uiState.update {
@@ -80,6 +77,10 @@ class ActiveListeningViewModel @Inject constructor(
                 }
             }
         }
+    }
+
+    fun resumeSavedSession(session: SavedListeningSession) {
+        importSong(session.songKey.toUri())
     }
 
     fun play() {
@@ -260,6 +261,57 @@ class ActiveListeningViewModel @Inject constructor(
         }
     }
 
+    fun exportMap(destination: Uri) {
+        viewModelScope.launch {
+            val state = _uiState.value
+            val song = state.importedSong
+            when (SongMapExportValidator.validate(song, state.sections)) {
+                SongMapExportValidation.InsufficientStructure -> {
+                    _uiState.update {
+                        it.copy(
+                            isExportingMap = false,
+                            mapExportError = MapExportError.InsufficientStructure,
+                            exportedMapFileName = null,
+                        )
+                    }
+                    return@launch
+                }
+
+                SongMapExportValidation.Valid -> Unit
+            }
+
+            val map = SongMapExportFactory.create(
+                song = requireNotNull(song),
+                sections = state.sections,
+                learningLevel = state.learningLevel,
+            )
+            _uiState.update {
+                it.copy(
+                    isExportingMap = true,
+                    mapExportError = null,
+                    exportedMapFileName = null,
+                )
+            }
+            when (songMapExportRepository.exportPdf(destination, map)) {
+                SongMapExportResult.Success -> _uiState.update {
+                    it.copy(
+                        isExportingMap = false,
+                        mapExportError = null,
+                        exportedMapFileName = map.song.displayName,
+                    )
+                }
+
+                SongMapExportResult.UnableToWrite -> _uiState.update {
+                    it.copy(
+                        isExportingMap = false,
+                        mapExportError = MapExportError.UnableToWrite,
+                        exportedMapFileName = null,
+                    )
+                }
+            }
+        }
+    }
+
     fun changeGuidanceIntensity(intensity: GuidanceIntensity) {
         _uiState.update { it.copy(guidanceIntensity = intensity) }
         viewModelScope.launch {
@@ -281,6 +333,15 @@ class ActiveListeningViewModel @Inject constructor(
         _uiState.update { it.copy(importError = null) }
     }
 
+    fun clearMapExportMessage() {
+        _uiState.update {
+            it.copy(
+                mapExportError = null,
+                exportedMapFileName = null,
+            )
+        }
+    }
+
     override fun onCleared() {
         audioPlayer.release()
         super.onCleared()
@@ -294,6 +355,15 @@ class ActiveListeningViewModel @Inject constructor(
                         .withSectionProgress(playbackState.positionMillis)
                         .withEditingSectionLearningContent()
                 }
+                persistPlaybackPositionIfNeeded(playbackState.positionMillis)
+            }
+        }
+    }
+
+    private fun observeSavedSessions() {
+        viewModelScope.launch {
+            savedListeningSessionRepository.sessions.collect { sessions ->
+                _uiState.update { it.copy(savedSessions = sessions) }
             }
         }
     }
@@ -332,6 +402,39 @@ class ActiveListeningViewModel @Inject constructor(
             ).withSectionProgress(state.playbackState.positionMillis)
                 .also(::saveStructure)
         }
+    }
+
+    private suspend fun loadImportedSong(song: ImportedSong) {
+        val songKey = song.uri.toString()
+        val savedStructure = songStructureRepository.getStructure(songKey)
+        val savedSession = savedListeningSessionRepository.getSession(songKey)
+        savedListeningSessionRepository.upsertSession(song)
+        lastPersistedSongKey = songKey
+        lastPersistedPositionMillis = savedSession?.lastPositionMillis ?: 0L
+
+        _uiState.update {
+            val restoredSections = savedStructure?.editedSections.orEmpty()
+            it.copy(
+                isImporting = false,
+                importedSong = song,
+                importError = null,
+                isGuidedSessionActive = savedStructure != null,
+                isGuidanceLoading = false,
+                guidanceError = null,
+                sections = restoredSections,
+                originalSections = savedStructure?.originalSections.orEmpty(),
+                selectedSectionId = restoredSections.firstOrNull()?.id,
+                activeSectionId = null,
+                editingSectionId = null,
+                editingSectionLearningContent = null,
+                mapExportError = null,
+                exportedMapFileName = null,
+            )
+                .withSectionProgress(savedSession?.lastPositionMillis ?: it.playbackState.positionMillis)
+        }
+        savedSession?.lastPositionMillis
+            ?.takeIf { it > 0L }
+            ?.let(audioPlayer::seekTo)
     }
 
     private fun loadAiGuidance(
@@ -401,6 +504,23 @@ class ActiveListeningViewModel @Inject constructor(
         }
     }
 
+    private fun persistPlaybackPositionIfNeeded(positionMillis: Long) {
+        val songKey = _uiState.value.importedSong?.uri?.toString() ?: return
+        if (positionMillis <= 0L) return
+        val songChanged = lastPersistedSongKey != songKey
+        val movedEnough = abs(positionMillis - lastPersistedPositionMillis) >= POSITION_SAVE_INTERVAL_MILLIS
+        if (!songChanged && !movedEnough) return
+
+        lastPersistedSongKey = songKey
+        lastPersistedPositionMillis = positionMillis
+        viewModelScope.launch {
+            savedListeningSessionRepository.updatePlaybackPosition(
+                songKey = songKey,
+                positionMillis = positionMillis,
+            )
+        }
+    }
+
     private fun ActiveListeningUiState.withSectionProgress(positionMillis: Long): ActiveListeningUiState {
         if (!isGuidedSessionActive || sections.isEmpty()) return this
 
@@ -425,5 +545,9 @@ class ActiveListeningViewModel @Inject constructor(
                 learningLevel = learningLevel,
             ),
         )
+    }
+
+    private companion object {
+        const val POSITION_SAVE_INTERVAL_MILLIS = 5_000L
     }
 }

@@ -38,6 +38,8 @@ fun ListeningSession(
     editingSectionId: Int?,
     editingSectionLearningContent: SectionLearningContent?,
     canRestoreOriginalProposal: Boolean,
+    canExportMap: Boolean,
+    isExportingMap: Boolean,
     onStartGuidedSession: () -> Unit,
     onSectionSelected: (Int) -> Unit,
     onSectionEditorDismiss: () -> Unit,
@@ -48,6 +50,7 @@ fun ListeningSession(
     onMergeWithPrevious: () -> Unit,
     onMergeWithNext: () -> Unit,
     onRestoreOriginalProposal: () -> Unit,
+    onExportMapClick: () -> Unit,
     modifier: Modifier = Modifier,
 ) {
     val sheetSection = sections.firstOrNull { it.id == editingSectionId }
@@ -85,6 +88,21 @@ fun ListeningSession(
                     ) {
                         Text(stringResource(R.string.structure_restore_original))
                     }
+                }
+                OutlinedButton(
+                    onClick = onExportMapClick,
+                    enabled = canExportMap && !isExportingMap,
+                    modifier = Modifier.fillMaxWidth(),
+                ) {
+                    Text(
+                        stringResource(
+                            if (isExportingMap) {
+                                R.string.map_export_generating
+                            } else {
+                                R.string.map_export_action
+                            },
+                        ),
+                    )
                 }
             } else {
                 Text(

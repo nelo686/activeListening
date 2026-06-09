@@ -7,6 +7,7 @@ import com.mrmustard.activelistening.domain.learning.GuidanceIntensity
 import com.mrmustard.activelistening.domain.learning.LearningLevel
 import com.mrmustard.activelistening.domain.structure.SectionLabel
 import com.mrmustard.activelistening.domain.structure.SectionStatus
+import com.mrmustard.activelistening.domain.time.formatTimeCode
 
 @Composable
 fun SectionLabel.toDisplayName(): String =
@@ -43,9 +44,4 @@ fun GuidanceIntensity.toDisplayName(): String =
         GuidanceIntensity.Reduced -> stringResource(R.string.guidance_intensity_reduced)
     }
 
-fun formatSectionTime(millis: Long): String {
-    val totalSeconds = millis.coerceAtLeast(0L) / 1000L
-    val minutes = totalSeconds / 60L
-    val seconds = totalSeconds % 60L
-    return "%d:%02d".format(minutes, seconds)
-}
+fun formatSectionTime(millis: Long): String = formatTimeCode(millis)
