@@ -83,6 +83,41 @@ class ActiveListeningViewModel @Inject constructor(
         importSong(session.songKey.toUri())
     }
 
+    fun returnToStart() {
+        val state = _uiState.value
+        val songKey = state.importedSong?.uri?.toString()
+        val positionMillis = state.playbackState.positionMillis
+        audioPlayer.pause()
+        if (songKey != null && positionMillis > 0L) {
+            lastPersistedSongKey = songKey
+            lastPersistedPositionMillis = positionMillis
+            viewModelScope.launch {
+                savedListeningSessionRepository.updatePlaybackPosition(
+                    songKey = songKey,
+                    positionMillis = positionMillis,
+                )
+            }
+        }
+        _uiState.update {
+            it.copy(
+                importedSong = null,
+                importError = null,
+                isGuidedSessionActive = false,
+                isGuidanceLoading = false,
+                guidanceError = null,
+                sections = emptyList(),
+                originalSections = emptyList(),
+                selectedSectionId = null,
+                activeSectionId = null,
+                editingSectionId = null,
+                editingSectionLearningContent = null,
+                isExportingMap = false,
+                mapExportError = null,
+                exportedMapFileName = null,
+            )
+        }
+    }
+
     fun play() {
         audioPlayer.play()
     }

@@ -1,6 +1,7 @@
 <resources>
     <string name="app_name">Active Listening</string>
     <string name="screen_import_song_title">Escucha activa</string>
+    <string name="song_back_to_start">Volver a inicio</string>
     <string name="settings_open">Abrir configuracion</string>
     <string name="settings_title">Configuracion</string>
     <string name="settings_back">Volver</string>

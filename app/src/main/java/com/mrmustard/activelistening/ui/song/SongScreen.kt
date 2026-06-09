@@ -40,6 +40,7 @@ fun SongScreen(
     state: ActiveListeningUiState,
     onImportClick: () -> Unit,
     onSavedSessionClick: (SavedListeningSession) -> Unit,
+    onBackToStartClick: () -> Unit,
     onSettingsClick: () -> Unit,
     onPlayClick: () -> Unit,
     onPauseClick: () -> Unit,
@@ -83,6 +84,16 @@ fun SongScreen(
         topBar = {
             TopAppBar(
                 title = { Text(stringResource(R.string.screen_import_song_title)) },
+                navigationIcon = {
+                    if (state.importedSong != null) {
+                        IconButton(onClick = onBackToStartClick) {
+                            Icon(
+                                painter = painterResource(R.drawable.ic_arrow_back_24),
+                                contentDescription = stringResource(R.string.song_back_to_start),
+                            )
+                        }
+                    }
+                },
                 actions = {
                     IconButton(onClick = onSettingsClick) {
                         Icon(
@@ -183,6 +194,7 @@ private fun SongScreenPreview() {
             state = ActiveListeningUiState(),
             onImportClick = {},
             onSavedSessionClick = {},
+            onBackToStartClick = {},
             onSettingsClick = {},
             onPlayClick = {},
             onPauseClick = {},
@@ -231,6 +243,7 @@ private fun GuidedSongScreenPreview() {
             ),
             onImportClick = {},
             onSavedSessionClick = {},
+            onBackToStartClick = {},
             onSettingsClick = {},
             onPlayClick = {},
             onPauseClick = {},

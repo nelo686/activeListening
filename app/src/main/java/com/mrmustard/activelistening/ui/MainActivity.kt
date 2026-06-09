@@ -55,6 +55,7 @@ class MainActivity : ComponentActivity() {
                         state = state,
                         onImportClick = { openSongLauncher.launch(arrayOf("*/*")) },
                         onSavedSessionClick = viewModel::resumeSavedSession,
+                        onBackToStartClick = viewModel::returnToStart,
                         onSettingsClick = { currentScreen = MainScreen.Config },
                         onPlayClick = viewModel::play,
                         onPauseClick = viewModel::pause,
