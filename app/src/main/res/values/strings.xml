@@ -54,7 +54,8 @@
     <string name="guidance_intensity_normal">Normal</string>
     <string name="guidance_intensity_reduced">Reducida</string>
     <string name="guidance_reduced_description">Guia reducida: escucha sin interrupciones frecuentes y vuelve a la pista cuando quieras revisar.</string>
-    <string name="section_learning_title">Aprende esta seccion</string>
+    <string name="section_learning_title">Por que podria ser esta seccion</string>
+    <string name="section_learning_description">Usa estas pistas como guia para comprobarlo con tu escucha.</string>
     <string name="section_learning_more">Mas detalle</string>
     <string name="section_learning_less">Menos detalle</string>
     <string name="section_learning_level_title">Nivel educativo</string>

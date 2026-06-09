@@ -44,55 +44,55 @@ object SectionExplanationProvider {
         ),
         SectionLabel.Verse to mapOf(
             LearningLevel.Introductory to Explanation(
-                summary = "El verso suele contar la historia y mantener una energia mas estable que el estribillo.",
-                details = "Busca si la melodia cambia de frase en frase mientras el acompanamiento se repite para sostener la letra.",
+                summary = "Podria ser verso si desarrolla la historia o una idea nueva con una energia mas estable que el estribillo.",
+                details = "Busca si la melodia cambia de frase en frase mientras el acompanamiento se repite para sostener la letra y preparar una parte mas central.",
             ),
             LearningLevel.Intermediate to Explanation(
-                summary = "El verso desarrolla contenido nuevo sobre una base reconocible y normalmente prepara el estribillo.",
+                summary = "Podria ser verso si desarrolla contenido nuevo sobre una base reconocible y normalmente prepara el estribillo.",
                 details = "Compara su energia con el coro: suele haber menos densidad, una melodia menos expansiva o una instrumentacion mas contenida.",
             ),
             LearningLevel.Advanced to Explanation(
-                summary = "El verso funciona como zona narrativa y de acumulacion antes de una seccion de mayor resolucion.",
+                summary = "Podria ser verso si funciona como zona narrativa y de acumulacion antes de una seccion de mayor resolucion.",
                 details = "Observa repeticion armonica, fraseo vocal, variaciones de arreglo y como la bateria organiza continuidad o anticipa transiciones.",
             ),
             LearningLevel.Expert to Explanation(
-                summary = "El verso tiende a sostener informacion semantica con menor clausura formal que el coro.",
+                summary = "Podria ser verso si sostiene informacion semantica con menor clausura formal que el coro.",
                 details = "Evalua estabilidad de groove, periodicidad fraseologica, tension pre-cadencial y economia de arreglo frente a secciones de mayor pregnancia.",
             ),
         ),
         SectionLabel.Chorus to mapOf(
             LearningLevel.Introductory to Explanation(
-                summary = "El coro o estribillo suele ser la parte mas recordable y repetida de la cancion.",
+                summary = "Podria ser coro o estribillo si es una parte repetitiva, memorable y central de la cancion.",
                 details = "Pregunta si sube la energia, si aparece una frase central y si esta parte vuelve casi igual mas adelante.",
             ),
             LearningLevel.Intermediate to Explanation(
-                summary = "El coro concentra el gancho principal y suele sentirse como llegada o recompensa.",
-                details = "Busca melodias mas abiertas, mas capas de instrumentos, cambios de registro o un patron ritmico que refuerce la sensacion de resolucion.",
+                summary = "Podria ser coro si concentra el gancho principal, se repite y suele sentirse como llegada o recompensa.",
+                details = "Busca melodias memorables, mas capas de instrumentos, cambios de registro o un patron ritmico que refuerce la sensacion de resolucion central.",
             ),
             LearningLevel.Advanced to Explanation(
-                summary = "El coro suele maximizar contraste, memorabilidad y funcion cadencial dentro de la forma.",
+                summary = "Podria ser coro si maximiza contraste, memorabilidad y funcion cadencial dentro de la forma.",
                 details = "Analiza densidad, rango melodico, estabilidad armonica, repeticion textual y relacion de tension/resolucion con verso y puente.",
             ),
             LearningLevel.Expert to Explanation(
-                summary = "El coro actua como nucleo de alta saliencia formal y semantica, a menudo con mayor clausura perceptiva.",
+                summary = "Podria ser coro si actua como nucleo central de alta saliencia formal y semantica, a menudo con mayor clausura perceptiva.",
                 details = "Contrasta contour melodico, ritmo armonico, orquestacion, compresion dinamica y recurrencia motivica respecto al resto de la estructura.",
             ),
         ),
         SectionLabel.Bridge to mapOf(
             LearningLevel.Introductory to Explanation(
-                summary = "El puente ofrece contraste y ayuda a conectar partes de la cancion.",
+                summary = "Podria ser puente si ofrece contraste, transicion o un cambio claro respecto al resto de la cancion.",
                 details = "Escucha si cambia la sensacion: otra armonia, menos instrumentos, un descanso o una preparacion para volver al estribillo.",
             ),
             LearningLevel.Intermediate to Explanation(
-                summary = "El puente rompe la repeticion y aporta aire antes de regresar a una parte conocida.",
-                details = "Puede cambiar acordes, textura, ritmo o direccion melodica para que la vuelta al coro tenga mas fuerza.",
+                summary = "Podria ser puente si rompe la repeticion y aporta aire antes de regresar a una parte conocida.",
+                details = "Puede funcionar como transicion: cambiar acordes, textura, ritmo o direccion melodica para que la vuelta al coro tenga mas fuerza.",
             ),
             LearningLevel.Advanced to Explanation(
-                summary = "El puente introduce contraste formal y reorienta la energia acumulada por verso y coro.",
+                summary = "Podria ser puente si introduce contraste formal y reorienta la energia acumulada por verso y coro.",
                 details = "Observa modulaciones, reducciones de arreglo, cambios de groove o frases no periodicas que preparan una reexposicion.",
             ),
             LearningLevel.Expert to Explanation(
-                summary = "El puente funciona como episodio contrastante con valor de desviacion formal y preparacion re-transicional.",
+                summary = "Podria ser puente si funciona como episodio contrastante con valor de desviacion formal y preparacion re-transicional.",
                 details = "Evalua pivotes armonicos, ruptura de hipermetro, redistribucion timbrica y mecanismos de tension que revalidan la seccion de retorno.",
             ),
         ),
@@ -135,5 +135,5 @@ object SectionExplanationProvider {
     )
 
     private const val UNCERTAIN_NOTE =
-        "Esta clasificacion es orientativa: si al escuchar no encaja del todo, marcala como dudosa y ajusta la etiqueta o los tiempos."
+        "Esta clasificacion es una hipotesis de escucha, no una verdad absoluta: si no encaja del todo, marcala como dudosa y ajusta la etiqueta o los tiempos."
 }

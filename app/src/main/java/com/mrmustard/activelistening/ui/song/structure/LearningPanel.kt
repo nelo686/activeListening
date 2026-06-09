@@ -24,6 +24,12 @@ fun LearningPanel(
 
         if (content != null) {
             Text(
+                text = stringResource(R.string.section_learning_description),
+                style = MaterialTheme.typography.bodySmall,
+                color = MaterialTheme.colorScheme.onSurfaceVariant,
+            )
+
+            Text(
                 text = content.summary,
                 style = MaterialTheme.typography.bodyMedium,
                 color = MaterialTheme.colorScheme.onSurfaceVariant,

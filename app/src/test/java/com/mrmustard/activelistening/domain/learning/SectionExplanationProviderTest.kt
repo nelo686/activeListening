@@ -34,7 +34,8 @@ class SectionExplanationProviderTest {
         )
 
         assertNotNull(content.uncertainNote)
-        assertTrue(content.uncertainNote.orEmpty().contains("orientativa"))
+        assertTrue(content.uncertainNote.orEmpty().contains("hipotesis de escucha"))
+        assertTrue(content.uncertainNote.orEmpty().contains("no una verdad absoluta"))
     }
 
     @Test
@@ -62,5 +63,46 @@ class SectionExplanationProviderTest {
                 assertTrue(content.details.isNotBlank())
             }
         }
+    }
+
+    @Test
+    fun `verse explanation teaches narrative development and stable energy`() {
+        val content = SectionExplanationProvider.contentFor(
+            label = SectionLabel.Verse,
+            level = LearningLevel.Introductory,
+            status = SectionStatus.Suggested,
+        )
+        val fullText = "${content.summary} ${content.details}".lowercase()
+
+        assertTrue(fullText.contains("historia"))
+        assertTrue(fullText.contains("energia mas estable"))
+    }
+
+    @Test
+    fun `chorus explanation teaches repetition memorability and central role`() {
+        val content = SectionExplanationProvider.contentFor(
+            label = SectionLabel.Chorus,
+            level = LearningLevel.Introductory,
+            status = SectionStatus.Suggested,
+        )
+        val fullText = "${content.summary} ${content.details}".lowercase()
+
+        assertTrue(fullText.contains("repetitiva"))
+        assertTrue(fullText.contains("memorable"))
+        assertTrue(fullText.contains("central"))
+    }
+
+    @Test
+    fun `bridge explanation teaches contrast transition and change`() {
+        val content = SectionExplanationProvider.contentFor(
+            label = SectionLabel.Bridge,
+            level = LearningLevel.Introductory,
+            status = SectionStatus.Suggested,
+        )
+        val fullText = "${content.summary} ${content.details}".lowercase()
+
+        assertTrue(fullText.contains("contraste"))
+        assertTrue(fullText.contains("transicion"))
+        assertTrue(fullText.contains("cambio"))
     }
 }

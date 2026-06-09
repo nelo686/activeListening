@@ -48,7 +48,24 @@ class SectionEditingUseCaseTest {
         assertEquals(1, result.selectedSectionId)
         assertEquals(1, result.editingSectionId)
         assertNotNull(result.learningContent)
-        assertTrue(result.learningContent?.summary.orEmpty().isNotBlank())
+        assertTrue(result.learningContent?.summary.orEmpty().contains("puente"))
+        assertTrue(result.learningContent?.details.orEmpty().contains("transicion"))
+    }
+
+    @Test
+    fun `returns learning content for opened section editing context`() {
+        val sections = SongStructureFactory.createInitialSections(durationMillis = 120_000L)
+        val selection = useCase.openEditor(sections, sectionId = 2)
+
+        val content = useCase.learningContent(
+            sections = sections,
+            editingSectionId = selection?.editingSectionId,
+            learningLevel = LearningLevel.Introductory,
+        )
+
+        assertNotNull(content)
+        assertTrue(content?.summary.orEmpty().contains("coro"))
+        assertTrue(content?.summary.orEmpty().contains("memorable"))
     }
 
     @Test
