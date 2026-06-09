@@ -117,17 +117,6 @@ class ActiveListeningViewModel @Inject constructor(
         }
     }
 
-    fun selectSection(sectionId: Int) {
-        _uiState.update { state ->
-            val validSectionId = sectionEditingUseCase.selectSection(
-                sections = state.sections,
-                sectionId = sectionId,
-            )
-            state.copy(selectedSectionId = validSectionId)
-                .withEditingSectionLearningContent()
-        }
-    }
-
     fun openSectionEditor(sectionId: Int) {
         _uiState.update { state ->
             val selection = sectionEditingUseCase.openEditor(
