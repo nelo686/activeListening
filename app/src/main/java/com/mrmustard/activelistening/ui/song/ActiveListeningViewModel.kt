@@ -167,6 +167,62 @@ class ActiveListeningViewModel @Inject constructor(
         setSelectedSectionBoundary(SectionBoundary.End, positionMillis)
     }
 
+    fun splitAtCurrentPosition() {
+        _uiState.update { state ->
+            val result = sectionEditingUseCase.splitAtPosition(
+                sections = state.sections,
+                positionMillis = state.playbackState.positionMillis,
+                learningLevel = state.learningLevel,
+            )
+            state.copy(
+                sections = result.sections,
+                selectedSectionId = result.selectedSectionId,
+                editingSectionId = result.editingSectionId,
+                editingSectionLearningContent = result.learningContent,
+            ).withSectionProgress(state.playbackState.positionMillis)
+        }
+    }
+
+    fun mergeSelectedSectionWithPrevious() {
+        _uiState.update { state ->
+            val sectionId = state.currentEditableSectionId() ?: return@update state
+            val previousSectionId = state.sections
+                .zipWithNext()
+                .firstOrNull { (_, right) -> right.id == sectionId }
+                ?.first
+                ?.id
+                ?: return@update state
+            val result = sectionEditingUseCase.removeBoundaryAfter(
+                sections = state.sections,
+                sectionId = previousSectionId,
+                learningLevel = state.learningLevel,
+            )
+            state.copy(
+                sections = result.sections,
+                selectedSectionId = result.selectedSectionId,
+                editingSectionId = result.editingSectionId,
+                editingSectionLearningContent = result.learningContent,
+            ).withSectionProgress(state.playbackState.positionMillis)
+        }
+    }
+
+    fun mergeSelectedSectionWithNext() {
+        _uiState.update { state ->
+            val sectionId = state.currentEditableSectionId() ?: return@update state
+            val result = sectionEditingUseCase.removeBoundaryAfter(
+                sections = state.sections,
+                sectionId = sectionId,
+                learningLevel = state.learningLevel,
+            )
+            state.copy(
+                sections = result.sections,
+                selectedSectionId = result.selectedSectionId,
+                editingSectionId = result.editingSectionId,
+                editingSectionLearningContent = result.learningContent,
+            ).withSectionProgress(state.playbackState.positionMillis)
+        }
+    }
+
     fun changeGuidanceIntensity(intensity: GuidanceIntensity) {
         _uiState.update { it.copy(guidanceIntensity = intensity) }
         viewModelScope.launch {

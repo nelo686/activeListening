@@ -58,6 +58,9 @@ class MainActivity : ComponentActivity() {
                         onSectionLabelSelected = viewModel::changeSelectedSectionLabel,
                         onAdjustSectionStart = viewModel::setSelectedSectionStart,
                         onAdjustSectionEnd = viewModel::setSelectedSectionEnd,
+                        onSplitAtCurrentPosition = viewModel::splitAtCurrentPosition,
+                        onMergeWithPrevious = viewModel::mergeSelectedSectionWithPrevious,
+                        onMergeWithNext = viewModel::mergeSelectedSectionWithNext,
                         onErrorShown = viewModel::clearError,
                     )
 

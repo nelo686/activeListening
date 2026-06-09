@@ -85,6 +85,55 @@ class SectionEditingUseCase @Inject constructor() {
         )
     }
 
+    fun splitAtPosition(
+        sections: List<SongSection>,
+        positionMillis: Long,
+        learningLevel: LearningLevel,
+    ): SectionEditingResult {
+        val updatedSections = SongStructureFactory.splitSectionAt(
+            sections = sections,
+            positionMillis = positionMillis,
+        )
+        val selectedSectionId = SongStructureFactory.activeSectionId(
+            sections = updatedSections,
+            positionMillis = positionMillis,
+        )
+        return SectionEditingResult(
+            sections = updatedSections,
+            selectedSectionId = selectedSectionId,
+            editingSectionId = selectedSectionId,
+            learningContent = learningContent(
+                sections = updatedSections,
+                editingSectionId = selectedSectionId,
+                learningLevel = learningLevel,
+            ),
+        )
+    }
+
+    fun removeBoundaryAfter(
+        sections: List<SongSection>,
+        sectionId: Int,
+        learningLevel: LearningLevel,
+    ): SectionEditingResult {
+        val updatedSections = SongStructureFactory.removeBoundaryAfter(
+            sections = sections,
+            sectionId = sectionId,
+        )
+        val selectedSectionId = sectionId.takeIf { id ->
+            updatedSections.any { section -> section.id == id }
+        }
+        return SectionEditingResult(
+            sections = updatedSections,
+            selectedSectionId = selectedSectionId,
+            editingSectionId = selectedSectionId,
+            learningContent = learningContent(
+                sections = updatedSections,
+                editingSectionId = selectedSectionId,
+                learningLevel = learningLevel,
+            ),
+        )
+    }
+
     fun learningContent(
         sections: List<SongSection>,
         editingSectionId: Int?,

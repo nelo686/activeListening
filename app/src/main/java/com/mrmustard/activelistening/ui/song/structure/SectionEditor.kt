@@ -9,12 +9,14 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
-import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.AssistChip
+import androidx.compose.material3.Button
+import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.ElevatedCard
 import androidx.compose.material3.FilterChip
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
@@ -36,9 +38,16 @@ import com.mrmustard.activelistening.domain.structure.SongSection
 fun SectionDetailsSheetContent(
     section: SongSection,
     learningContent: SectionLearningContent?,
+    currentPositionMillis: Long,
+    canSplitAtCurrentPosition: Boolean,
+    canMergeWithPrevious: Boolean,
+    canMergeWithNext: Boolean,
     onLabelSelected: (SectionLabel) -> Unit,
     onAdjustStart: (Long) -> Unit,
     onAdjustEnd: (Long) -> Unit,
+    onSplitAtCurrentPosition: () -> Unit,
+    onMergeWithPrevious: () -> Unit,
+    onMergeWithNext: () -> Unit,
     modifier: Modifier = Modifier,
 ) {
     Column(
@@ -107,6 +116,45 @@ fun SectionDetailsSheetContent(
             suggestedTimeMillis = section.endMillis,
             onChange = onAdjustEnd,
         )
+
+        HorizontalDivider()
+
+        Text(
+            text = stringResource(R.string.structure_divisions_title),
+            style = MaterialTheme.typography.titleSmall,
+            fontWeight = FontWeight.SemiBold,
+        )
+        Button(
+            onClick = onSplitAtCurrentPosition,
+            enabled = canSplitAtCurrentPosition,
+            modifier = Modifier.fillMaxWidth(),
+        ) {
+            Text(
+                stringResource(
+                    R.string.structure_split_at_current_position,
+                    formatSectionTime(currentPositionMillis),
+                ),
+            )
+        }
+        Row(
+            modifier = Modifier.fillMaxWidth(),
+            horizontalArrangement = Arrangement.spacedBy(8.dp),
+        ) {
+            OutlinedButton(
+                onClick = onMergeWithPrevious,
+                enabled = canMergeWithPrevious,
+                modifier = Modifier.weight(1f),
+            ) {
+                Text(stringResource(R.string.structure_merge_previous))
+            }
+            OutlinedButton(
+                onClick = onMergeWithNext,
+                enabled = canMergeWithNext,
+                modifier = Modifier.weight(1f),
+            ) {
+                Text(stringResource(R.string.structure_merge_next))
+            }
+        }
     }
 }
 

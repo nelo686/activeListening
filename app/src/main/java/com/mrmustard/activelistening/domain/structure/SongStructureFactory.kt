@@ -81,6 +81,59 @@ object SongStructureFactory {
         }
     }
 
+    fun splitSectionAt(
+        sections: List<SongSection>,
+        positionMillis: Long,
+    ): List<SongSection> {
+        val index = sections.indexOfFirst { section ->
+            positionMillis > section.startMillis && positionMillis < section.endMillis
+        }
+        if (index == -1) return sections
+
+        val section = sections[index]
+        if (positionMillis - section.startMillis < MIN_SECTION_DURATION_MILLIS ||
+            section.endMillis - positionMillis < MIN_SECTION_DURATION_MILLIS
+        ) {
+            return sections
+        }
+
+        val nextId = (sections.maxOfOrNull { it.id } ?: -1) + 1
+        val left = section.copyWithTiming(endMillis = positionMillis)
+        val right = SongSection(
+            id = nextId,
+            startMillis = positionMillis,
+            endMillis = section.endMillis,
+            label = SectionLabel.Other,
+            status = SectionStatus.Suggested,
+            prompt = SectionLabel.Other.defaultPrompt(),
+            isApproximate = true,
+            rhythmInfo = SectionRhythmEstimator.estimate(section.endMillis - positionMillis),
+            musicalContrast = section.musicalContrast?.copy(confidence = SectionRhythmConfidence.Low),
+        )
+
+        return sections.flatMapIndexed { currentIndex, currentSection ->
+            if (currentIndex == index) listOf(left, right) else listOf(currentSection)
+        }
+    }
+
+    fun removeBoundaryAfter(
+        sections: List<SongSection>,
+        sectionId: Int,
+    ): List<SongSection> {
+        val index = sections.indexOfFirst { it.id == sectionId }
+        if (index == -1 || index == sections.lastIndex) return sections
+
+        val current = sections[index]
+        val next = sections[index + 1]
+        val merged = current.copyWithTiming(endMillis = next.endMillis)
+
+        return sections.filterIndexed { currentIndex, _ ->
+            currentIndex != index + 1
+        }.mapIndexed { currentIndex, section ->
+            if (currentIndex == index) merged else section
+        }
+    }
+
     private fun adjustStartBoundary(
         sections: List<SongSection>,
         index: Int,

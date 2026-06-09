@@ -20,6 +20,7 @@ import com.mrmustard.activelistening.domain.PlaybackState
 import com.mrmustard.activelistening.domain.learning.SectionLearningContent
 import com.mrmustard.activelistening.domain.structure.SectionLabel
 import com.mrmustard.activelistening.domain.structure.SongSection
+import com.mrmustard.activelistening.domain.structure.SongStructureFactory
 import com.mrmustard.activelistening.ui.song.structure.SectionDetailsSheetContent
 import com.mrmustard.activelistening.ui.song.structure.StructureTimeline
 
@@ -41,9 +42,17 @@ fun ListeningSession(
     onSectionLabelSelected: (SectionLabel) -> Unit,
     onAdjustSectionStart: (Long) -> Unit,
     onAdjustSectionEnd: (Long) -> Unit,
+    onSplitAtCurrentPosition: () -> Unit,
+    onMergeWithPrevious: () -> Unit,
+    onMergeWithNext: () -> Unit,
     modifier: Modifier = Modifier,
 ) {
     val sheetSection = sections.firstOrNull { it.id == editingSectionId }
+    val sheetSectionIndex = sections.indexOfFirst { it.id == editingSectionId }
+    val canSplitAtCurrentPosition = sheetSection?.let { section ->
+        playbackState.positionMillis - section.startMillis >= SongStructureFactory.MIN_SECTION_DURATION_MILLIS &&
+            section.endMillis - playbackState.positionMillis >= SongStructureFactory.MIN_SECTION_DURATION_MILLIS
+    } ?: false
     val guidanceSection = sections.firstOrNull { it.id == activeSectionId }
         ?: sections.firstOrNull { it.id == selectedSectionId }
 
@@ -90,9 +99,16 @@ fun ListeningSession(
             SectionDetailsSheetContent(
                 section = sheetSection,
                 learningContent = editingSectionLearningContent,
+                currentPositionMillis = playbackState.positionMillis,
+                canSplitAtCurrentPosition = canSplitAtCurrentPosition,
+                canMergeWithPrevious = sheetSectionIndex > 0,
+                canMergeWithNext = sheetSectionIndex in 0 until sections.lastIndex,
                 onLabelSelected = onSectionLabelSelected,
                 onAdjustStart = onAdjustSectionStart,
                 onAdjustEnd = onAdjustSectionEnd,
+                onSplitAtCurrentPosition = onSplitAtCurrentPosition,
+                onMergeWithPrevious = onMergeWithPrevious,
+                onMergeWithNext = onMergeWithNext,
                 modifier = Modifier.padding(horizontal = 24.dp, vertical = 12.dp),
             )
         }

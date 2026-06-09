@@ -148,4 +148,70 @@ class SongStructureFactoryTest {
         assertEquals(SongStructureFactory.MIN_SECTION_DURATION_MILLIS, adjusted[1].startMillis)
         assertTrue(adjusted.all { it.durationMillis >= SongStructureFactory.MIN_SECTION_DURATION_MILLIS })
     }
+
+    @Test
+    fun `splits section at valid position and keeps timeline aligned`() {
+        val sections = SongStructureFactory.createInitialSections(durationMillis = 120_000L)
+
+        val split = SongStructureFactory.splitSectionAt(
+            sections = sections,
+            positionMillis = 45_000L,
+        )
+
+        assertEquals(sections.size + 1, split.size)
+        assertEquals(30_000L, split[1].startMillis)
+        assertEquals(45_000L, split[1].endMillis)
+        assertEquals(45_000L, split[2].startMillis)
+        assertEquals(60_000L, split[2].endMillis)
+        assertEquals(SectionLabel.Other, split[2].label)
+        assertEquals(4, split[2].id)
+        assertTrue(split.zipWithNext().all { (left, right) -> left.endMillis == right.startMillis })
+        assertTrue(split.all { it.durationMillis >= SongStructureFactory.MIN_SECTION_DURATION_MILLIS })
+    }
+
+    @Test
+    fun `does not split section when position would create too short section`() {
+        val sections = SongStructureFactory.createInitialSections(durationMillis = 120_000L)
+
+        val split = SongStructureFactory.splitSectionAt(
+            sections = sections,
+            positionMillis = 32_000L,
+        )
+
+        assertEquals(sections, split)
+    }
+
+    @Test
+    fun `removes boundary after section by merging it with next section`() {
+        val sections = SongStructureFactory.createInitialSections(durationMillis = 120_000L)
+
+        val merged = SongStructureFactory.removeBoundaryAfter(
+            sections = sections,
+            sectionId = 1,
+        )
+
+        assertEquals(sections.size - 1, merged.size)
+        assertEquals(30_000L, merged[1].startMillis)
+        assertEquals(90_000L, merged[1].endMillis)
+        assertEquals(sections[1].id, merged[1].id)
+        assertEquals(sections[1].label, merged[1].label)
+        assertTrue(merged.zipWithNext().all { (left, right) -> left.endMillis == right.startMillis })
+    }
+
+    @Test
+    fun `does not remove boundary after last or missing section`() {
+        val sections = SongStructureFactory.createInitialSections(durationMillis = 120_000L)
+
+        val afterLast = SongStructureFactory.removeBoundaryAfter(
+            sections = sections,
+            sectionId = sections.last().id,
+        )
+        val afterMissing = SongStructureFactory.removeBoundaryAfter(
+            sections = sections,
+            sectionId = 999,
+        )
+
+        assertEquals(sections, afterLast)
+        assertEquals(sections, afterMissing)
+    }
 }

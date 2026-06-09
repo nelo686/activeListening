@@ -50,6 +50,9 @@ fun SongScreen(
     onSectionLabelSelected: (SectionLabel) -> Unit,
     onAdjustSectionStart: (Long) -> Unit,
     onAdjustSectionEnd: (Long) -> Unit,
+    onSplitAtCurrentPosition: () -> Unit,
+    onMergeWithPrevious: () -> Unit,
+    onMergeWithNext: () -> Unit,
     onErrorShown: () -> Unit,
     modifier: Modifier = Modifier,
 ) {
@@ -138,6 +141,9 @@ fun SongScreen(
                             onSectionLabelSelected = onSectionLabelSelected,
                             onAdjustSectionStart = onAdjustSectionStart,
                             onAdjustSectionEnd = onAdjustSectionEnd,
+                            onSplitAtCurrentPosition = onSplitAtCurrentPosition,
+                            onMergeWithPrevious = onMergeWithPrevious,
+                            onMergeWithNext = onMergeWithNext,
                         )
                     }
                     }
@@ -164,6 +170,9 @@ private fun SongScreenPreview() {
             onSectionLabelSelected = {},
             onAdjustSectionStart = {},
             onAdjustSectionEnd = {},
+            onSplitAtCurrentPosition = {},
+            onMergeWithPrevious = {},
+            onMergeWithNext = {},
             onErrorShown = {},
         )
     }
@@ -205,6 +214,9 @@ private fun GuidedSongScreenPreview() {
             onSectionLabelSelected = {},
             onAdjustSectionStart = {},
             onAdjustSectionEnd = {},
+            onSplitAtCurrentPosition = {},
+            onMergeWithPrevious = {},
+            onMergeWithNext = {},
             onErrorShown = {},
         )
     }

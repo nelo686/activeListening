@@ -57,6 +57,10 @@
     <string name="structure_time_input_hint">Formato mm:ss</string>
     <string name="structure_time_input_error">Usa un valor mm:ss valido</string>
     <string name="structure_time_apply">Aplicar tiempo</string>
+    <string name="structure_divisions_title">Divisiones</string>
+    <string name="structure_split_at_current_position">Dividir en %1$s</string>
+    <string name="structure_merge_previous">Fusionar anterior</string>
+    <string name="structure_merge_next">Fusionar siguiente</string>
     <string name="structure_repeat_section">Repetir esta seccion</string>
     <string name="guidance_intensity_title">Intensidad de guia</string>
     <string name="guidance_intensity_normal">Normal</string>
