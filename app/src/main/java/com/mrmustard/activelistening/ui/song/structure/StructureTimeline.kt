@@ -134,8 +134,30 @@ private fun SectionBlock(
                         .background(MaterialTheme.colorScheme.outline),
                 )
             }
+            if (section.musicalContrast != null) {
+                Text(
+                    text = stringResource(R.string.structure_timeline_contrast_marker),
+                    modifier = Modifier
+                        .align(Alignment.TopStart)
+                        .padding(6.dp)
+                        .background(
+                            color = MaterialTheme.colorScheme.tertiary,
+                            shape = MaterialTheme.shapes.extraSmall,
+                        )
+                        .padding(horizontal = 5.dp, vertical = 2.dp),
+                    style = MaterialTheme.typography.labelSmall,
+                    color = MaterialTheme.colorScheme.onTertiary,
+                    maxLines = 1,
+                    overflow = TextOverflow.Clip,
+                )
+            }
             Column(
-                modifier = Modifier.padding(8.dp),
+                modifier = Modifier.padding(
+                    start = 8.dp,
+                    top = if (section.musicalContrast == null) 8.dp else 28.dp,
+                    end = 8.dp,
+                    bottom = 8.dp,
+                ),
                 verticalArrangement = Arrangement.spacedBy(3.dp),
             ) {
                 Text(

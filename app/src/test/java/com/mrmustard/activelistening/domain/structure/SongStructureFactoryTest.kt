@@ -29,6 +29,14 @@ class SongStructureFactoryTest {
     }
 
     @Test
+    fun `creates rhythm info for analyzable initial sections`() {
+        val sections = SongStructureFactory.createInitialSections(durationMillis = 128_000L)
+
+        assertEquals(16, sections.first().rhythmInfo?.estimatedBars)
+        assertEquals(SectionRhythmRegularity.Regular, sections.first().rhythmInfo?.regularity)
+    }
+
+    @Test
     fun `local prompts guide active listening decisions`() {
         val sections = SongStructureFactory.createInitialSections(durationMillis = 240_000L)
         val combinedPrompts = sections.joinToString(separator = " ") { it.prompt.lowercase() }
@@ -106,7 +114,23 @@ class SongStructureFactoryTest {
 
         assertEquals(70_000L, adjusted[1].endMillis)
         assertEquals(70_000L, adjusted[2].startMillis)
+        assertEquals(SectionRhythmRegularity.Regular, adjusted[1].rhythmInfo?.regularity)
         assertTrue(adjusted.zipWithNext().all { (left, right) -> left.endMillis == right.startMillis })
+    }
+
+    @Test
+    fun `recalculates rhythm info when timing changes`() {
+        val sections = SongStructureFactory.createInitialSections(durationMillis = 128_000L)
+
+        val adjusted = SongStructureFactory.setSectionBoundary(
+            sections = sections,
+            sectionId = 1,
+            boundary = SectionBoundary.End,
+            positionMillis = 51_250L,
+        )
+
+        assertEquals(SectionRhythmRegularity.Irregular, adjusted[1].rhythmInfo?.regularity)
+        assertNull(adjusted[1].rhythmInfo?.estimatedBars)
     }
 
     @Test

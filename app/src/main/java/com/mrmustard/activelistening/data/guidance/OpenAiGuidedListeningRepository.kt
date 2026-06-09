@@ -61,7 +61,11 @@ class OpenAiGuidedListeningRepository @Inject constructor(
             $sectionLines
 
             Devuelve exactamente una linea por seccion con este formato:
-            id|etiqueta musical breve|pregunta o pista pedagogica
+            id|etiqueta musical breve|pregunta o pista pedagogica|contraste de ritmo o sensacion, o "sin contraste"
+
+            En el ultimo campo, menciona solo contrastes orientativos de ritmo o sensacion musical.
+            Diferencialos de cambios de instrumentacion, energia o melodia.
+            Si no hay base para sugerir contraste, escribe "sin contraste".
         """.trimIndent()
     }
 

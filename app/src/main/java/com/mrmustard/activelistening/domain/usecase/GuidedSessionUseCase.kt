@@ -57,6 +57,7 @@ class GuidedSessionUseCase @Inject constructor() {
             section.copy(
                 label = suggestion.title.toSectionLabel() ?: section.label,
                 prompt = suggestion.prompt,
+                musicalContrast = suggestion.musicalContrast ?: section.musicalContrast,
             )
         }
     }

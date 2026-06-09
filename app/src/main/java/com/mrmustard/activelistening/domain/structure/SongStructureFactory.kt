@@ -98,8 +98,8 @@ object SongStructureFactory {
         if (newStart == current.startMillis) return sections
         return sections.mapIndexed { currentIndex, section ->
             when (currentIndex) {
-                index - 1 -> previous.copy(endMillis = newStart, isApproximate = true)
-                index -> current.copy(startMillis = newStart, isApproximate = true)
+                index - 1 -> previous.copyWithTiming(endMillis = newStart)
+                index -> current.copyWithTiming(startMillis = newStart)
                 else -> section
             }
         }
@@ -122,8 +122,8 @@ object SongStructureFactory {
         if (newEnd == current.endMillis) return sections
         return sections.mapIndexed { currentIndex, section ->
             when (currentIndex) {
-                index -> current.copy(endMillis = newEnd, isApproximate = true)
-                index + 1 -> next.copy(startMillis = newEnd, isApproximate = true)
+                index -> current.copyWithTiming(endMillis = newEnd)
+                index + 1 -> next.copyWithTiming(startMillis = newEnd)
                 else -> section
             }
         }
@@ -146,8 +146,8 @@ object SongStructureFactory {
         if (newStart == current.startMillis) return sections
         return sections.mapIndexed { currentIndex, section ->
             when (currentIndex) {
-                index - 1 -> previous.copy(endMillis = newStart, isApproximate = true)
-                index -> current.copy(startMillis = newStart, isApproximate = true)
+                index - 1 -> previous.copyWithTiming(endMillis = newStart)
+                index -> current.copyWithTiming(startMillis = newStart)
                 else -> section
             }
         }
@@ -170,8 +170,8 @@ object SongStructureFactory {
         if (newEnd == current.endMillis) return sections
         return sections.mapIndexed { currentIndex, section ->
             when (currentIndex) {
-                index -> current.copy(endMillis = newEnd, isApproximate = true)
-                index + 1 -> next.copy(startMillis = newEnd, isApproximate = true)
+                index -> current.copyWithTiming(endMillis = newEnd)
+                index + 1 -> next.copyWithTiming(startMillis = newEnd)
                 else -> section
             }
         }
@@ -195,4 +195,16 @@ object SongStructureFactory {
     )
 
     const val MIN_SECTION_DURATION_MILLIS = 5_000L
+
+    private fun SongSection.copyWithTiming(
+        startMillis: Long = this.startMillis,
+        endMillis: Long = this.endMillis,
+    ): SongSection =
+        copy(
+            startMillis = startMillis,
+            endMillis = endMillis,
+            isApproximate = true,
+            rhythmInfo = SectionRhythmEstimator.estimate(endMillis - startMillis),
+            musicalContrast = musicalContrast?.copy(confidence = SectionRhythmConfidence.Low),
+        )
 }

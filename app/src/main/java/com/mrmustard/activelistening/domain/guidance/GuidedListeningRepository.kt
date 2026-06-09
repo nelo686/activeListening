@@ -1,5 +1,7 @@
 package com.mrmustard.activelistening.domain.guidance
 
+import com.mrmustard.activelistening.domain.structure.SectionMusicalContrast
+
 interface GuidedListeningRepository {
     suspend fun createGuidedListeningPlan(
         request: GuidedListeningRequest,
@@ -32,4 +34,5 @@ data class GuidedListeningMarkerSuggestion(
     val id: Int,
     val title: String,
     val prompt: String,
+    val musicalContrast: SectionMusicalContrast? = null,
 )

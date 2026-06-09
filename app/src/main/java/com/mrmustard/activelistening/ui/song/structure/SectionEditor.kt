@@ -6,7 +6,12 @@ import androidx.compose.foundation.layout.ExperimentalLayoutApi
 import androidx.compose.foundation.layout.FlowRow
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.verticalScroll
+import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.AssistChip
+import androidx.compose.material3.ElevatedCard
 import androidx.compose.material3.FilterChip
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.MaterialTheme
@@ -19,6 +24,10 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import com.mrmustard.activelistening.R
 import com.mrmustard.activelistening.domain.learning.SectionLearningContent
+import com.mrmustard.activelistening.domain.structure.SectionMusicalContrast
+import com.mrmustard.activelistening.domain.structure.SectionRhythmConfidence
+import com.mrmustard.activelistening.domain.structure.SectionRhythmInfo
+import com.mrmustard.activelistening.domain.structure.SectionRhythmRegularity
 import com.mrmustard.activelistening.domain.structure.SectionLabel
 import com.mrmustard.activelistening.domain.structure.SongSection
 
@@ -33,7 +42,9 @@ fun SectionDetailsSheetContent(
     modifier: Modifier = Modifier,
 ) {
     Column(
-        modifier = modifier.fillMaxWidth(),
+        modifier = modifier
+            .fillMaxWidth()
+            .verticalScroll(rememberScrollState()),
         verticalArrangement = Arrangement.spacedBy(16.dp),
     ) {
         Row(
@@ -77,6 +88,11 @@ fun SectionDetailsSheetContent(
             }
         }
 
+        RhythmInfoPanel(
+            rhythmInfo = section.rhythmInfo,
+            musicalContrast = section.musicalContrast,
+        )
+
         LearningPanel(content = learningContent)
 
         HorizontalDivider()
@@ -91,5 +107,84 @@ fun SectionDetailsSheetContent(
             suggestedTimeMillis = section.endMillis,
             onChange = onAdjustEnd,
         )
+    }
+}
+
+@Composable
+private fun RhythmInfoPanel(
+    rhythmInfo: SectionRhythmInfo?,
+    musicalContrast: SectionMusicalContrast?,
+) {
+    ElevatedCard(
+        colors = CardDefaults.elevatedCardColors(
+            containerColor = MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.55f),
+        ),
+    ) {
+        Column(
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(14.dp),
+            verticalArrangement = Arrangement.spacedBy(8.dp),
+        ) {
+            Text(
+                text = stringResource(R.string.structure_rhythm_title),
+                style = MaterialTheme.typography.titleSmall,
+                fontWeight = FontWeight.SemiBold,
+            )
+
+            when {
+                rhythmInfo?.regularity == SectionRhythmRegularity.Irregular -> Text(
+                    text = stringResource(R.string.structure_rhythm_irregular),
+                    style = MaterialTheme.typography.bodyMedium,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant,
+                )
+
+                rhythmInfo?.estimatedBars != null -> Text(
+                    text = stringResource(
+                        R.string.structure_rhythm_estimated_bars,
+                        rhythmInfo.estimatedBars,
+                    ),
+                    style = MaterialTheme.typography.bodyMedium,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant,
+                )
+
+                else -> Text(
+                    text = stringResource(R.string.structure_rhythm_unavailable),
+                    style = MaterialTheme.typography.bodyMedium,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant,
+                )
+            }
+
+            if (rhythmInfo?.confidence == SectionRhythmConfidence.Low &&
+                rhythmInfo.regularity != SectionRhythmRegularity.Irregular
+            ) {
+                Text(
+                    text = stringResource(R.string.structure_rhythm_low_confidence),
+                    style = MaterialTheme.typography.bodySmall,
+                    color = MaterialTheme.colorScheme.error,
+                )
+            }
+
+            musicalContrast?.let { contrast ->
+                HorizontalDivider()
+                Text(
+                    text = stringResource(R.string.structure_contrast_title),
+                    style = MaterialTheme.typography.titleSmall,
+                    fontWeight = FontWeight.SemiBold,
+                )
+                Text(
+                    text = contrast.explanation,
+                    style = MaterialTheme.typography.bodyMedium,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant,
+                )
+                if (contrast.confidence == SectionRhythmConfidence.Low) {
+                    Text(
+                        text = stringResource(R.string.structure_contrast_low_confidence),
+                        style = MaterialTheme.typography.bodySmall,
+                        color = MaterialTheme.colorScheme.error,
+                    )
+                }
+            }
+        }
     }
 }

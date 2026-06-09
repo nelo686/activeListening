@@ -40,6 +40,14 @@
     <string name="structure_timeline_position">%1$s de %2$s</string>
     <string name="structure_timeline_section_description">%1$s desde %2$s hasta %3$s</string>
     <string name="structure_section_duration">Dur. %1$s</string>
+    <string name="structure_rhythm_title">Compases y sensacion ritmica</string>
+    <string name="structure_rhythm_estimated_bars">%1$d compases estimados</string>
+    <string name="structure_rhythm_low_confidence">Division aproximada: usala como pista de escucha y corrigela si no encaja.</string>
+    <string name="structure_rhythm_irregular">Duracion irregular: no se fuerza una cantidad estandar de compases.</string>
+    <string name="structure_rhythm_unavailable">Aun no hay duracion suficiente para estimar compases con sentido.</string>
+    <string name="structure_contrast_title">Cambio de ritmo o sensacion</string>
+    <string name="structure_contrast_low_confidence">Deteccion orientativa: confirma si el cambio esta en el ritmo o sensacion, no solo en instrumentacion, energia o melodia.</string>
+    <string name="structure_timeline_contrast_marker">Cambio</string>
     <string name="structure_section_waiting">Selecciona una seccion para etiquetarla y ajustar sus transiciones.</string>
     <string name="structure_editor_title">Seccion seleccionada</string>
     <string name="structure_label_title">Etiqueta musical</string>

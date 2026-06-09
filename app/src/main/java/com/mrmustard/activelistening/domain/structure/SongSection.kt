@@ -8,6 +8,8 @@ data class SongSection(
     val status: SectionStatus = SectionStatus.Suggested,
     val prompt: String,
     val isApproximate: Boolean = true,
+    val rhythmInfo: SectionRhythmInfo? = SectionRhythmEstimator.estimate(endMillis - startMillis),
+    val musicalContrast: SectionMusicalContrast? = null,
 ) {
     val durationMillis: Long
         get() = (endMillis - startMillis).coerceAtLeast(0L)

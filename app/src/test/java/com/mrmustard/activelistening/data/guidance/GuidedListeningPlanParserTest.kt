@@ -22,6 +22,23 @@ class GuidedListeningPlanParserTest {
     }
 
     @Test
+    fun `parses optional rhythm contrast from fourth field`() {
+        val content = """
+            0|Verso|Compara el pulso con la intro.|Posible cambio de feel: parece mas estable que la entrada, no solo mas energia.
+            1|Coro|Escucha si se repite la idea central.|sin contraste
+        """.trimIndent()
+
+        val result = GuidedListeningPlanParser.parse(content)
+
+        assertEquals(2, result.size)
+        assertEquals(
+            "Posible cambio de feel: parece mas estable que la entrada, no solo mas energia.",
+            result[0].musicalContrast?.explanation,
+        )
+        assertEquals(null, result[1].musicalContrast)
+    }
+
+    @Test
     fun `ignores malformed lines`() {
         val content = """
             Esto no cumple el formato
@@ -41,4 +58,3 @@ class GuidedListeningPlanParserTest {
         assertTrue(result.isEmpty())
     }
 }
-
