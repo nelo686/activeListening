@@ -11,7 +11,6 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
-import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.SnackbarHost
 import androidx.compose.material3.SnackbarHostState
@@ -53,6 +52,7 @@ fun SongScreen(
     onSplitAtCurrentPosition: () -> Unit,
     onMergeWithPrevious: () -> Unit,
     onMergeWithNext: () -> Unit,
+    onRestoreOriginalProposal: () -> Unit,
     onErrorShown: () -> Unit,
     modifier: Modifier = Modifier,
 ) {
@@ -135,6 +135,7 @@ fun SongScreen(
                             activeSectionId = state.activeSectionId,
                             editingSectionId = state.editingSectionId,
                             editingSectionLearningContent = state.editingSectionLearningContent,
+                            canRestoreOriginalProposal = state.canRestoreOriginalProposal,
                             onStartGuidedSession = onStartGuidedSession,
                             onSectionSelected = onSectionSelected,
                             onSectionEditorDismiss = onSectionEditorDismiss,
@@ -144,6 +145,7 @@ fun SongScreen(
                             onSplitAtCurrentPosition = onSplitAtCurrentPosition,
                             onMergeWithPrevious = onMergeWithPrevious,
                             onMergeWithNext = onMergeWithNext,
+                            onRestoreOriginalProposal = onRestoreOriginalProposal,
                         )
                     }
                     }
@@ -173,6 +175,7 @@ private fun SongScreenPreview() {
             onSplitAtCurrentPosition = {},
             onMergeWithPrevious = {},
             onMergeWithNext = {},
+            onRestoreOriginalProposal = {},
             onErrorShown = {},
         )
     }
@@ -217,6 +220,7 @@ private fun GuidedSongScreenPreview() {
             onSplitAtCurrentPosition = {},
             onMergeWithPrevious = {},
             onMergeWithNext = {},
+            onRestoreOriginalProposal = {},
             onErrorShown = {},
         )
     }

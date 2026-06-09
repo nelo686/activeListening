@@ -17,13 +17,17 @@ data class ActiveListeningUiState(
     val isGuidanceLoading: Boolean = false,
     val guidanceError: GuidanceError? = null,
     val sections: List<SongSection> = emptyList(),
+    val originalSections: List<SongSection> = emptyList(),
     val selectedSectionId: Int? = null,
     val activeSectionId: Int? = null,
     val editingSectionId: Int? = null,
     val guidanceIntensity: GuidanceIntensity = GuidanceIntensity.Normal,
     val learningLevel: LearningLevel = LearningLevel.Introductory,
     val editingSectionLearningContent: SectionLearningContent? = null,
-)
+) {
+    val canRestoreOriginalProposal: Boolean
+        get() = originalSections.isNotEmpty() && sections != originalSections
+}
 
 enum class GuidanceError {
     MissingApiKey,

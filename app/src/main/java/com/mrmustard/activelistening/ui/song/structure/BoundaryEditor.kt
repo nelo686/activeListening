@@ -18,6 +18,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.platform.LocalSoftwareKeyboardController
 import androidx.compose.ui.unit.dp
 import com.mrmustard.activelistening.R
 
@@ -34,6 +35,7 @@ fun BoundaryEditor(
     LaunchedEffect(suggestedTimeMillis) {
         text = formatSectionTime(suggestedTimeMillis)
     }
+    val keyboardController = LocalSoftwareKeyboardController.current
 
     Column(verticalArrangement = Arrangement.spacedBy(6.dp)) {
         Text(
@@ -67,7 +69,10 @@ fun BoundaryEditor(
             trailingIcon = {
                 IconButton(
                     onClick = {
-                        parsedTime?.let(onChange)
+                        parsedTime?.let { timeMillis ->
+                            onChange(timeMillis)
+                            keyboardController?.hide()
+                        }
                     },
                     enabled = hasEditedValue && parsedTime != null,
                 ) {

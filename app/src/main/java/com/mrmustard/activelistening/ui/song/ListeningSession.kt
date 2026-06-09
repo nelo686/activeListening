@@ -10,6 +10,7 @@ import androidx.compose.material3.Card
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.ModalBottomSheet
+import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
@@ -36,6 +37,7 @@ fun ListeningSession(
     activeSectionId: Int?,
     editingSectionId: Int?,
     editingSectionLearningContent: SectionLearningContent?,
+    canRestoreOriginalProposal: Boolean,
     onStartGuidedSession: () -> Unit,
     onSectionSelected: (Int) -> Unit,
     onSectionEditorDismiss: () -> Unit,
@@ -45,6 +47,7 @@ fun ListeningSession(
     onSplitAtCurrentPosition: () -> Unit,
     onMergeWithPrevious: () -> Unit,
     onMergeWithNext: () -> Unit,
+    onRestoreOriginalProposal: () -> Unit,
     modifier: Modifier = Modifier,
 ) {
     val sheetSection = sections.firstOrNull { it.id == editingSectionId }
@@ -75,6 +78,14 @@ fun ListeningSession(
                     isGuidanceLoading = isGuidanceLoading,
                     guidanceError = guidanceError,
                 )
+                if (canRestoreOriginalProposal) {
+                    OutlinedButton(
+                        onClick = onRestoreOriginalProposal,
+                        modifier = Modifier.fillMaxWidth(),
+                    ) {
+                        Text(stringResource(R.string.structure_restore_original))
+                    }
+                }
             } else {
                 Text(
                     text = stringResource(R.string.import_song_listening_prompt),

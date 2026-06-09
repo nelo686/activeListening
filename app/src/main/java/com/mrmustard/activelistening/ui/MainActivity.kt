@@ -61,6 +61,7 @@ class MainActivity : ComponentActivity() {
                         onSplitAtCurrentPosition = viewModel::splitAtCurrentPosition,
                         onMergeWithPrevious = viewModel::mergeSelectedSectionWithPrevious,
                         onMergeWithNext = viewModel::mergeSelectedSectionWithNext,
+                        onRestoreOriginalProposal = viewModel::restoreOriginalProposal,
                         onErrorShown = viewModel::clearError,
                     )
 
