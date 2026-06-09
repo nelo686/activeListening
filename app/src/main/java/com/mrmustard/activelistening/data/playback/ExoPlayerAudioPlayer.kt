@@ -8,6 +8,7 @@ import androidx.media3.exoplayer.ExoPlayer
 import com.mrmustard.activelistening.domain.importsong.ImportedSong
 import com.mrmustard.activelistening.domain.PlaybackError
 import com.mrmustard.activelistening.domain.PlaybackState
+import com.mrmustard.activelistening.domain.playback.AudioPlayer
 import dagger.hilt.android.scopes.ViewModelScoped
 import javax.inject.Inject
 import kotlinx.coroutines.CoroutineScope
@@ -23,9 +24,9 @@ import kotlinx.coroutines.launch
 import kotlin.time.Duration.Companion.milliseconds
 
 @ViewModelScoped
-class ExoPlayerAudioPlaybackRepository @Inject constructor(
+class ExoPlayerAudioPlayer @Inject constructor(
     private val player: ExoPlayer,
-) : AudioPlaybackRepository {
+) : AudioPlayer {
 
     private val scope = CoroutineScope(SupervisorJob() + Dispatchers.Main.immediate)
     private var progressJob: Job? = null

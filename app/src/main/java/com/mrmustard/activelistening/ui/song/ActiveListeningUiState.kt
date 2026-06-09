@@ -19,10 +19,10 @@ data class ActiveListeningUiState(
     val sections: List<SongSection> = emptyList(),
     val selectedSectionId: Int? = null,
     val activeSectionId: Int? = null,
+    val editingSectionId: Int? = null,
     val guidanceIntensity: GuidanceIntensity = GuidanceIntensity.Normal,
     val learningLevel: LearningLevel = LearningLevel.Introductory,
-    val isSectionDetailsExpanded: Boolean = false,
-    val selectedSectionLearningContent: SectionLearningContent? = null,
+    val editingSectionLearningContent: SectionLearningContent? = null,
 )
 
 enum class GuidanceError {

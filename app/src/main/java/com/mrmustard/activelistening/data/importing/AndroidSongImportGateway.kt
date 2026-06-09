@@ -6,6 +6,7 @@ import android.net.Uri
 import android.provider.OpenableColumns
 import com.mrmustard.activelistening.R
 import com.mrmustard.activelistening.domain.importsong.ImportSongError
+import com.mrmustard.activelistening.domain.importsong.SongImportGateway
 import com.mrmustard.activelistening.domain.importsong.ImportedSong
 import com.mrmustard.activelistening.domain.importsong.SongImportResult
 import dagger.hilt.android.qualifiers.ApplicationContext
@@ -13,10 +14,10 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import javax.inject.Inject
 
-class SongImportRepositoryImpl @Inject constructor(
+class AndroidSongImportGateway @Inject constructor(
     @ApplicationContext private val context: Context,
     private val validator: SongImportValidator,
-) : SongImportRepository {
+) : SongImportGateway {
 
     override suspend fun importSong(uri: Uri): SongImportResult = withContext(Dispatchers.IO) {
         runCatching {

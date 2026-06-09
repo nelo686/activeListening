@@ -1,10 +1,10 @@
-package com.mrmustard.activelistening.data.playback
+package com.mrmustard.activelistening.domain.playback
 
-import com.mrmustard.activelistening.domain.importsong.ImportedSong
 import com.mrmustard.activelistening.domain.PlaybackState
+import com.mrmustard.activelistening.domain.importsong.ImportedSong
 import kotlinx.coroutines.flow.StateFlow
 
-interface AudioPlaybackRepository {
+interface AudioPlayer {
     val playbackState: StateFlow<PlaybackState>
 
     fun load(song: ImportedSong)

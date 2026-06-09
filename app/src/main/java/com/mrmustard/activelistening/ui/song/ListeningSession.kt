@@ -16,10 +16,6 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.ModalBottomSheet
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
-import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
@@ -44,18 +40,17 @@ fun ListeningSession(
     sections: List<SongSection>,
     selectedSectionId: Int?,
     activeSectionId: Int?,
-    selectedSectionLearningContent: SectionLearningContent?,
+    editingSectionId: Int?,
+    editingSectionLearningContent: SectionLearningContent?,
     onStartGuidedSession: () -> Unit,
     onSectionSelected: (Int) -> Unit,
+    onSectionEditorDismiss: () -> Unit,
     onSectionLabelSelected: (SectionLabel) -> Unit,
     onAdjustSectionStart: (Long) -> Unit,
     onAdjustSectionEnd: (Long) -> Unit,
     modifier: Modifier = Modifier,
 ) {
-    var sheetSectionId by remember { mutableStateOf<Int?>(null) }
-    val sheetSection = sections.firstOrNull { it.id == sheetSectionId }
-    val sheetLearningContent = selectedSectionLearningContent
-        .takeIf { selectedSectionId == sheetSectionId }
+    val sheetSection = sections.firstOrNull { it.id == editingSectionId }
     val guidanceSection = sections.firstOrNull { it.id == activeSectionId }
         ?: sections.firstOrNull { it.id == selectedSectionId }
 
@@ -71,10 +66,7 @@ fun ListeningSession(
                     activeSectionId = activeSectionId,
                     positionMillis = playbackState.positionMillis,
                     durationMillis = playbackState.durationMillis,
-                    onSectionClick = { sectionId ->
-                        sheetSectionId = sectionId
-                        onSectionSelected(sectionId)
-                    },
+                    onSectionClick = onSectionSelected,
                 )
                 GuidedPromptPanel(
                     section = guidanceSection,
@@ -100,11 +92,11 @@ fun ListeningSession(
 
     if (sheetSection != null) {
         ModalBottomSheet(
-            onDismissRequest = { sheetSectionId = null },
+            onDismissRequest = onSectionEditorDismiss,
         ) {
             SectionDetailsSheetContent(
                 section = sheetSection,
-                learningContent = sheetLearningContent,
+                learningContent = editingSectionLearningContent,
                 onLabelSelected = onSectionLabelSelected,
                 onAdjustStart = onAdjustSectionStart,
                 onAdjustEnd = onAdjustSectionEnd,
