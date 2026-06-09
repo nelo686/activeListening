@@ -5,7 +5,6 @@ import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.imePadding
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
@@ -28,8 +27,8 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.mrmustard.activelistening.R
-import com.mrmustard.activelistening.domain.importsong.ImportedSong
 import com.mrmustard.activelistening.domain.PlaybackState
+import com.mrmustard.activelistening.domain.importsong.ImportedSong
 import com.mrmustard.activelistening.domain.structure.SectionLabel
 import com.mrmustard.activelistening.domain.structure.SongStructureFactory
 import com.mrmustard.activelistening.ui.song.importsong.ImportAction
@@ -144,40 +143,6 @@ fun SongScreen(
                     }
                 }
             }
-        }
-    }
-}
-
-@Composable
-private fun SongPlayerHeader(
-    title: String,
-    playbackState: PlaybackState,
-    onPlayClick: () -> Unit,
-    onPauseClick: () -> Unit,
-    onSeek: (Long) -> Unit,
-    onChangeSongClick: () -> Unit,
-    modifier: Modifier = Modifier,
-) {
-    Surface(
-        modifier = modifier.fillMaxWidth(),
-        tonalElevation = 3.dp,
-        shadowElevation = 2.dp,
-        color = MaterialTheme.colorScheme.surface,
-    ) {
-        Column(
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(horizontal = 24.dp, vertical = 14.dp),
-            verticalArrangement = Arrangement.spacedBy(8.dp),
-        ) {
-            PlaybackControls(
-                title = title,
-                playbackState = playbackState,
-                onPlayClick = onPlayClick,
-                onPauseClick = onPauseClick,
-                onSeek = onSeek,
-                onChangeSongClick = onChangeSongClick,
-            )
         }
     }
 }

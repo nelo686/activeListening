@@ -3,23 +3,19 @@ package com.mrmustard.activelistening.ui.song
 import android.net.Uri
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.mrmustard.activelistening.domain.guidance.GuidedListeningMarkerRequest
 import com.mrmustard.activelistening.domain.guidance.GuidedListeningRepository
-import com.mrmustard.activelistening.domain.guidance.GuidedListeningRequest
 import com.mrmustard.activelistening.domain.guidance.GuidedListeningResult
-import com.mrmustard.activelistening.domain.importsong.ImportedSong
 import com.mrmustard.activelistening.domain.importsong.SongImportResult
 import com.mrmustard.activelistening.domain.learning.GuidanceIntensity
 import com.mrmustard.activelistening.domain.learning.LearningLevel
-import com.mrmustard.activelistening.domain.learning.SectionExplanationProvider
 import com.mrmustard.activelistening.domain.playback.AudioPlayer
 import com.mrmustard.activelistening.domain.settings.UserSettingsRepository
 import com.mrmustard.activelistening.domain.structure.SectionBoundary
 import com.mrmustard.activelistening.domain.structure.SectionLabel
-import com.mrmustard.activelistening.domain.structure.SongSection
-import com.mrmustard.activelistening.domain.structure.SongStructureEditor
 import com.mrmustard.activelistening.domain.structure.SongStructureFactory
+import com.mrmustard.activelistening.domain.usecase.GuidedSessionUseCase
 import com.mrmustard.activelistening.domain.usecase.ImportSongUseCase
+import com.mrmustard.activelistening.domain.usecase.SectionEditingUseCase
 import dagger.hilt.android.lifecycle.HiltViewModel
 import javax.inject.Inject
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -34,6 +30,8 @@ class ActiveListeningViewModel @Inject constructor(
     private val audioPlayer: AudioPlayer,
     private val guidedListeningRepository: GuidedListeningRepository,
     private val userSettingsRepository: UserSettingsRepository,
+    private val guidedSessionUseCase: GuidedSessionUseCase,
+    private val sectionEditingUseCase: SectionEditingUseCase,
 ) : ViewModel() {
 
     private val _uiState = MutableStateFlow(ActiveListeningUiState())
@@ -88,33 +86,27 @@ class ActiveListeningViewModel @Inject constructor(
     }
 
     fun startGuidedSession() {
-        val song = _uiState.value.importedSong
+        val plan = guidedSessionUseCase(
+            playbackState = _uiState.value.playbackState,
+            songTitle = _uiState.value.importedSong?.displayName,
+            importedSongDurationMillis = _uiState.value.importedSong?.durationMillis,
+        )
         _uiState.update { state ->
-            val durationMillis = state.playbackState.durationMillis
-                .takeIf { it > 0L }
-                ?: state.importedSong?.durationMillis
-                ?: 0L
-            val sections = SongStructureFactory.createInitialSections(durationMillis)
-            val activeSectionId = SongStructureFactory.activeSectionId(
-                sections = sections,
-                positionMillis = state.playbackState.positionMillis,
-            )
-
             state.copy(
                 isGuidedSessionActive = true,
                 isGuidanceLoading = true,
                 guidanceError = null,
-                sections = sections,
-                selectedSectionId = activeSectionId ?: sections.firstOrNull()?.id,
-                activeSectionId = activeSectionId,
+                sections = plan.sections,
+                selectedSectionId = plan.selectedSectionId,
+                activeSectionId = plan.activeSectionId,
                 editingSectionId = null,
             ).withSectionProgress(state.playbackState.positionMillis)
                 .withEditingSectionLearningContent()
         }
         audioPlayer.play()
 
-        if (song != null) {
-            loadAiGuidance(song)
+        if (plan.guidanceRequest != null) {
+            loadAiGuidance(plan.guidanceRequest)
         } else {
             _uiState.update {
                 it.copy(
@@ -127,7 +119,10 @@ class ActiveListeningViewModel @Inject constructor(
 
     fun selectSection(sectionId: Int) {
         _uiState.update { state ->
-            val validSectionId = sectionId.takeIf { id -> state.sections.any { it.id == id } }
+            val validSectionId = sectionEditingUseCase.selectSection(
+                sections = state.sections,
+                sectionId = sectionId,
+            )
             state.copy(selectedSectionId = validSectionId)
                 .withEditingSectionLearningContent()
         }
@@ -135,18 +130,24 @@ class ActiveListeningViewModel @Inject constructor(
 
     fun openSectionEditor(sectionId: Int) {
         _uiState.update { state ->
-            val validSectionId = sectionId.takeIf { id -> state.sections.any { it.id == id } }
-                ?: return@update state
+            val selection = sectionEditingUseCase.openEditor(
+                sections = state.sections,
+                sectionId = sectionId,
+            ) ?: return@update state
             state.copy(
-                selectedSectionId = validSectionId,
-                editingSectionId = validSectionId,
+                selectedSectionId = selection.selectedSectionId,
+                editingSectionId = selection.editingSectionId,
             ).withEditingSectionLearningContent()
         }
     }
 
     fun closeSectionEditor() {
-        _uiState.update {
-            it.copy(editingSectionId = null)
+        _uiState.update { state ->
+            val selection = sectionEditingUseCase.closeEditor(state.selectedSectionId)
+            state.copy(
+                selectedSectionId = selection.selectedSectionId,
+                editingSectionId = selection.editingSectionId,
+            )
                 .withEditingSectionLearningContent()
         }
     }
@@ -154,15 +155,18 @@ class ActiveListeningViewModel @Inject constructor(
     fun changeSelectedSectionLabel(label: SectionLabel) {
         _uiState.update { state ->
             val sectionId = state.currentEditableSectionId() ?: return@update state
+            val result = sectionEditingUseCase.changeLabel(
+                sections = state.sections,
+                sectionId = sectionId,
+                label = label,
+                learningLevel = state.learningLevel,
+            )
             state.copy(
-                sections = SongStructureEditor.changeLabel(
-                    sections = state.sections,
-                    sectionId = sectionId,
-                    label = label,
-                ),
-                selectedSectionId = sectionId,
-                editingSectionId = sectionId,
-            ).withEditingSectionLearningContent()
+                sections = result.sections,
+                selectedSectionId = result.selectedSectionId,
+                editingSectionId = result.editingSectionId,
+                editingSectionLearningContent = result.learningContent,
+            )
         }
     }
 
@@ -231,46 +235,37 @@ class ActiveListeningViewModel @Inject constructor(
     ) {
         _uiState.update { state ->
             val sectionId = state.currentEditableSectionId() ?: return@update state
+            val result = sectionEditingUseCase.setBoundary(
+                sections = state.sections,
+                sectionId = sectionId,
+                boundary = boundary,
+                positionMillis = positionMillis,
+                learningLevel = state.learningLevel,
+            )
             state.copy(
-                sections = SongStructureFactory.setSectionBoundary(
-                    sections = state.sections,
-                    sectionId = sectionId,
-                    boundary = boundary,
-                    positionMillis = positionMillis,
-                ),
-                selectedSectionId = sectionId,
-                editingSectionId = sectionId,
+                sections = result.sections,
+                selectedSectionId = result.selectedSectionId,
+                editingSectionId = result.editingSectionId,
+                editingSectionLearningContent = result.learningContent,
             ).withSectionProgress(state.playbackState.positionMillis)
-                .withEditingSectionLearningContent()
         }
     }
 
-    private fun loadAiGuidance(song: ImportedSong) {
+    private fun loadAiGuidance(
+        request: com.mrmustard.activelistening.domain.guidance.GuidedListeningRequest,
+    ) {
         viewModelScope.launch {
-            val state = _uiState.value
-            val result = guidedListeningRepository.createGuidedListeningPlan(
-                GuidedListeningRequest(
-                    songTitle = song.displayName,
-                    durationMillis = state.playbackState.durationMillis
-                        .takeIf { it > 0L }
-                        ?: song.durationMillis,
-                    markers = state.sections.map { section ->
-                        GuidedListeningMarkerRequest(
-                            id = section.id,
-                            positionMillis = section.startMillis,
-                            title = section.label.name,
-                            prompt = section.prompt,
-                        )
-                    },
-                ),
-            )
+            val result = guidedListeningRepository.createGuidedListeningPlan(request)
 
             _uiState.update { currentState ->
                 when (result) {
                     is GuidedListeningResult.Success -> currentState.copy(
                         isGuidanceLoading = false,
                         guidanceError = null,
-                        sections = currentState.sections.merge(result),
+                        sections = guidedSessionUseCase.mergeSuggestions(
+                            sections = currentState.sections,
+                            result = result,
+                        ),
                     ).withSectionProgress(currentState.playbackState.positionMillis)
                         .withEditingSectionLearningContent()
 
@@ -285,32 +280,6 @@ class ActiveListeningViewModel @Inject constructor(
                     )
                 }
             }
-        }
-    }
-
-    private fun List<SongSection>.merge(
-        result: GuidedListeningResult.Success,
-    ): List<SongSection> {
-        val suggestions = result.markers.associateBy { it.id }
-        return map { section ->
-            val suggestion = suggestions[section.id] ?: return@map section
-            section.copy(
-                label = suggestion.title.toSectionLabel() ?: section.label,
-                prompt = suggestion.prompt,
-            )
-        }
-    }
-
-    private fun String.toSectionLabel(): SectionLabel? {
-        val normalized = lowercase()
-        return when {
-            "intro" in normalized || "inicio" in normalized -> SectionLabel.Intro
-            "verso" in normalized || "verse" in normalized -> SectionLabel.Verse
-            "coro" in normalized || "chorus" in normalized || "estribillo" in normalized -> SectionLabel.Chorus
-            "puente" in normalized || "bridge" in normalized -> SectionLabel.Bridge
-            "outro" in normalized || "cierre" in normalized || "final" in normalized -> SectionLabel.Outro
-            "otra" in normalized || "other" in normalized -> SectionLabel.Other
-            else -> null
         }
     }
 
@@ -334,15 +303,12 @@ class ActiveListeningViewModel @Inject constructor(
     }
 
     private fun ActiveListeningUiState.withEditingSectionLearningContent(): ActiveListeningUiState {
-        val section = sections.firstOrNull { it.id == editingSectionId }
         return copy(
-            editingSectionLearningContent = section?.let {
-                SectionExplanationProvider.contentFor(
-                    label = it.label,
-                    level = learningLevel,
-                    status = it.status,
-                )
-            },
+            editingSectionLearningContent = sectionEditingUseCase.learningContent(
+                sections = sections,
+                editingSectionId = editingSectionId,
+                learningLevel = learningLevel,
+            ),
         )
     }
 }
