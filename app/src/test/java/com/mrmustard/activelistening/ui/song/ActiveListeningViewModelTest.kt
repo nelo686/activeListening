@@ -127,6 +127,21 @@ class ActiveListeningViewModelTest {
         assertTrue(viewModel.uiState.value.isGuidedSessionActive)
     }
 
+    @Test
+    fun `playing after song ended restarts playback from beginning`() = runTest {
+        val song = testSong()
+        importGateway.result = SongImportResult.Success(song)
+        viewModel.importSong(song.uri)
+        advanceUntilIdle()
+        audioPlayer.publishPosition(song.durationMillis)
+        advanceUntilIdle()
+
+        viewModel.play()
+
+        assertEquals(0L, audioPlayer.lastSeekPositionMillis)
+        assertTrue(audioPlayer.playCalled)
+    }
+
     fun `returning to start pauses playback and saves current position`() = runTest {
         val song = testSong()
         importGateway.result = SongImportResult.Success(song)
@@ -199,6 +214,7 @@ private class FakeAudioPlayer : AudioPlayer {
     override val playbackState: StateFlow<PlaybackState> = state
     var lastSeekPositionMillis: Long? = null
     var pauseCalled = false
+    var playCalled = false
 
     override fun load(song: ImportedSong) {
         state.value = PlaybackState(
@@ -207,7 +223,10 @@ private class FakeAudioPlayer : AudioPlayer {
         )
     }
 
-    override fun play() = Unit
+    override fun play() {
+        playCalled = true
+        state.value = state.value.copy(isPlaying = true)
+    }
 
     override fun pause() {
         pauseCalled = true

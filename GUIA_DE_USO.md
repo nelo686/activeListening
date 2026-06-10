@@ -70,7 +70,8 @@ En esta vista puedes ver:
 
 - una pista actual,
 - el contexto de la seccion,
-- un mensaje de estado de la guia.
+- un mensaje de estado de la guia,
+- restaurar la propuesta original si algo no encaja.
 
 Ahora mismo este panel no ofrece botones de accion directa. Su funcion es mostrarte que seccion se esta revisando y darte una pista de escucha para que vuelvas a oir ese fragmento con mas atencion.
 
@@ -102,9 +103,11 @@ Tambien puedes ver:
 - si la sugerencia es solo orientativa,
 - una estimacion de compases y sensacion ritmica.
 
-En algunas secciones aparece tambien la tag `Cambio`.
+En algunas secciones aparece tambien la etiqueta `Cambio Ritmo`.
 
-Esa tag indica que la app ha detectado o sugerido un posible cambio de ritmo o de sensacion musical en esa seccion. No significa simplemente que "pasa algo", sino que podria haber un contraste real en el pulso, la regularidad o la sensacion del fragmento.
+Esa etiqueta indica que la app ha detectado o sugerido un posible cambio de ritmo o de sensacion musical en esa seccion. No significa simplemente que "pasa algo", sino que podria haber un contraste real en el pulso, la regularidad o la sensacion del fragmento.
+
+Puedes tocar `Cambio Ritmo` en el panel de edicion para activar o desactivar la etiqueta segun lo que escuches.
 
 Tomala como una pista de escucha, no como una certeza. Su funcion es ayudarte a volver a oir ese punto con mas atencion y comprobar si el cambio esta realmente en el ritmo o la sensacion, y no solo en la instrumentacion, la energia o la melodia.
 
@@ -115,11 +118,11 @@ Piensa en esta vista como un borrador editable, no como una verdad definitiva.
 Cuando seleccionas una seccion puedes:
 
 - cambiar su etiqueta musical,
+- activar o desactivar la etiqueta `Cambio Ritmo`,
 - ajustar su inicio,
 - ajustar su final,
 - dividirla en el tiempo actual,
-- fusionarla con la anterior o la siguiente,
-- restaurar la propuesta original si algo no encaja.
+- fusionarla con la anterior o la siguiente.
 
 Si ves un tiempo sugerido en formato `mm:ss`, puedes usarlo para mover un limite con precision.
 
@@ -191,9 +194,10 @@ Si la estructura todavia es demasiado incompleta, la exportacion se bloquea hast
 - `Confirmada`: ya la has revisado y te cuadra.
 - `Dudosa`: necesitas revisarla mas.
 
-### Tag `Cambio`
+### Etiqueta `Cambio Ritmo`
 
-- `Cambio`: posible contraste de ritmo o de sensacion dentro de esa seccion.
+- `Cambio Ritmo`: posible contraste de ritmo o de sensacion dentro de esa seccion.
+- Puedes activarla o desactivarla desde el panel de edicion de la seccion.
 - No es una confirmacion automatica. Es una ayuda para que escuches mejor ese fragmento y decidas si el contraste realmente existe.
 
 ## Recomendacion para empezar bien

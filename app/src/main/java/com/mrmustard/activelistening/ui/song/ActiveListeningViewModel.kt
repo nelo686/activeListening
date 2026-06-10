@@ -122,7 +122,17 @@ class ActiveListeningViewModel @Inject constructor(
     }
 
     fun play() {
+        backToTheBeginning()
         audioPlayer.play()
+    }
+
+    private fun backToTheBeginning() {
+        val playbackState = _uiState.value.playbackState
+        if (playbackState.durationMillis > 0L &&
+            playbackState.positionMillis >= playbackState.durationMillis
+        ) {
+            audioPlayer.seekTo(0L)
+        }
     }
 
     fun pause() {
