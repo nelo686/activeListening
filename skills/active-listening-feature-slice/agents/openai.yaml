@@ -1,0 +1,4 @@
+interface:
+  display_name: "Active Listening Feature Slice"
+  short_description: "Implementar funcionalidades verticales completas"
+  default_prompt: "Usa $active-listening-feature-slice para implementar una funcionalidad completa siguiendo las capas y pruebas del proyecto."

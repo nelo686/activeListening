@@ -1,0 +1,4 @@
+interface:
+  display_name: "Active Listening Guidance Flow"
+  short_description: "Crear guias de escucha pedagogicas"
+  default_prompt: "Usa $active-listening-guidance-flow para modificar este flujo de IA manteniendo el enfoque pedagogico y un parser robusto."

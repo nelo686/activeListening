@@ -1,0 +1,4 @@
+interface:
+  display_name: "Active Listening Room Change"
+  short_description: "Evolucionar Room con migraciones seguras"
+  default_prompt: "Usa $active-listening-room-change para realizar este cambio de persistencia preservando datos y verificando la migracion."
