@@ -16,7 +16,7 @@ import com.mrmustard.activelistening.data.structure.SongStructureSectionEntity
         SavedListeningSessionEntity::class,
     ],
     version = 3,
-    exportSchema = false,
+    exportSchema = true,
 )
 abstract class ActiveListeningDatabase : RoomDatabase() {
     abstract fun userSettingsDao(): UserSettingsDao

@@ -84,20 +84,24 @@ class AndroidPdfSongMapExportRepository @Inject constructor(
                 )
             }
             section.musicalContrast?.let { contrast ->
-                writeWrappedText("Cambio ritmico: ${contrast.explanation}", bodyPaint)
+                writeText("Cambio ritmico: ${contrast.explanation}", bodyPaint)
             }
-            writeWrappedText("Nota educativa: ${exportSection.educationalNote}", bodyPaint)
+            writeText("Nota educativa: ${exportSection.educationalNote}", bodyPaint)
             addSpace(12f)
         }
 
         fun writeText(text: String, paint: Paint) {
+            wrapTextToWidth(
+                text = text,
+                maxWidth = CONTENT_WIDTH,
+                measureText = paint::measureText,
+            ).forEach { line -> writeLine(line, paint) }
+        }
+
+        private fun writeLine(text: String, paint: Paint) {
             ensureSpace(paint.textSize + LINE_GAP)
             canvas.drawText(text, LEFT_MARGIN, y, paint)
             y += paint.textSize + LINE_GAP
-        }
-
-        fun writeWrappedText(text: String, paint: Paint) {
-            text.wrap(MAX_LINE_CHARS).forEach { line -> writeText(line, paint) }
         }
 
         fun addSpace(space: Float) {
@@ -130,7 +134,8 @@ class AndroidPdfSongMapExportRepository @Inject constructor(
         const val LEFT_MARGIN = 48f
         const val TOP_MARGIN = 48f
         const val BOTTOM_MARGIN = 48f
-        const val MAX_LINE_CHARS = 82
+        const val RIGHT_MARGIN = 48f
+        const val CONTENT_WIDTH = PAGE_WIDTH - LEFT_MARGIN - RIGHT_MARGIN
         const val LINE_GAP = 8f
 
         val documentTitlePaint = Paint(Paint.ANTI_ALIAS_FLAG).apply {
@@ -153,23 +158,6 @@ class AndroidPdfSongMapExportRepository @Inject constructor(
             typeface = Typeface.create(Typeface.DEFAULT, Typeface.ITALIC)
         }
     }
-}
-
-private fun String.wrap(maxChars: Int): List<String> {
-    if (length <= maxChars) return listOf(this)
-    val lines = mutableListOf<String>()
-    var current = ""
-    split(" ").forEach { word ->
-        val candidate = if (current.isEmpty()) word else "$current $word"
-        if (candidate.length <= maxChars) {
-            current = candidate
-        } else {
-            if (current.isNotEmpty()) lines += current
-            current = word
-        }
-    }
-    if (current.isNotEmpty()) lines += current
-    return lines
 }
 
 private fun SectionLabel.toDisplayName(): String =

@@ -54,6 +54,7 @@ class ActiveListeningViewModel @Inject constructor(
     val uiState: StateFlow<ActiveListeningUiState> = _uiState.asStateFlow()
     private var lastPersistedSongKey: String? = null
     private var lastPersistedPositionMillis: Long = 0L
+    private var isCurrentSessionSaved = false
 
     init {
         observeSavedSessions()
@@ -89,7 +90,7 @@ class ActiveListeningViewModel @Inject constructor(
         val songKey = state.importedSong?.uri?.toString()
         val positionMillis = state.playbackState.positionMillis
         audioPlayer.pause()
-        if (songKey != null) {
+        if (songKey != null && isCurrentSessionSaved) {
             lastPersistedSongKey = songKey
             lastPersistedPositionMillis = positionMillis
             viewModelScope.launch {
@@ -99,6 +100,7 @@ class ActiveListeningViewModel @Inject constructor(
                 )
             }
         }
+        isCurrentSessionSaved = false
         _uiState.update {
             it.copy(
                 importedSong = null,
@@ -132,6 +134,7 @@ class ActiveListeningViewModel @Inject constructor(
     }
 
     fun startGuidedSession() {
+        saveCurrentSession()
         val plan = guidedSessionUseCase(
             playbackState = _uiState.value.playbackState,
             songTitle = _uiState.value.importedSong?.displayName,
@@ -444,7 +447,10 @@ class ActiveListeningViewModel @Inject constructor(
         val songKey = song.uri.toString()
         val savedStructure = songStructureRepository.getStructure(songKey)
         val savedSession = savedListeningSessionRepository.getSession(songKey)
-        savedListeningSessionRepository.upsertSession(song)
+        isCurrentSessionSaved = savedSession != null || savedStructure != null
+        if (isCurrentSessionSaved) {
+            savedListeningSessionRepository.upsertSession(song)
+        }
         lastPersistedSongKey = songKey
         lastPersistedPositionMillis = savedSession?.lastPositionMillis ?: 0L
 
@@ -541,6 +547,7 @@ class ActiveListeningViewModel @Inject constructor(
     }
 
     private fun persistPlaybackPositionIfNeeded(playbackState: PlaybackState) {
+        if (!isCurrentSessionSaved) return
         val songKey = _uiState.value.importedSong?.uri?.toString() ?: return
         val positionMillis = playbackState.positionMillis.coerceAtLeast(0L)
         if (positionMillis == 0L && !playbackState.isReady) return
@@ -555,6 +562,15 @@ class ActiveListeningViewModel @Inject constructor(
                 songKey = songKey,
                 positionMillis = positionMillis,
             )
+        }
+    }
+
+    private fun saveCurrentSession() {
+        val song = _uiState.value.importedSong ?: return
+        isCurrentSessionSaved = true
+        lastPersistedSongKey = song.uri.toString()
+        viewModelScope.launch {
+            savedListeningSessionRepository.upsertSession(song)
         }
     }
 
