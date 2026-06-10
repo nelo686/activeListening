@@ -118,21 +118,22 @@ fun SongScreen(
                         .fillMaxSize()
                         .imePadding(),
                     contentPadding = PaddingValues(24.dp),
-                    verticalArrangement = Arrangement.spacedBy(24.dp),
+                    verticalArrangement = Arrangement.spacedBy(12.dp),
                 ) {
-                    item { Header() }
+                    item {
+                        Header(modifier = Modifier.padding(bottom = 12.dp))
+                    }
                     item {
                         EmptySession(
                             isImporting = state.isImporting,
                             onImportClick = onImportClick,
+                            modifier = Modifier.padding(bottom = 12.dp),
                         )
                     }
-                    item {
-                        SavedSessions(
-                            sessions = state.savedSessions,
-                            onSessionClick = onSavedSessionClick,
-                        )
-                    }
+                    savedSessions(
+                        sessions = state.savedSessions,
+                        onSessionClick = onSavedSessionClick,
+                    )
                 }
             } else {
                 Column(modifier = Modifier.fillMaxSize()) {

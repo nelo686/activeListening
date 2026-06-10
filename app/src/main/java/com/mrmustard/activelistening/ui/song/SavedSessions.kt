@@ -6,6 +6,8 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.lazy.LazyListScope
+import androidx.compose.foundation.lazy.items
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.Icon
@@ -23,30 +25,34 @@ import com.mrmustard.activelistening.R
 import com.mrmustard.activelistening.domain.session.SavedListeningSession
 import com.mrmustard.activelistening.domain.time.formatTimeCode
 
-@Composable
-fun SavedSessions(
+fun LazyListScope.savedSessions(
     sessions: List<SavedListeningSession>,
     onSessionClick: (SavedListeningSession) -> Unit,
-    modifier: Modifier = Modifier,
 ) {
     if (sessions.isEmpty()) return
 
-    Column(
-        modifier = modifier.fillMaxWidth(),
-        verticalArrangement = Arrangement.spacedBy(12.dp),
-    ) {
-        Text(
-            text = stringResource(R.string.saved_sessions_title),
-            style = MaterialTheme.typography.titleMedium,
-            fontWeight = FontWeight.Medium,
-        )
-        sessions.forEach { session ->
-            SavedSessionItem(
-                session = session,
-                onClick = { onSessionClick(session) },
-            )
-        }
+    item(key = "saved_sessions_header") {
+        SavedSessionsHeader()
     }
+    items(
+        items = sessions,
+        key = SavedListeningSession::songKey,
+        contentType = { "saved_session" },
+    ) { session ->
+        SavedSessionItem(
+            session = session,
+            onClick = { onSessionClick(session) },
+        )
+    }
+}
+
+@Composable
+private fun SavedSessionsHeader() {
+    Text(
+        text = stringResource(R.string.saved_sessions_title),
+        style = MaterialTheme.typography.titleMedium,
+        fontWeight = FontWeight.Medium,
+    )
 }
 
 @Composable
