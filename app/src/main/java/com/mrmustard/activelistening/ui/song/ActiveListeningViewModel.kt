@@ -3,6 +3,7 @@ package com.mrmustard.activelistening.ui.song
 import android.net.Uri
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.mrmustard.activelistening.domain.PlaybackState
 import com.mrmustard.activelistening.domain.export.SongMapExportFactory
 import com.mrmustard.activelistening.domain.export.SongMapExportRepository
 import com.mrmustard.activelistening.domain.export.SongMapExportResult
@@ -88,7 +89,7 @@ class ActiveListeningViewModel @Inject constructor(
         val songKey = state.importedSong?.uri?.toString()
         val positionMillis = state.playbackState.positionMillis
         audioPlayer.pause()
-        if (songKey != null && positionMillis > 0L) {
+        if (songKey != null) {
             lastPersistedSongKey = songKey
             lastPersistedPositionMillis = positionMillis
             viewModelScope.launch {
@@ -390,7 +391,7 @@ class ActiveListeningViewModel @Inject constructor(
                         .withSectionProgress(playbackState.positionMillis)
                         .withEditingSectionLearningContent()
                 }
-                persistPlaybackPositionIfNeeded(playbackState.positionMillis)
+                persistPlaybackPositionIfNeeded(playbackState)
             }
         }
     }
@@ -539,9 +540,10 @@ class ActiveListeningViewModel @Inject constructor(
         }
     }
 
-    private fun persistPlaybackPositionIfNeeded(positionMillis: Long) {
+    private fun persistPlaybackPositionIfNeeded(playbackState: PlaybackState) {
         val songKey = _uiState.value.importedSong?.uri?.toString() ?: return
-        if (positionMillis <= 0L) return
+        val positionMillis = playbackState.positionMillis.coerceAtLeast(0L)
+        if (positionMillis == 0L && !playbackState.isReady) return
         val songChanged = lastPersistedSongKey != songKey
         val movedEnough = abs(positionMillis - lastPersistedPositionMillis) >= POSITION_SAVE_INTERVAL_MILLIS
         if (!songChanged && !movedEnough) return

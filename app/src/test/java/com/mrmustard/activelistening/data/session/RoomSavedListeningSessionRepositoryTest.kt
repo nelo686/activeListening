@@ -51,6 +51,23 @@ class RoomSavedListeningSessionRepositoryTest {
     }
 
     @Test
+    fun `resetting playback to start replaces previous position`() = runBlocking {
+        repository.upsertSession(
+            songKey = "content://song",
+            displayName = "Practice.mp3",
+            mimeType = "audio/mpeg",
+            durationMillis = 120_000L,
+        )
+
+        repository.updatePlaybackPosition("content://song", 42_000L)
+        repository.updatePlaybackPosition("content://song", 0L)
+
+        val restored = repository.getSession("content://song")
+
+        assertEquals(0L, restored?.lastPositionMillis)
+    }
+
+    @Test
     fun `upserting existing session keeps last playback position`() = runBlocking {
         repository.upsertSession(
             songKey = "content://song",
