@@ -4,6 +4,10 @@ Aplicación Android educativa para músicos, bateristas y estudiantes de música
 
 La aplicación no pretende presentar una estructura musical automática como verdad definitiva. Las sugerencias, incluidas las generadas con IA, son puntos de partida que el usuario debe escuchar, revisar y corregir.
 
+## Guia de uso
+
+Si es tu primera vez con la app, empieza por la [guia de uso](./GUIA_DE_USO.md). Explica que hace cada pantalla, como importar una cancion, como usar la escucha guiada y como editar el mapa estructural sin perder la referencia.
+
 ## Funcionalidades actuales
 
 - Importación de audio local mediante el selector de documentos de Android.
