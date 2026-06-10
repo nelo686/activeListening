@@ -1,49 +1,97 @@
 # Active Listening
 
-Aplicación Android educativa para músicos, bateristas y estudiantes de música. Permite importar una canción local y guiar al usuario en una escucha activa paso a paso para identificar secciones, detectar cambios musicales y construir un mapa estructural editable.
+Aplicación Android educativa para músicos, bateristas y estudiantes de música. Permite importar una canción local y acompaña al usuario en una escucha activa para localizar transiciones, proponer etiquetas y construir un mapa estructural editable.
 
-## Qué hace
+La aplicación no pretende presentar una estructura musical automática como verdad definitiva. Las sugerencias, incluidas las generadas con IA, son puntos de partida que el usuario debe escuchar, revisar y corregir.
 
-- Importa audio desde un archivo local.
-- Reproduce, pausa y permite saltar en la canción.
-- Crea una sesión de escucha guiada con pistas pedagógicas.
-- Propone una estructura inicial de la canción para que el usuario la revise y ajuste.
-- Permite etiquetar secciones como `Intro`, `Verso`, `Coro`, `Puente`, `Outro` u otras etiquetas.
-- Guarda preferencias de aprendizaje y nivel de detalle.
-- Puede generar una guía asistida por IA cuando la clave está configurada.
+## Funcionalidades actuales
+
+- Importación de audio local mediante el selector de documentos de Android.
+- Validación de formato, acceso y duración antes de cargar la canción.
+- Reproducción con Media3 ExoPlayer: reproducir, pausar, avanzar y retroceder por la línea temporal.
+- Sesión de escucha guiada con una estructura inicial y pistas pedagógicas por sección.
+- Guía opcional generada mediante una API compatible con OpenAI, con alternativa local si no hay clave o la petición falla.
+- Mapa estructural editable con etiquetas `Intro`, `Verso`, `Coro`, `Puente`, `Outro` y `Otra`.
+- Ajuste manual de inicios y finales mediante códigos de tiempo.
+- División de una sección en la posición actual y fusión con secciones adyacentes.
+- Estimación orientativa de compases, regularidad y posibles contrastes rítmicos.
+- Explicaciones adaptadas a los niveles introductorio, intermedio, avanzado y experto.
+- Conservación de la propuesta original para poder restaurarla después de editar.
+- Guardado automático de sesiones, estructura editada y última posición de reproducción.
+- Listado de canciones guardadas para continuar una sesión posteriormente.
+- Exportación del mapa estructural a PDF mediante el selector de destino de Android.
 
 ## Enfoque pedagógico
 
-La app no busca dar una estructura cerrada como verdad definitiva. Su objetivo es ayudar a escuchar mejor:
+El flujo está diseñado para que el usuario participe activamente:
 
-- detectar cambios de energía, ritmo e instrumentación,
+- escuchar cambios de energía, ritmo, instrumentación o sensación,
 - localizar transiciones con códigos de tiempo,
-- confirmar, corregir o marcar dudas sobre secciones,
-- comparar hipótesis con lo que realmente se oye.
+- comparar la propuesta con lo que realmente se oye,
+- reetiquetar, dividir, fusionar y desplazar secciones,
+- interpretar las estimaciones y sugerencias como aproximaciones editables.
+
+La IA no recibe ni analiza directamente el audio. Actualmente trabaja con el título, la duración y los marcadores iniciales para generar preguntas, etiquetas y pistas de escucha.
+
+## Flujo principal
+
+1. Importar una canción compatible o abrir una sesión guardada.
+2. Reproducirla y realizar una primera escucha libre.
+3. Iniciar la escucha guiada para crear el mapa inicial.
+4. Seleccionar secciones para cambiar etiquetas, límites o divisiones.
+5. Revisar las explicaciones y estimaciones rítmicas.
+6. Volver a la propuesta original si las ediciones no resultan útiles.
+7. Salir y continuar más adelante desde la lista de canciones guardadas.
+8. Exportar el mapa trabajado a PDF.
+
+## Persistencia y exportación
+
+Room almacena tres tipos de información:
+
+- preferencias de nivel educativo e intensidad de guía,
+- propuesta original y versión editada de cada mapa estructural,
+- metadatos de sesiones guardadas y última posición de reproducción.
+
+La canción sigue siendo un documento local externo. La app conserva el permiso de lectura concedido por el selector de Android; si el archivo se mueve, se elimina o deja de estar disponible, será necesario importarlo de nuevo.
+
+El PDF incluye el título, la duración, las secciones, sus códigos de tiempo, duración, estado, compases estimados, avisos de aproximación, contrastes rítmicos y notas educativas. La exportación solo se habilita cuando existe una estructura temporal válida.
 
 ## Tecnologías
 
-- Kotlin
-- Jetpack Compose
-- Material 3
-- MVVM con `ViewModel`
-- Hilt
-- Room
-- Media3 ExoPlayer
-- `openai-kotlin` de Aallam
+- Kotlin 2.4
+- Jetpack Compose y Material 3
+- MVVM con `ViewModel` y `StateFlow`
+- Hilt para inyección de dependencias
+- Room con KSP para persistencia
+- Media3 ExoPlayer para reproducción
+- `openai-kotlin` de Aallam y Ktor/OkHttp para la guía remota
+- Gradle 9.5.1 y Android Gradle Plugin 9.2.1
+
+## Arquitectura
+
+El código se divide en capas sencillas:
+
+- `ui`: pantallas Compose, estado inmutable y coordinación mediante `ActiveListeningViewModel`.
+- `domain`: modelos, contratos de repositorio, reglas de estructura, casos de uso y validación de exportación.
+- `data`: implementaciones Android, Room, ExoPlayer, cliente de guía y generación PDF.
+- `di`: módulos Hilt para base de datos, reproducción, repositorios y cliente remoto.
+
+La UI no accede directamente a DAOs, ExoPlayer, `PdfDocument` ni al cliente OpenAI. Estas dependencias quedan encapsuladas detrás de contratos de dominio y repositorios.
 
 ## Requisitos
 
-- Android Studio reciente
-- JDK 11
-- Android SDK compatible con `compileSdk 37`
-- Un dispositivo o emulador con Android 29 o superior
+- Android Studio compatible con el stack actual del proyecto.
+- JDK 21 para ejecutar Gradle; el repositorio incluye configuración de toolchain para el daemon.
+- Android SDK con `compileSdk 37`.
+- Dispositivo o emulador con Android 10 / API 29 o superior.
 
-## Configuración de IA
+El código Kotlin/Java se compila con compatibilidad Java 11, aunque el proceso Gradle usa JDK 21.
 
-La guía asistida usa un cliente compatible con OpenAI. Si no hay clave configurada, la app sigue funcionando con una guía local.
+## Configuración de la guía remota
 
-Puedes definir estos valores en `local.properties`:
+La guía usa `openai-kotlin` contra un endpoint compatible con la API de OpenAI. La configuración predeterminada apunta al servicio de inferencia de DevExpert.
+
+Define los valores privados en `local.properties`, que no debe versionarse:
 
 ```properties
 devexpert.apiKey=tu_clave
@@ -51,12 +99,14 @@ devexpert.guidanceModel=mimo-v2.5
 devexpert.baseUrl=https://inference.devexpert.io/v1/
 ```
 
-También se aceptan las claves alternativas:
+También se aceptan estos alias para clave y modelo:
 
-- `openai.apiKey`
-- `openai.guidanceModel`
+```properties
+openai.apiKey=tu_clave
+openai.guidanceModel=mimo-v2.5
+```
 
-Si no configuras una clave, la pantalla mostrará una guía local en lugar de IA.
+La clave puede proporcionarse mediante la variable de entorno `DEVEXPERT_API_KEY`. Si no hay una clave configurada, la app sigue funcionando con la guía local.
 
 ## Ejecutar la app
 
@@ -66,48 +116,38 @@ Desde la raíz del proyecto:
 ./gradlew assembleDebug
 ```
 
-O abre el proyecto en Android Studio y ejecútalo sobre un dispositivo o emulador.
+El APK debug se genera dentro de `app/build/outputs/apk/debug/`. También se puede abrir el proyecto en Android Studio y ejecutarlo sobre un dispositivo o emulador.
 
-## Verificación
+## Verificación y pruebas
 
-Para compilar y validar el proyecto:
+Compilación Kotlin recomendada durante el desarrollo:
 
 ```bash
 ./gradlew compileDebugKotlin
 ```
 
-Si quieres una compilación más completa, puedes usar:
-
-```bash
-./gradlew assembleDebug
-```
-
-## Pruebas
-
-El proyecto incluye pruebas unitarias para partes del dominio, la importación y la guía. Puedes ejecutarlas con:
+Pruebas unitarias de dominio, importación, persistencia, parser de guía y validación de exportación:
 
 ```bash
 ./gradlew testDebugUnitTest
 ```
 
-## Estructura del proyecto
+Compilación debug completa:
 
-- `app/src/main/java/.../ui` - pantallas Compose, estado visual y ViewModels.
-- `app/src/main/java/.../domain` - modelos y reglas de negocio.
-- `app/src/main/java/.../data` - repositorios, Room, reproducción y guía IA.
-- `app/src/main/java/.../di` - módulos Hilt.
-- `app/src/main/res` - recursos, temas e iconos.
+```bash
+./gradlew assembleDebug
+```
 
-## Flujo principal
+## Formatos y límites
 
-1. Importar una canción local.
-2. Reproducir y escuchar la primera pasada.
-3. Iniciar la escucha guiada para recibir pistas.
-4. Ajustar las secciones detectadas.
-5. Confirmar, marcar como dudosas o reetiquetar las transiciones.
+- Formatos admitidos: MP3, WAV, M4A y AAC.
+- Duración máxima del MVP: 15 minutos.
+- Formato de exportación actual: PDF.
+- Los cálculos de compases y contrastes son orientativos, no un análisis musical definitivo.
 
-## Notas
+## Limitaciones actuales
 
-- La importación soporta archivos de audio comunes como MP3, WAV, M4A y AAC.
-- El límite inicial de duración está pensado para canciones de hasta 15 minutos.
-- Las preferencias del usuario se guardan localmente con Room.
+- No se puede eliminar ni renombrar una sesión guardada desde la interfaz.
+- Los estados confirmado y dudoso existen en el modelo, pero todavía no tienen acciones de edición conectadas en la UI.
+- La preferencia de intensidad de guía se guarda, aunque el modo reducido aún no modifica el flujo mostrado.
+- La exportación no ofrece todavía PNG, JSON, CSV, MusicXML ni MIDI.
