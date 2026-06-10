@@ -213,6 +213,40 @@ class ActiveListeningViewModel @Inject constructor(
         }
     }
 
+    fun cycleSelectedSectionStatus() {
+        _uiState.update { state ->
+            val sectionId = state.currentEditableSectionId() ?: return@update state
+            val result = sectionEditingUseCase.cycleStatus(
+                sections = state.sections,
+                sectionId = sectionId,
+                learningLevel = state.learningLevel,
+            )
+            state.copy(
+                sections = result.sections,
+                selectedSectionId = result.selectedSectionId,
+                editingSectionId = result.editingSectionId,
+                editingSectionLearningContent = result.learningContent,
+            ).also(::saveStructure)
+        }
+    }
+
+    fun toggleSelectedSectionMusicalContrast() {
+        _uiState.update { state ->
+            val sectionId = state.currentEditableSectionId() ?: return@update state
+            val result = sectionEditingUseCase.toggleMusicalContrast(
+                sections = state.sections,
+                sectionId = sectionId,
+                learningLevel = state.learningLevel,
+            )
+            state.copy(
+                sections = result.sections,
+                selectedSectionId = result.selectedSectionId,
+                editingSectionId = result.editingSectionId,
+                editingSectionLearningContent = result.learningContent,
+            ).also(::saveStructure)
+        }
+    }
+
     fun setSelectedSectionStart(positionMillis: Long) {
         setSelectedSectionBoundary(SectionBoundary.Start, positionMillis)
     }

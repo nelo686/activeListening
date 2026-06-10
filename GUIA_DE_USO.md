@@ -29,7 +29,7 @@ El limite inicial es de 15 minutos.
 Al abrir la app veras la pantalla de escucha activa. Normalmente ahi encontraras:
 
 - un boton para importar una cancion,
-- controles de reproduccion,
+- una vez importada o, recuperada una seisón anterior, aparecerán los controles de reproduccion,
 - una zona de escucha guiada,
 - el mapa estructural editable,
 - la configuracion de nivel e intensidad de guia,
@@ -70,14 +70,15 @@ En esta vista puedes ver:
 
 - una pista actual,
 - el contexto de la seccion,
-- acciones para revisar ese punto.
+- un mensaje de estado de la guia.
 
-Las acciones mas habituales son:
+Ahora mismo este panel no ofrece botones de accion directa. Su funcion es mostrarte que seccion se esta revisando y darte una pista de escucha para que vuelvas a oir ese fragmento con mas atencion.
 
-- `Confirmar cambio`: cuando el cambio te parece claro.
-- `Marcar dudoso`: cuando no estas seguro y quieres dejarlo pendiente.
-- `Volver 8 s`: para repasar el fragmento anterior.
-- `Saltar por ahora`: si prefieres seguir adelante.
+Si quieres actuar sobre esa seccion, hazlo desde el mapa estructural editable:
+
+- toca la seccion correspondiente,
+- abre su panel de edicion,
+- cambia su estado, su etiqueta o sus limites segun lo que realmente escuches.
 
 La guia puede ser local o generada con IA. Si no hay clave configurada o la peticion falla, la app sigue funcionando con guia local.
 
@@ -100,6 +101,12 @@ Tambien puedes ver:
 - la duracion de la seccion,
 - si la sugerencia es solo orientativa,
 - una estimacion de compases y sensacion ritmica.
+
+En algunas secciones aparece tambien la tag `Cambio`.
+
+Esa tag indica que la app ha detectado o sugerido un posible cambio de ritmo o de sensacion musical en esa seccion. No significa simplemente que "pasa algo", sino que podria haber un contraste real en el pulso, la regularidad o la sensacion del fragmento.
+
+Tomala como una pista de escucha, no como una certeza. Su funcion es ayudarte a volver a oir ese punto con mas atencion y comprobar si el cambio esta realmente en el ritmo o la sensacion, y no solo en la instrumentacion, la energia o la melodia.
 
 Piensa en esta vista como un borrador editable, no como una verdad definitiva.
 
@@ -183,6 +190,11 @@ Si la estructura todavia es demasiado incompleta, la exportacion se bloquea hast
 - `Sugerida`: propuesta inicial.
 - `Confirmada`: ya la has revisado y te cuadra.
 - `Dudosa`: necesitas revisarla mas.
+
+### Tag `Cambio`
+
+- `Cambio`: posible contraste de ritmo o de sensacion dentro de esa seccion.
+- No es una confirmacion automatica. Es una ayuda para que escuches mejor ese fragmento y decidas si el contraste realmente existe.
 
 ## Recomendacion para empezar bien
 

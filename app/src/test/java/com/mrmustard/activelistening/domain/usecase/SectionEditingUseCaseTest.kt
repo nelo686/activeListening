@@ -3,6 +3,8 @@ package com.mrmustard.activelistening.domain.usecase
 import com.mrmustard.activelistening.domain.learning.LearningLevel
 import com.mrmustard.activelistening.domain.structure.SectionBoundary
 import com.mrmustard.activelistening.domain.structure.SectionLabel
+import com.mrmustard.activelistening.domain.structure.SectionRhythmConfidence
+import com.mrmustard.activelistening.domain.structure.SectionStatus
 import com.mrmustard.activelistening.domain.structure.SongStructureFactory
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertNotNull
@@ -50,6 +52,54 @@ class SectionEditingUseCaseTest {
         assertNotNull(result.learningContent)
         assertTrue(result.learningContent?.summary.orEmpty().contains("puente"))
         assertTrue(result.learningContent?.details.orEmpty().contains("transicion"))
+    }
+
+    @Test
+    fun `cycling status advances suggested confirmed uncertain and back to suggested`() {
+        val sections = SongStructureFactory.createInitialSections(durationMillis = 120_000L)
+
+        val confirmed = useCase.cycleStatus(
+            sections = sections,
+            sectionId = 1,
+            learningLevel = LearningLevel.Intermediate,
+        )
+        val uncertain = useCase.cycleStatus(
+            sections = confirmed.sections,
+            sectionId = 1,
+            learningLevel = LearningLevel.Intermediate,
+        )
+        val suggestedAgain = useCase.cycleStatus(
+            sections = uncertain.sections,
+            sectionId = 1,
+            learningLevel = LearningLevel.Intermediate,
+        )
+
+        assertEquals(SectionStatus.Confirmed, confirmed.sections[1].status)
+        assertEquals(SectionStatus.Uncertain, uncertain.sections[1].status)
+        assertEquals(SectionStatus.Suggested, suggestedAgain.sections[1].status)
+    }
+
+    @Test
+    fun `toggling musical contrast adds and removes manual change marker`() {
+        val sections = SongStructureFactory.createInitialSections(durationMillis = 120_000L)
+
+        val withContrast = useCase.toggleMusicalContrast(
+            sections = sections,
+            sectionId = 1,
+            learningLevel = LearningLevel.Intermediate,
+        )
+        val withoutContrast = useCase.toggleMusicalContrast(
+            sections = withContrast.sections,
+            sectionId = 1,
+            learningLevel = LearningLevel.Intermediate,
+        )
+
+        assertEquals(SectionRhythmConfidence.Low, withContrast.sections[1].musicalContrast?.confidence)
+        assertTrue(
+            withContrast.sections[1].musicalContrast?.explanation.orEmpty()
+                .contains("Cambio marcado manualmente"),
+        )
+        assertEquals(null, withoutContrast.sections[1].musicalContrast)
     }
 
     @Test

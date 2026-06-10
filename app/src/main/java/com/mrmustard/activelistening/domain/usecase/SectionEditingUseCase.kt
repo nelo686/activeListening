@@ -5,6 +5,9 @@ import com.mrmustard.activelistening.domain.learning.SectionExplanationProvider
 import com.mrmustard.activelistening.domain.learning.SectionLearningContent
 import com.mrmustard.activelistening.domain.structure.SectionBoundary
 import com.mrmustard.activelistening.domain.structure.SectionLabel
+import com.mrmustard.activelistening.domain.structure.SectionMusicalContrast
+import com.mrmustard.activelistening.domain.structure.SectionRhythmConfidence
+import com.mrmustard.activelistening.domain.structure.SectionStatus
 import com.mrmustard.activelistening.domain.structure.SongSection
 import com.mrmustard.activelistening.domain.structure.SongStructureEditor
 import com.mrmustard.activelistening.domain.structure.SongStructureFactory
@@ -48,6 +51,77 @@ class SectionEditingUseCase @Inject constructor() {
             sectionId = sectionId,
             label = label,
         )
+        return SectionEditingResult(
+            sections = updatedSections,
+            selectedSectionId = sectionId,
+            editingSectionId = sectionId,
+            learningContent = learningContent(
+                sections = updatedSections,
+                editingSectionId = sectionId,
+                learningLevel = learningLevel,
+            ),
+        )
+    }
+
+    fun cycleStatus(
+        sections: List<SongSection>,
+        sectionId: Int,
+        learningLevel: LearningLevel,
+    ): SectionEditingResult {
+        val section = sections.firstOrNull { it.id == sectionId }
+            ?: return SectionEditingResult(
+                sections = sections,
+                selectedSectionId = sectionId,
+                editingSectionId = sectionId,
+                learningContent = learningContent(
+                    sections = sections,
+                    editingSectionId = sectionId,
+                    learningLevel = learningLevel,
+                ),
+            )
+        val nextStatus = when (section.status) {
+            SectionStatus.Suggested -> SectionStatus.Confirmed
+            SectionStatus.Confirmed -> SectionStatus.Uncertain
+            SectionStatus.Uncertain -> SectionStatus.Suggested
+        }
+        val updatedSections = SongStructureEditor.changeStatus(
+            sections = sections,
+            sectionId = sectionId,
+            status = nextStatus,
+        )
+        return SectionEditingResult(
+            sections = updatedSections,
+            selectedSectionId = sectionId,
+            editingSectionId = sectionId,
+            learningContent = learningContent(
+                sections = updatedSections,
+                editingSectionId = sectionId,
+                learningLevel = learningLevel,
+            ),
+        )
+    }
+
+    fun toggleMusicalContrast(
+        sections: List<SongSection>,
+        sectionId: Int,
+        learningLevel: LearningLevel,
+    ): SectionEditingResult {
+        val updatedSections = sections.map { section ->
+            if (section.id != sectionId) {
+                section
+            } else {
+                section.copy(
+                    musicalContrast = if (section.musicalContrast == null) {
+                        SectionMusicalContrast(
+                            confidence = SectionRhythmConfidence.Low,
+                            explanation = MANUAL_MUSICAL_CONTRAST_EXPLANATION,
+                        )
+                    } else {
+                        null
+                    },
+                )
+            }
+        }
         return SectionEditingResult(
             sections = updatedSections,
             selectedSectionId = sectionId,
@@ -159,3 +233,6 @@ data class SectionEditingResult(
     val editingSectionId: Int?,
     val learningContent: SectionLearningContent?,
 )
+
+private const val MANUAL_MUSICAL_CONTRAST_EXPLANATION =
+    "Cambio marcado manualmente. Comprueba si el contraste esta en el ritmo o la sensacion."

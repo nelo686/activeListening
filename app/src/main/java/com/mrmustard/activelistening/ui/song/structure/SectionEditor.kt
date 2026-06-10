@@ -9,11 +9,11 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
-import androidx.compose.material3.AssistChip
 import androidx.compose.material3.Button
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.ElevatedCard
 import androidx.compose.material3.FilterChip
+import androidx.compose.material3.FilterChipDefaults
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedButton
@@ -43,6 +43,8 @@ fun SectionDetailsSheetContent(
     canMergeWithPrevious: Boolean,
     canMergeWithNext: Boolean,
     onLabelSelected: (SectionLabel) -> Unit,
+    onStatusClick: () -> Unit,
+    onMusicalContrastClick: () -> Unit,
     onAdjustStart: (Long) -> Unit,
     onAdjustEnd: (Long) -> Unit,
     onSplitAtCurrentPosition: () -> Unit,
@@ -59,7 +61,7 @@ fun SectionDetailsSheetContent(
         Row(
             modifier = Modifier.fillMaxWidth(),
             horizontalArrangement = Arrangement.SpaceBetween,
-            verticalAlignment = Alignment.CenterVertically,
+            verticalAlignment = Alignment.Top,
         ) {
             Column(verticalArrangement = Arrangement.spacedBy(2.dp)) {
                 Text(
@@ -73,10 +75,21 @@ fun SectionDetailsSheetContent(
                     color = MaterialTheme.colorScheme.onSurfaceVariant,
                 )
             }
-            AssistChip(
-                onClick = {},
-                label = { Text(section.status.toDisplayName()) },
-            )
+            Column(
+                horizontalAlignment = Alignment.End,
+                verticalArrangement = Arrangement.spacedBy(4.dp),
+            ) {
+                HeaderTag(
+                    text = section.status.toDisplayName(),
+                    isActive = false,
+                    onClick = onStatusClick,
+                )
+                HeaderTag(
+                    text = stringResource(R.string.structure_contrast_chip),
+                    isActive = section.musicalContrast != null,
+                    onClick = onMusicalContrastClick,
+                )
+            }
         }
 
         Text(
@@ -156,6 +169,45 @@ fun SectionDetailsSheetContent(
             }
         }
     }
+}
+
+@Composable
+private fun HeaderTag(
+    text: String,
+    isActive: Boolean,
+    onClick: () -> Unit,
+) {
+    val containerColor = if (isActive) {
+        MaterialTheme.colorScheme.primary
+    } else {
+        MaterialTheme.colorScheme.surface
+    }
+    val contentColor = if (isActive) {
+        MaterialTheme.colorScheme.onPrimary
+    } else {
+        MaterialTheme.colorScheme.onSurfaceVariant
+    }
+    FilterChip(
+        selected = isActive,
+        onClick = onClick,
+        label = { Text(text) },
+        colors = FilterChipDefaults.filterChipColors(
+            containerColor = containerColor,
+            labelColor = contentColor,
+            selectedContainerColor = containerColor,
+            selectedLabelColor = contentColor,
+        ),
+        border = FilterChipDefaults.filterChipBorder(
+            enabled = true,
+            selected = isActive,
+            borderColor = if (isActive) {
+                MaterialTheme.colorScheme.primary
+            } else {
+                MaterialTheme.colorScheme.outlineVariant
+            },
+            selectedBorderColor = MaterialTheme.colorScheme.primary,
+        ),
+    )
 }
 
 @Composable

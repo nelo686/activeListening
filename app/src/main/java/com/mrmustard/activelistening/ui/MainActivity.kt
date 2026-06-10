@@ -64,6 +64,8 @@ class MainActivity : ComponentActivity() {
                         onSectionSelected = viewModel::openSectionEditor,
                         onSectionEditorDismiss = viewModel::closeSectionEditor,
                         onSectionLabelSelected = viewModel::changeSelectedSectionLabel,
+                        onSectionStatusClick = viewModel::cycleSelectedSectionStatus,
+                        onSectionMusicalContrastClick = viewModel::toggleSelectedSectionMusicalContrast,
                         onAdjustSectionStart = viewModel::setSelectedSectionStart,
                         onAdjustSectionEnd = viewModel::setSelectedSectionEnd,
                         onSplitAtCurrentPosition = viewModel::splitAtCurrentPosition,

@@ -50,6 +50,7 @@
     <string name="structure_rhythm_irregular">Duracion irregular: no se fuerza una cantidad estandar de compases.</string>
     <string name="structure_rhythm_unavailable">Aun no hay duracion suficiente para estimar compases con sentido.</string>
     <string name="structure_contrast_title">Cambio de ritmo o sensacion</string>
+    <string name="structure_contrast_chip">Cambio ritmo</string>
     <string name="structure_contrast_low_confidence">Deteccion orientativa: confirma si el cambio esta en el ritmo o sensacion, no solo en instrumentacion, energia o melodia.</string>
     <string name="structure_timeline_contrast_marker">Cambio</string>
     <string name="structure_section_waiting">Selecciona una seccion para etiquetarla y ajustar sus transiciones.</string>
