@@ -157,7 +157,10 @@ La app guarda tu progreso para que puedas volver mas tarde.
 En `Canciones guardadas` puedes:
 
 - reabrir una sesion anterior,
-- continuar desde la ultima posicion reproducida.
+- continuar desde la ultima posicion reproducida,
+- eliminar una cancion guardada deslizando su tarjeta hacia la izquierda y pulsando la papelera.
+
+Al eliminarla, la app borra la sesion guardada y su mapa estructural. El archivo de audio original permanece en el dispositivo. Durante unos segundos puedes pulsar `Deshacer` en el mensaje inferior para recuperar la sesion y el mapa.
 
 Esto es util si quieres trabajar una cancion por partes.
 

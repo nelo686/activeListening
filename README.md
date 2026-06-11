@@ -23,6 +23,7 @@ Si es tu primera vez con la app, empieza por la [guia de uso](./GUIA_DE_USO.md).
 - Conservación de la propuesta original para poder restaurarla después de editar.
 - Guardado automático de sesiones, estructura editada y última posición de reproducción.
 - Listado de canciones guardadas para continuar una sesión posteriormente.
+- Eliminación de canciones guardadas mediante deslizamiento, con opción de deshacer.
 - Exportación del mapa estructural a PDF mediante el selector de destino de Android.
 
 ## Enfoque pedagógico
@@ -46,7 +47,8 @@ La IA no recibe ni analiza directamente el audio. Actualmente trabaja con el tí
 5. Revisar las explicaciones y estimaciones rítmicas.
 6. Volver a la propuesta original si las ediciones no resultan útiles.
 7. Salir y continuar más adelante desde la lista de canciones guardadas.
-8. Exportar el mapa trabajado a PDF.
+8. Deslizar una canción guardada para eliminar su sesión y mapa, con opción de deshacer.
+9. Exportar el mapa trabajado a PDF.
 
 ## Persistencia y exportación
 
@@ -57,6 +59,8 @@ Room almacena tres tipos de información:
 - metadatos de sesiones guardadas y última posición de reproducción.
 
 La canción sigue siendo un documento local externo. La app conserva el permiso de lectura concedido por el selector de Android; si el archivo se mueve, se elimina o deja de estar disponible, será necesario importarlo de nuevo.
+
+Al borrar una canción desde la lista de guardadas se eliminan de Room su sesión y su mapa estructural, pero no el archivo de audio original. El Snackbar permite deshacer inmediatamente la operación y restaurar ambos datos.
 
 El PDF incluye el título, la duración, las secciones, sus códigos de tiempo, duración, estado, compases estimados, avisos de aproximación, contrastes rítmicos y notas educativas. La exportación solo se habilita cuando existe una estructura temporal válida.
 
@@ -151,7 +155,7 @@ Compilación debug completa:
 
 ## Limitaciones actuales
 
-- No se puede eliminar ni renombrar una sesión guardada desde la interfaz.
+- No se puede renombrar una sesión guardada desde la interfaz.
 - Los estados confirmado y dudoso existen en el modelo, pero todavía no tienen acciones de edición conectadas en la UI.
 - La preferencia de intensidad de guía se guarda, aunque el modo reducido aún no modifica el flujo mostrado.
 - La exportación no ofrece todavía PNG, JSON, CSV, MusicXML ni MIDI.
