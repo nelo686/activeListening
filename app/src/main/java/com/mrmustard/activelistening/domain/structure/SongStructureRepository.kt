@@ -8,4 +8,6 @@ interface SongStructureRepository {
         originalSections: List<SongSection>,
         editedSections: List<SongSection>,
     )
+
+    suspend fun deleteStructure(songKey: String)
 }

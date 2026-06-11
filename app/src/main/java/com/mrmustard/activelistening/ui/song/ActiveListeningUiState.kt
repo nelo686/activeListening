@@ -15,6 +15,7 @@ data class ActiveListeningUiState(
     val importedSong: ImportedSong? = null,
     val importError: ImportSongError? = null,
     val savedSessions: List<SavedListeningSession> = emptyList(),
+    val savedSessionDeletionEvent: SavedSessionDeletionEvent? = null,
     val playbackState: PlaybackState = PlaybackState(),
     val isGuidedSessionActive: Boolean = false,
     val isGuidanceLoading: Boolean = false,
@@ -46,4 +47,12 @@ enum class GuidanceError {
 enum class MapExportError {
     InsufficientStructure,
     UnableToWrite,
+}
+
+data class SavedSessionDeletionEvent(
+    val id: Long,
+    val deletedDisplayName: String? = null,
+) {
+    val isError: Boolean
+        get() = deletedDisplayName == null
 }

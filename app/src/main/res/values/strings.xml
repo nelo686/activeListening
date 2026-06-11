@@ -18,6 +18,10 @@
     <string name="saved_sessions_title">Canciones guardadas</string>
     <string name="saved_sessions_resume">Continuar</string>
     <string name="saved_sessions_resume_context">%1$s de %2$s</string>
+    <string name="saved_sessions_delete">Eliminar cancion</string>
+    <string name="saved_sessions_deleted">%1$s eliminada</string>
+    <string name="saved_sessions_delete_error">No se ha podido eliminar la cancion</string>
+    <string name="saved_sessions_undo">Deshacer</string>
     <string name="import_song_listening_prompt">Primera escucha: marca mentalmente donde cambia la energia, el ritmo o la instrumentacion.</string>
     <string name="playback_pause">Pausar</string>
     <string name="playback_play">Reproducir</string>

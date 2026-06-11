@@ -10,6 +10,10 @@ interface SavedListeningSessionRepository {
 
     suspend fun upsertSession(song: ImportedSong)
 
+    suspend fun restoreSession(session: SavedListeningSession)
+
+    suspend fun deleteSession(songKey: String)
+
     suspend fun updatePlaybackPosition(
         songKey: String,
         positionMillis: Long,

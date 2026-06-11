@@ -16,6 +16,8 @@ import com.mrmustard.activelistening.domain.learning.LearningLevel
 import com.mrmustard.activelistening.domain.playback.AudioPlayer
 import com.mrmustard.activelistening.domain.session.SavedListeningSession
 import com.mrmustard.activelistening.domain.session.SavedListeningSessionRepository
+import com.mrmustard.activelistening.domain.session.DeletedSavedSong
+import com.mrmustard.activelistening.domain.session.SavedSongRepository
 import com.mrmustard.activelistening.domain.settings.UserSettings
 import com.mrmustard.activelistening.domain.settings.UserSettingsRepository
 import com.mrmustard.activelistening.domain.structure.SectionLabel
@@ -56,6 +58,7 @@ class ActiveListeningViewModelTest {
     private lateinit var importGateway: FakeSongImportGateway
     private lateinit var sessionRepository: FakeSavedListeningSessionRepository
     private lateinit var structureRepository: FakeSongStructureRepository
+    private lateinit var savedSongRepository: FakeSavedSongRepository
     private lateinit var exportRepository: FakeSongMapExportRepository
     private lateinit var viewModel: ActiveListeningViewModel
 
@@ -65,6 +68,7 @@ class ActiveListeningViewModelTest {
         importGateway = FakeSongImportGateway()
         sessionRepository = FakeSavedListeningSessionRepository()
         structureRepository = FakeSongStructureRepository()
+        savedSongRepository = FakeSavedSongRepository(sessionRepository, structureRepository)
         exportRepository = FakeSongMapExportRepository()
         viewModel = ActiveListeningViewModel(
             importSongUseCase = ImportSongUseCase(importGateway, audioPlayer),
@@ -73,6 +77,7 @@ class ActiveListeningViewModelTest {
             userSettingsRepository = FakeUserSettingsRepository(),
             songStructureRepository = structureRepository,
             savedListeningSessionRepository = sessionRepository,
+            savedSongRepository = savedSongRepository,
             songMapExportRepository = exportRepository,
             guidedSessionUseCase = GuidedSessionUseCase(),
             sectionEditingUseCase = SectionEditingUseCase(),
@@ -140,6 +145,66 @@ class ActiveListeningViewModelTest {
 
         assertEquals(0L, audioPlayer.lastSeekPositionMillis)
         assertTrue(audioPlayer.playCalled)
+    }
+
+    @Test
+    fun `deleting saved session removes session and structure and publishes message`() = runTest {
+        val song = testSong()
+        val session = testSession(song, 42_000L)
+        val sections = SongStructureFactory.createInitialSections(song.durationMillis)
+        sessionRepository.store(session)
+        structureRepository.structures[session.songKey] = SongStructureMap(sections, sections)
+
+        viewModel.deleteSavedSession(session.songKey)
+        advanceUntilIdle()
+
+        assertFalse(sessionRepository.storedSessions.containsKey(session.songKey))
+        assertFalse(structureRepository.structures.containsKey(session.songKey))
+        assertEquals(
+            session.displayName,
+            viewModel.uiState.value.savedSessionDeletionEvent?.deletedDisplayName,
+        )
+    }
+
+    @Test
+    fun `undo saved session deletion restores session and structure`() = runTest {
+        val song = testSong()
+        val session = testSession(song, 42_000L)
+        val sections = SongStructureFactory.createInitialSections(song.durationMillis)
+        val structure = SongStructureMap(sections, sections)
+        sessionRepository.store(session)
+        structureRepository.structures[session.songKey] = structure
+        viewModel.deleteSavedSession(session.songKey)
+        advanceUntilIdle()
+
+        viewModel.undoSavedSessionDeletion()
+        advanceUntilIdle()
+
+        assertEquals(session, sessionRepository.storedSessions[session.songKey])
+        assertEquals(structure, structureRepository.structures[session.songKey])
+    }
+
+    @Test
+    fun `second deletion replaces song available for undo`() = runTest {
+        val firstSong = testSong()
+        val secondSong = firstSong.copy(
+            uri = Uri.parse("content://songs/second.mp3"),
+            displayName = "Second.mp3",
+        )
+        val firstSession = testSession(firstSong, 10_000L)
+        val secondSession = testSession(secondSong, 20_000L)
+        sessionRepository.store(firstSession)
+        sessionRepository.store(secondSession)
+
+        viewModel.deleteSavedSession(firstSession.songKey)
+        advanceUntilIdle()
+        viewModel.deleteSavedSession(secondSession.songKey)
+        advanceUntilIdle()
+        viewModel.undoSavedSessionDeletion()
+        advanceUntilIdle()
+
+        assertFalse(sessionRepository.storedSessions.containsKey(firstSession.songKey))
+        assertEquals(secondSession, sessionRepository.storedSessions[secondSession.songKey])
     }
 
     fun `returning to start pauses playback and saves current position`() = runTest {
@@ -270,10 +335,24 @@ private class FakeSavedListeningSessionRepository : SavedListeningSessionReposit
         sessionsFlow.value = storedSessions.values.toList()
     }
 
+    override suspend fun restoreSession(session: SavedListeningSession) {
+        store(session)
+    }
+
+    override suspend fun deleteSession(songKey: String) {
+        storedSessions.remove(songKey)
+        sessionsFlow.value = storedSessions.values.toList()
+    }
+
     override suspend fun updatePlaybackPosition(songKey: String, positionMillis: Long) {
         updatedPositions[songKey] = positionMillis
         storedSessions[songKey] = storedSessions[songKey]?.copy(lastPositionMillis = positionMillis)
             ?: return
+        sessionsFlow.value = storedSessions.values.toList()
+    }
+
+    fun store(session: SavedListeningSession) {
+        storedSessions[session.songKey] = session
         sessionsFlow.value = storedSessions.values.toList()
     }
 
@@ -300,6 +379,37 @@ private class FakeSongStructureRepository : SongStructureRepository {
         editedSections: List<SongSection>,
     ) {
         structures[songKey] = SongStructureMap(originalSections, editedSections)
+    }
+
+    override suspend fun deleteStructure(songKey: String) {
+        structures.remove(songKey)
+    }
+}
+
+private class FakeSavedSongRepository(
+    private val sessionRepository: FakeSavedListeningSessionRepository,
+    private val structureRepository: FakeSongStructureRepository,
+) : SavedSongRepository {
+    override suspend fun deleteSavedSong(songKey: String): DeletedSavedSong? {
+        val session = sessionRepository.getSession(songKey) ?: return null
+        val deletedSong = DeletedSavedSong(
+            session = session,
+            structure = structureRepository.getStructure(songKey),
+        )
+        sessionRepository.deleteSession(songKey)
+        structureRepository.deleteStructure(songKey)
+        return deletedSong
+    }
+
+    override suspend fun restoreSavedSong(deletedSong: DeletedSavedSong) {
+        sessionRepository.restoreSession(deletedSong.session)
+        deletedSong.structure?.let { structure ->
+            structureRepository.saveStructure(
+                songKey = deletedSong.session.songKey,
+                originalSections = structure.originalSections,
+                editedSections = structure.editedSections,
+            )
+        }
     }
 }
 

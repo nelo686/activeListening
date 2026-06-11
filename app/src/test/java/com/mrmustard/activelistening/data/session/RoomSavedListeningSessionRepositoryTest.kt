@@ -89,6 +89,40 @@ class RoomSavedListeningSessionRepositoryTest {
         assertEquals("Practice renamed.mp3", restored?.displayName)
         assertEquals(30_000L, restored?.lastPositionMillis)
     }
+
+    @Test
+    fun `deletes and restores exact saved session`() = runBlocking {
+        val session = SavedListeningSessionEntity(
+            songKey = "content://song",
+            displayName = "Practice.mp3",
+            mimeType = "audio/mpeg",
+            durationMillis = 120_000L,
+            lastPositionMillis = 42_000L,
+            createdAtMillis = 10L,
+            updatedAtMillis = 20L,
+        )
+        dao.upsertSession(session)
+
+        repository.deleteSession(session.songKey)
+        assertEquals(null, repository.getSession(session.songKey))
+
+        repository.restoreSession(
+            com.mrmustard.activelistening.domain.session.SavedListeningSession(
+                songKey = session.songKey,
+                displayName = session.displayName,
+                mimeType = session.mimeType,
+                durationMillis = session.durationMillis,
+                lastPositionMillis = session.lastPositionMillis,
+                createdAtMillis = session.createdAtMillis,
+                updatedAtMillis = session.updatedAtMillis,
+            ),
+        )
+
+        val restored = repository.getSession(session.songKey)
+        assertEquals(42_000L, restored?.lastPositionMillis)
+        assertEquals(10L, restored?.createdAtMillis)
+        assertEquals(20L, restored?.updatedAtMillis)
+    }
 }
 
 private class FakeSavedListeningSessionDao : SavedListeningSessionDao {
@@ -103,6 +137,11 @@ private class FakeSavedListeningSessionDao : SavedListeningSessionDao {
     override suspend fun upsertSession(session: SavedListeningSessionEntity) {
         sessions.removeAll { it.songKey == session.songKey }
         sessions += session
+        sessionsFlow.value = sessions.sortedByDescending { it.updatedAtMillis }
+    }
+
+    override suspend fun deleteSession(songKey: String) {
+        sessions.removeAll { it.songKey == songKey }
         sessionsFlow.value = sessions.sortedByDescending { it.updatedAtMillis }
     }
 

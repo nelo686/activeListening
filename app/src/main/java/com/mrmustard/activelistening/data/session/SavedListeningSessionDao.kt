@@ -18,6 +18,9 @@ interface SavedListeningSessionDao {
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     suspend fun upsertSession(session: SavedListeningSessionEntity)
 
+    @Query("DELETE FROM saved_listening_sessions WHERE song_key = :songKey")
+    suspend fun deleteSession(songKey: String)
+
     @Query(
         """
         UPDATE saved_listening_sessions

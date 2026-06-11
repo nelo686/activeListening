@@ -44,6 +44,10 @@ class RoomSongStructureRepository @Inject constructor(
         )
     }
 
+    override suspend fun deleteStructure(songKey: String) {
+        dao.deleteSections(songKey)
+    }
+
     private fun List<SongSection>.toEntities(
         songKey: String,
         version: SongStructureVersion,

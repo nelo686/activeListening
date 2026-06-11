@@ -18,6 +18,8 @@ import com.mrmustard.activelistening.domain.learning.LearningLevel
 import com.mrmustard.activelistening.domain.playback.AudioPlayer
 import com.mrmustard.activelistening.domain.session.SavedListeningSession
 import com.mrmustard.activelistening.domain.session.SavedListeningSessionRepository
+import com.mrmustard.activelistening.domain.session.DeletedSavedSong
+import com.mrmustard.activelistening.domain.session.SavedSongRepository
 import com.mrmustard.activelistening.domain.settings.UserSettingsRepository
 import com.mrmustard.activelistening.domain.structure.SectionBoundary
 import com.mrmustard.activelistening.domain.structure.SectionLabel
@@ -45,6 +47,7 @@ class ActiveListeningViewModel @Inject constructor(
     private val userSettingsRepository: UserSettingsRepository,
     private val songStructureRepository: SongStructureRepository,
     private val savedListeningSessionRepository: SavedListeningSessionRepository,
+    private val savedSongRepository: SavedSongRepository,
     private val songMapExportRepository: SongMapExportRepository,
     private val guidedSessionUseCase: GuidedSessionUseCase,
     private val sectionEditingUseCase: SectionEditingUseCase,
@@ -55,6 +58,8 @@ class ActiveListeningViewModel @Inject constructor(
     private var lastPersistedSongKey: String? = null
     private var lastPersistedPositionMillis: Long = 0L
     private var isCurrentSessionSaved = false
+    private var lastDeletedSavedSong: DeletedSavedSong? = null
+    private var savedSessionDeletionEventId = 0L
 
     init {
         observeSavedSessions()
@@ -83,6 +88,45 @@ class ActiveListeningViewModel @Inject constructor(
 
     fun resumeSavedSession(session: SavedListeningSession) {
         importSong(session.songKey.toUri())
+    }
+
+    fun deleteSavedSession(songKey: String) {
+        viewModelScope.launch {
+            runCatching { savedSongRepository.deleteSavedSong(songKey) }
+                .onSuccess { deletedSong ->
+                    if (deletedSong == null) {
+                        publishSavedSessionDeletionError()
+                    } else {
+                        lastDeletedSavedSong = deletedSong
+                        _uiState.update {
+                            it.copy(
+                                savedSessionDeletionEvent = SavedSessionDeletionEvent(
+                                    id = nextSavedSessionDeletionEventId(),
+                                    deletedDisplayName = deletedSong.session.displayName,
+                                ),
+                            )
+                        }
+                    }
+                }
+                .onFailure { publishSavedSessionDeletionError() }
+        }
+    }
+
+    fun undoSavedSessionDeletion() {
+        val deletedSong = lastDeletedSavedSong ?: return
+        viewModelScope.launch {
+            runCatching { savedSongRepository.restoreSavedSong(deletedSong) }
+                .onSuccess {
+                    if (lastDeletedSavedSong == deletedSong) {
+                        lastDeletedSavedSong = null
+                    }
+                }
+                .onFailure { publishSavedSessionDeletionError() }
+        }
+    }
+
+    fun clearSavedSessionDeletionEvent() {
+        _uiState.update { it.copy(savedSessionDeletionEvent = null) }
     }
 
     fun returnToStart() {
@@ -463,6 +507,18 @@ class ActiveListeningViewModel @Inject constructor(
             }
         }
     }
+
+    private fun publishSavedSessionDeletionError() {
+        _uiState.update {
+            it.copy(
+                savedSessionDeletionEvent = SavedSessionDeletionEvent(
+                    id = nextSavedSessionDeletionEventId(),
+                ),
+            )
+        }
+    }
+
+    private fun nextSavedSessionDeletionEventId(): Long = ++savedSessionDeletionEventId
 
     private fun setSelectedSectionBoundary(
         boundary: SectionBoundary,

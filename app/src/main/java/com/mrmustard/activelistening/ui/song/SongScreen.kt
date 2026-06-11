@@ -14,12 +14,18 @@ import androidx.compose.material3.IconButton
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.SnackbarHost
 import androidx.compose.material3.SnackbarHostState
+import androidx.compose.material3.SnackbarDuration
+import androidx.compose.material3.SnackbarResult
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.saveable.rememberSaveable
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
@@ -40,6 +46,9 @@ fun SongScreen(
     state: ActiveListeningUiState,
     onImportClick: () -> Unit,
     onSavedSessionClick: (SavedListeningSession) -> Unit,
+    onDeleteSavedSession: (String) -> Unit,
+    onUndoSavedSessionDeletion: () -> Unit,
+    onSavedSessionDeletionMessageShown: () -> Unit,
     onBackToStartClick: () -> Unit,
     onSettingsClick: () -> Unit,
     onPlayClick: () -> Unit,
@@ -63,11 +72,21 @@ fun SongScreen(
     modifier: Modifier = Modifier,
 ) {
     val snackbarHostState = remember { SnackbarHostState() }
+    var openSavedSessionKey by rememberSaveable { mutableStateOf<String?>(null) }
     val importErrorMessage = state.importError?.let { error -> error.toMessage() }
     val mapExportMessage = state.mapExportError?.let { error -> error.toMessage() }
         ?: state.exportedMapFileName?.let {
             stringResource(R.string.map_export_success)
         }
+    val deletionEvent = state.savedSessionDeletionEvent
+    val deletionMessage = deletionEvent?.let { event ->
+        if (event.isError) {
+            stringResource(R.string.saved_sessions_delete_error)
+        } else {
+            stringResource(R.string.saved_sessions_deleted, event.deletedDisplayName.orEmpty())
+        }
+    }
+    val undoLabel = stringResource(R.string.saved_sessions_undo)
 
     LaunchedEffect(importErrorMessage) {
         val message = importErrorMessage ?: return@LaunchedEffect
@@ -79,6 +98,20 @@ fun SongScreen(
         val message = mapExportMessage ?: return@LaunchedEffect
         snackbarHostState.showSnackbar(message)
         onMapExportMessageShown()
+    }
+
+    LaunchedEffect(deletionEvent?.id) {
+        val event = deletionEvent ?: return@LaunchedEffect
+        val message = deletionMessage ?: return@LaunchedEffect
+        val result = snackbarHostState.showSnackbar(
+            message = message,
+            actionLabel = undoLabel.takeUnless { event.isError },
+            duration = SnackbarDuration.Long,
+        )
+        if (result == SnackbarResult.ActionPerformed) {
+            onUndoSavedSessionDeletion()
+        }
+        onSavedSessionDeletionMessageShown()
     }
 
     Scaffold(
@@ -135,6 +168,9 @@ fun SongScreen(
                     savedSessions(
                         sessions = state.savedSessions,
                         onSessionClick = onSavedSessionClick,
+                        onDeleteSession = onDeleteSavedSession,
+                        openSessionKey = openSavedSessionKey,
+                        onOpenSessionChange = { openSavedSessionKey = it },
                     )
                 }
             } else {
@@ -199,6 +235,9 @@ private fun SongScreenPreview() {
             state = ActiveListeningUiState(),
             onImportClick = {},
             onSavedSessionClick = {},
+            onDeleteSavedSession = {},
+            onUndoSavedSessionDeletion = {},
+            onSavedSessionDeletionMessageShown = {},
             onBackToStartClick = {},
             onSettingsClick = {},
             onPlayClick = {},
@@ -250,6 +289,9 @@ private fun GuidedSongScreenPreview() {
             ),
             onImportClick = {},
             onSavedSessionClick = {},
+            onDeleteSavedSession = {},
+            onUndoSavedSessionDeletion = {},
+            onSavedSessionDeletionMessageShown = {},
             onBackToStartClick = {},
             onSettingsClick = {},
             onPlayClick = {},

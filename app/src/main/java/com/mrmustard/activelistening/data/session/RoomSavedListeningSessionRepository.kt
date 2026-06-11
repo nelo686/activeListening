@@ -26,6 +26,14 @@ class RoomSavedListeningSessionRepository @Inject constructor(
         )
     }
 
+    override suspend fun restoreSession(session: SavedListeningSession) {
+        dao.upsertSession(session.toEntity())
+    }
+
+    override suspend fun deleteSession(songKey: String) {
+        dao.deleteSession(songKey)
+    }
+
     suspend fun upsertSession(
         songKey: String,
         displayName: String,
@@ -60,6 +68,17 @@ class RoomSavedListeningSessionRepository @Inject constructor(
 
     private fun SavedListeningSessionEntity.toDomain(): SavedListeningSession =
         SavedListeningSession(
+            songKey = songKey,
+            displayName = displayName,
+            mimeType = mimeType,
+            durationMillis = durationMillis,
+            lastPositionMillis = lastPositionMillis,
+            createdAtMillis = createdAtMillis,
+            updatedAtMillis = updatedAtMillis,
+        )
+
+    private fun SavedListeningSession.toEntity(): SavedListeningSessionEntity =
+        SavedListeningSessionEntity(
             songKey = songKey,
             displayName = displayName,
             mimeType = mimeType,

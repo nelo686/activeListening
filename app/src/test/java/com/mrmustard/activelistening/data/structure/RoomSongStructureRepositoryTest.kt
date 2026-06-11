@@ -58,6 +58,16 @@ class RoomSongStructureRepositoryTest {
     fun `returns null when no structure exists for song`() = runBlocking {
         assertNull(repository.getStructure("content://missing"))
     }
+
+    @Test
+    fun `deletes structure for song`() = runBlocking {
+        val sections = SongStructureFactory.createInitialSections(120_000L)
+        repository.saveStructure("content://song", sections, sections)
+
+        repository.deleteStructure("content://song")
+
+        assertNull(repository.getStructure("content://song"))
+    }
 }
 
 private class FakeSongStructureDao : SongStructureDao {
