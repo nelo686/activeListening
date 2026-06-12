@@ -109,7 +109,7 @@ private fun SectionBlock(
     val contentColor = section.contentColor(isSelected, isActive)
     val description = stringResource(
         R.string.structure_timeline_section_description,
-        section.label.toDisplayName(),
+        section.toDisplayName(),
         formatSectionTime(section.startMillis),
         formatSectionTime(section.endMillis),
     )
@@ -161,7 +161,7 @@ private fun SectionBlock(
                 verticalArrangement = Arrangement.spacedBy(3.dp),
             ) {
                 Text(
-                    text = section.label.toDisplayName(),
+                    text = section.toDisplayName(),
                     style = MaterialTheme.typography.labelLarge,
                     fontWeight = FontWeight.SemiBold,
                     maxLines = 1,

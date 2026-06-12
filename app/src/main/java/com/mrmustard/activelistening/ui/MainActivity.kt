@@ -67,6 +67,7 @@ class MainActivity : ComponentActivity() {
                         onSectionSelected = viewModel::openSectionEditor,
                         onSectionEditorDismiss = viewModel::closeSectionEditor,
                         onSectionLabelSelected = viewModel::changeSelectedSectionLabel,
+                        onSectionCustomLabelChanged = viewModel::changeSelectedSectionCustomLabel,
                         onSectionStatusClick = viewModel::cycleSelectedSectionStatus,
                         onSectionMusicalContrastClick = viewModel::toggleSelectedSectionMusicalContrast,
                         onAdjustSectionStart = viewModel::setSelectedSectionStart,
@@ -74,6 +75,11 @@ class MainActivity : ComponentActivity() {
                         onSplitAtCurrentPosition = viewModel::splitAtCurrentPosition,
                         onMergeWithPrevious = viewModel::mergeSelectedSectionWithPrevious,
                         onMergeWithNext = viewModel::mergeSelectedSectionWithNext,
+                        onRepeatSection = viewModel::repeatSelectedSection,
+                        onConfirmGuidedSection = viewModel::confirmGuidedSection,
+                        onMarkGuidedSectionUncertain = viewModel::markGuidedSectionUncertain,
+                        onRepeatGuidedPrompt = viewModel::repeatGuidedPrompt,
+                        onSkipGuidedSection = viewModel::skipGuidedSection,
                         onRestoreOriginalProposal = viewModel::restoreOriginalProposal,
                         onExportMapClick = {
                             createMapPdfLauncher.launch(state.exportFileName())

@@ -14,6 +14,9 @@ import com.mrmustard.activelistening.domain.importsong.SongImportResult
 import com.mrmustard.activelistening.domain.learning.GuidanceIntensity
 import com.mrmustard.activelistening.domain.learning.LearningLevel
 import com.mrmustard.activelistening.domain.playback.AudioPlayer
+import com.mrmustard.activelistening.domain.progress.LearningProgressRepository
+import com.mrmustard.activelistening.domain.progress.LearningProgressSession
+import com.mrmustard.activelistening.domain.progress.LearningProgressSummary
 import com.mrmustard.activelistening.domain.session.SavedListeningSession
 import com.mrmustard.activelistening.domain.session.SavedListeningSessionRepository
 import com.mrmustard.activelistening.domain.session.DeletedSavedSong
@@ -21,6 +24,7 @@ import com.mrmustard.activelistening.domain.session.SavedSongRepository
 import com.mrmustard.activelistening.domain.settings.UserSettings
 import com.mrmustard.activelistening.domain.settings.UserSettingsRepository
 import com.mrmustard.activelistening.domain.structure.SectionLabel
+import com.mrmustard.activelistening.domain.structure.SectionStatus
 import com.mrmustard.activelistening.domain.structure.SongSection
 import com.mrmustard.activelistening.domain.structure.SongStructureFactory
 import com.mrmustard.activelistening.domain.structure.SongStructureMap
@@ -81,6 +85,7 @@ class ActiveListeningViewModelTest {
             songMapExportRepository = exportRepository,
             guidedSessionUseCase = GuidedSessionUseCase(),
             sectionEditingUseCase = SectionEditingUseCase(),
+            learningProgressRepository = FakeLearningProgressRepository(),
         )
     }
 
@@ -130,6 +135,53 @@ class ActiveListeningViewModelTest {
 
         assertTrue(sessionRepository.storedSessions.containsKey(song.uri.toString()))
         assertTrue(viewModel.uiState.value.isGuidedSessionActive)
+    }
+
+    @Test
+    fun `guided actions confirm and mark current section uncertain`() = runTest {
+        val song = testSong()
+        importGateway.result = SongImportResult.Success(song)
+        viewModel.importSong(song.uri)
+        advanceUntilIdle()
+        viewModel.startGuidedSession()
+        advanceUntilIdle()
+
+        viewModel.confirmGuidedSection()
+        assertEquals(SectionStatus.Confirmed, viewModel.uiState.value.sections.first().status)
+
+        viewModel.markGuidedSectionUncertain()
+        assertEquals(SectionStatus.Uncertain, viewModel.uiState.value.sections.first().status)
+    }
+
+    @Test
+    fun `guided repeat seeks eight seconds back without crossing song start`() = runTest {
+        val song = testSong()
+        importGateway.result = SongImportResult.Success(song)
+        viewModel.importSong(song.uri)
+        advanceUntilIdle()
+        audioPlayer.publishPosition(5_000L)
+        advanceUntilIdle()
+
+        viewModel.repeatGuidedPrompt()
+
+        assertEquals(0L, audioPlayer.lastSeekPositionMillis)
+        assertTrue(audioPlayer.playCalled)
+    }
+
+    @Test
+    fun `repeating selected section seeks to its start`() = runTest {
+        val song = testSong()
+        importGateway.result = SongImportResult.Success(song)
+        viewModel.importSong(song.uri)
+        advanceUntilIdle()
+        viewModel.startGuidedSession()
+        advanceUntilIdle()
+        val section = viewModel.uiState.value.sections[1]
+        viewModel.openSectionEditor(section.id)
+
+        viewModel.repeatSelectedSection()
+
+        assertEquals(section.startMillis, audioPlayer.lastSeekPositionMillis)
     }
 
     @Test
@@ -439,4 +491,24 @@ private class FakeUserSettingsRepository : UserSettingsRepository {
 private object FakeGuidedListeningRepository : GuidedListeningRepository {
     override suspend fun createGuidedListeningPlan(request: GuidedListeningRequest): GuidedListeningResult =
         GuidedListeningResult.UnableToGenerate
+}
+
+private class FakeLearningProgressRepository : LearningProgressRepository {
+    override val summaries: Flow<Map<String, LearningProgressSummary>> = MutableStateFlow(emptyMap())
+    private var nextId = 1L
+
+    override suspend fun startSession(
+        songKey: String,
+        guidanceIntensity: GuidanceIntensity,
+        totalSections: Int,
+    ): Long = nextId++
+
+    override suspend fun markSectionReviewed(sessionId: Long, sectionId: Int) = Unit
+    override suspend fun recordManualEdit(sessionId: Long) = Unit
+    override suspend fun recordRepetition(sessionId: Long) = Unit
+    override suspend fun recordExplanationConsulted(sessionId: Long) = Unit
+    override suspend fun recordExport(sessionId: Long) = Unit
+    override suspend fun getSessions(songKey: String): List<LearningProgressSession> = emptyList()
+    override suspend fun replaceSessions(songKey: String, sessions: List<LearningProgressSession>) = Unit
+    override suspend fun deleteSessions(songKey: String) = Unit
 }

@@ -20,11 +20,15 @@ Si es tu primera vez con la app, empieza por la [guia de uso](./GUIA_DE_USO.md).
 - División de una sección en la posición actual y fusión con secciones adyacentes.
 - Estimación orientativa de compases, regularidad y posibles contrastes rítmicos.
 - Explicaciones adaptadas a los niveles introductorio, intermedio, avanzado y experto.
+- Acciones guiadas para confirmar, marcar dudas, repetir ocho segundos o avanzar a la siguiente seccion.
+- Intensidad reducida con menos texto y solo las decisiones esenciales.
+- Nombres libres para secciones de tipo `Otra`, como `Pre-coro`, `Solo` o `Interludio`.
 - Conservación de la propuesta original para poder restaurarla después de editar.
 - Guardado automático de sesiones, estructura editada y última posición de reproducción.
 - Listado de canciones guardadas para continuar una sesión posteriormente.
 - Eliminación de canciones guardadas mediante deslizamiento, con opción de deshacer.
 - Exportación del mapa estructural a PDF mediante el selector de destino de Android.
+- Resumen local de practica por cancion: sesiones, secciones revisadas y tendencia de autonomia.
 
 ## Enfoque pedagógico
 
@@ -52,11 +56,12 @@ La IA no recibe ni analiza directamente el audio. Actualmente trabaja con el tí
 
 ## Persistencia y exportación
 
-Room almacena tres tipos de información:
+Room almacena cuatro tipos de información:
 
 - preferencias de nivel educativo e intensidad de guía,
 - propuesta original y versión editada de cada mapa estructural,
 - metadatos de sesiones guardadas y última posición de reproducción.
+- registros locales de practica usados para elaborar el resumen de progreso.
 
 La canción sigue siendo un documento local externo. La app conserva el permiso de lectura concedido por el selector de Android; si el archivo se mueve, se elimina o deja de estar disponible, será necesario importarlo de nuevo.
 
@@ -156,6 +161,5 @@ Compilación debug completa:
 ## Limitaciones actuales
 
 - No se puede renombrar una sesión guardada desde la interfaz.
-- Los estados confirmado y dudoso existen en el modelo, pero todavía no tienen acciones de edición conectadas en la UI.
-- La preferencia de intensidad de guía se guarda, aunque el modo reducido aún no modifica el flujo mostrado.
+- El indicador de autonomia resume comportamientos observables; no certifica aprendizaje musical.
 - La exportación no ofrece todavía PNG, JSON, CSV, MusicXML ni MIDI.

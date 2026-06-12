@@ -5,6 +5,8 @@ import androidx.room.Room
 import com.mrmustard.activelistening.data.local.ActiveListeningDatabase
 import com.mrmustard.activelistening.data.local.DatabaseMigrations
 import com.mrmustard.activelistening.data.session.RoomSavedListeningSessionRepository
+import com.mrmustard.activelistening.data.progress.LearningProgressDao
+import com.mrmustard.activelistening.data.progress.RoomLearningProgressRepository
 import com.mrmustard.activelistening.data.session.RoomSavedSongRepository
 import com.mrmustard.activelistening.data.session.SavedListeningSessionDao
 import com.mrmustard.activelistening.data.settings.RoomUserSettingsRepository
@@ -12,6 +14,7 @@ import com.mrmustard.activelistening.data.settings.UserSettingsDao
 import com.mrmustard.activelistening.data.structure.RoomSongStructureRepository
 import com.mrmustard.activelistening.data.structure.SongStructureDao
 import com.mrmustard.activelistening.domain.session.SavedListeningSessionRepository
+import com.mrmustard.activelistening.domain.progress.LearningProgressRepository
 import com.mrmustard.activelistening.domain.session.SavedSongRepository
 import com.mrmustard.activelistening.domain.settings.UserSettingsRepository
 import com.mrmustard.activelistening.domain.structure.SongStructureRepository
@@ -51,6 +54,12 @@ abstract class DatabaseModule {
         repository: RoomSavedSongRepository,
     ): SavedSongRepository
 
+    @Binds
+    @Singleton
+    abstract fun bindLearningProgressRepository(
+        repository: RoomLearningProgressRepository,
+    ): LearningProgressRepository
+
     companion object {
         @Provides
         @Singleton
@@ -76,5 +85,9 @@ abstract class DatabaseModule {
         @Provides
         fun provideSavedListeningSessionDao(database: ActiveListeningDatabase): SavedListeningSessionDao =
             database.savedListeningSessionDao()
+
+        @Provides
+        fun provideLearningProgressDao(database: ActiveListeningDatabase): LearningProgressDao =
+            database.learningProgressDao()
     }
 }

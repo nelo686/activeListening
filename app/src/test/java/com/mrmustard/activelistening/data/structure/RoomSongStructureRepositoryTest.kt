@@ -22,7 +22,8 @@ class RoomSongStructureRepositoryTest {
         val edited = original.map { section ->
             if (section.id == 1) {
                 section.copy(
-                    label = SectionLabel.Bridge,
+                    label = SectionLabel.Other,
+                    customLabel = "Pre-coro",
                     status = SectionStatus.Confirmed,
                     isApproximate = false,
                     musicalContrast = SectionMusicalContrast(
@@ -45,7 +46,8 @@ class RoomSongStructureRepositoryTest {
 
         assertNotNull(restored)
         assertEquals(original, restored?.originalSections)
-        assertEquals(SectionLabel.Bridge, restored?.editedSections?.get(1)?.label)
+        assertEquals(SectionLabel.Other, restored?.editedSections?.get(1)?.label)
+        assertEquals("Pre-coro", restored?.editedSections?.get(1)?.customLabel)
         assertEquals(SectionStatus.Confirmed, restored?.editedSections?.get(1)?.status)
         assertEquals(false, restored?.editedSections?.get(1)?.isApproximate)
         assertEquals(

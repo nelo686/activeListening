@@ -9,12 +9,14 @@ import com.mrmustard.activelistening.domain.learning.LearningLevel
 import com.mrmustard.activelistening.domain.learning.SectionLearningContent
 import com.mrmustard.activelistening.domain.session.SavedListeningSession
 import com.mrmustard.activelistening.domain.structure.SongSection
+import com.mrmustard.activelistening.domain.progress.LearningProgressSummary
 
 data class ActiveListeningUiState(
     val isImporting: Boolean = false,
     val importedSong: ImportedSong? = null,
     val importError: ImportSongError? = null,
     val savedSessions: List<SavedListeningSession> = emptyList(),
+    val progressSummaries: Map<String, LearningProgressSummary> = emptyMap(),
     val savedSessionDeletionEvent: SavedSessionDeletionEvent? = null,
     val playbackState: PlaybackState = PlaybackState(),
     val isGuidedSessionActive: Boolean = false,

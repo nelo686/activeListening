@@ -49,11 +49,16 @@ import androidx.compose.ui.unit.LayoutDirection
 import androidx.compose.ui.unit.dp
 import com.mrmustard.activelistening.R
 import com.mrmustard.activelistening.domain.session.SavedListeningSession
+import com.mrmustard.activelistening.domain.progress.LearningProgressSummary
+import com.mrmustard.activelistening.domain.progress.AutonomyLevel
+import java.text.DateFormat
+import java.util.Date
 import com.mrmustard.activelistening.domain.time.formatTimeCode
 import kotlinx.coroutines.launch
 
 fun LazyListScope.savedSessions(
     sessions: List<SavedListeningSession>,
+    progressSummaries: Map<String, LearningProgressSummary>,
     onSessionClick: (SavedListeningSession) -> Unit,
     onDeleteSession: (String) -> Unit,
     openSessionKey: String?,
@@ -71,6 +76,7 @@ fun LazyListScope.savedSessions(
     ) { session ->
         SavedSessionItem(
             session = session,
+            progress = progressSummaries[session.songKey],
             isOpen = openSessionKey == session.songKey,
             onOpen = { onOpenSessionChange(session.songKey) },
             onClose = { onOpenSessionChange(null) },
@@ -101,6 +107,7 @@ private fun SavedSessionsHeader() {
 @Composable
 private fun SavedSessionItem(
     session: SavedListeningSession,
+    progress: LearningProgressSummary?,
     isOpen: Boolean,
     onOpen: () -> Unit,
     onClose: () -> Unit,
@@ -215,6 +222,31 @@ private fun SavedSessionItem(
                         style = MaterialTheme.typography.titleSmall,
                         maxLines = 1,
                     )
+                    progress?.let {
+                        Text(
+                            text = stringResource(
+                                R.string.saved_sessions_progress,
+                                it.sessionCount,
+                                it.reviewedSections,
+                                it.totalSections,
+                            ),
+                            style = MaterialTheme.typography.bodySmall,
+                            color = MaterialTheme.colorScheme.onSurfaceVariant,
+                        )
+                        Text(
+                            text = stringResource(
+                                R.string.saved_sessions_last_practice,
+                                DateFormat.getDateInstance(DateFormat.MEDIUM).format(Date(it.lastPracticeAtMillis)),
+                            ),
+                            style = MaterialTheme.typography.bodySmall,
+                            color = MaterialTheme.colorScheme.onSurfaceVariant,
+                        )
+                        Text(
+                            text = it.autonomyLevel.toDisplayName(),
+                            style = MaterialTheme.typography.labelMedium,
+                            color = MaterialTheme.colorScheme.primary,
+                        )
+                    }
                     Text(
                         text = stringResource(
                             R.string.saved_sessions_resume_context,
@@ -234,4 +266,11 @@ private fun SavedSessionItem(
             }
         }
     }
+}
+
+@Composable
+private fun AutonomyLevel.toDisplayName(): String = when (this) {
+    AutonomyLevel.Guided -> stringResource(R.string.autonomy_guided)
+    AutonomyLevel.Progressing -> stringResource(R.string.autonomy_progressing)
+    AutonomyLevel.MoreAutonomous -> stringResource(R.string.autonomy_more_autonomous)
 }

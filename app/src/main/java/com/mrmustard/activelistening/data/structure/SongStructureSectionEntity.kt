@@ -15,6 +15,7 @@ data class SongStructureSectionEntity(
     @ColumnInfo(name = "start_millis") val startMillis: Long,
     @ColumnInfo(name = "end_millis") val endMillis: Long,
     @ColumnInfo(name = "label") val label: String,
+    @ColumnInfo(name = "custom_label") val customLabel: String?,
     @ColumnInfo(name = "status") val status: String,
     @ColumnInfo(name = "prompt") val prompt: String,
     @ColumnInfo(name = "is_approximate") val isApproximate: Boolean,

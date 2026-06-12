@@ -63,6 +63,40 @@ class SectionEditingUseCase @Inject constructor() {
         )
     }
 
+    fun changeCustomLabel(
+        sections: List<SongSection>,
+        sectionId: Int,
+        customLabel: String,
+        learningLevel: LearningLevel,
+    ): SectionEditingResult {
+        val updatedSections = SongStructureEditor.changeCustomLabel(
+            sections = sections,
+            sectionId = sectionId,
+            customLabel = customLabel,
+        )
+        return SectionEditingResult(
+            sections = updatedSections,
+            selectedSectionId = sectionId,
+            editingSectionId = sectionId,
+            learningContent = learningContent(updatedSections, sectionId, learningLevel),
+        )
+    }
+
+    fun changeStatus(
+        sections: List<SongSection>,
+        sectionId: Int,
+        status: SectionStatus,
+        learningLevel: LearningLevel,
+    ): SectionEditingResult {
+        val updatedSections = SongStructureEditor.changeStatus(sections, sectionId, status)
+        return SectionEditingResult(
+            sections = updatedSections,
+            selectedSectionId = sectionId,
+            editingSectionId = sectionId,
+            learningContent = learningContent(updatedSections, sectionId, learningLevel),
+        )
+    }
+
     fun cycleStatus(
         sections: List<SongSection>,
         sectionId: Int,

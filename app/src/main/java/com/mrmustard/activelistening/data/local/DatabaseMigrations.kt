@@ -47,5 +47,28 @@ object DatabaseMigrations {
         }
     }
 
-    val all = arrayOf(migration1To2, migration2To3)
+    val migration3To4 = object : Migration(3, 4) {
+        override fun migrate(db: SupportSQLiteDatabase) {
+            db.execSQL("ALTER TABLE song_structure_sections ADD COLUMN custom_label TEXT")
+            db.execSQL(
+                """
+                CREATE TABLE IF NOT EXISTS learning_progress_sessions (
+                    id INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL,
+                    song_key TEXT NOT NULL,
+                    started_at_millis INTEGER NOT NULL,
+                    updated_at_millis INTEGER NOT NULL,
+                    guidance_intensity TEXT NOT NULL,
+                    total_sections INTEGER NOT NULL,
+                    reviewed_section_ids TEXT NOT NULL,
+                    manual_edits INTEGER NOT NULL,
+                    repetitions INTEGER NOT NULL,
+                    explanations_consulted INTEGER NOT NULL,
+                    exports INTEGER NOT NULL
+                )
+                """.trimIndent(),
+            )
+        }
+    }
+
+    val all = arrayOf(migration1To2, migration2To3, migration3To4)
 }

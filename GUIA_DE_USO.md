@@ -73,7 +73,7 @@ En esta vista puedes ver:
 - un mensaje de estado de la guia,
 - restaurar la propuesta original si algo no encaja.
 
-Ahora mismo este panel no ofrece botones de accion directa. Su funcion es mostrarte que seccion se esta revisando y darte una pista de escucha para que vuelvas a oir ese fragmento con mas atencion.
+El panel ofrece acciones para confirmar el punto, marcarlo como dudoso, volver ocho segundos o saltar temporalmente a la siguiente seccion.
 
 Si quieres actuar sobre esa seccion, hazlo desde el mapa estructural editable:
 
@@ -118,11 +118,13 @@ Piensa en esta vista como un borrador editable, no como una verdad definitiva.
 Cuando seleccionas una seccion puedes:
 
 - cambiar su etiqueta musical,
+- escribir un nombre libre al elegir `Otra`, por ejemplo `Pre-coro`, `Solo` o `Interludio`,
 - activar o desactivar la etiqueta `Cambio Ritmo`,
 - ajustar su inicio,
 - ajustar su final,
 - dividirla en el tiempo actual,
 - fusionarla con la anterior o la siguiente.
+- repetirla desde su inicio.
 
 Si ves un tiempo sugerido en formato `mm:ss`, puedes usarlo para mover un limite con precision.
 
@@ -148,6 +150,8 @@ En `Configuracion` puedes cambiar la `Intensidad de guia`.
 - `Normal`: aparecen mas pistas y acompanamiento.
 - `Reducida`: la app interrumpe menos y te deja escuchar con mas autonomia.
 
+En el modo reducido se oculta la pregunta extensa y se mantienen las decisiones esenciales de confirmar o avanzar.
+
 Si te sientes abrumado, usa guia normal. Si ya sabes ubicar bien los cambios, prueba la reducida.
 
 ## Paso 8: canciones guardadas
@@ -159,6 +163,9 @@ En `Canciones guardadas` puedes:
 - reabrir una sesion anterior,
 - continuar desde la ultima posicion reproducida,
 - eliminar una cancion guardada deslizando su tarjeta hacia la izquierda y pulsando la papelera.
+- revisar cuantas sesiones has realizado, cuantas secciones has revisado y una tendencia descriptiva de autonomia.
+
+La tendencia se calcula solo con acciones realizadas dentro de la app. No es una nota ni una certificacion de aprendizaje musical.
 
 Al eliminarla, la app borra la sesion guardada y su mapa estructural. El archivo de audio original permanece en el dispositivo. Durante unos segundos puedes pulsar `Deshacer` en el mensaje inferior para recuperar la sesion y el mapa.
 

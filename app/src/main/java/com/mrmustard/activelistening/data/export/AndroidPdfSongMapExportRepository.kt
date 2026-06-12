@@ -68,7 +68,7 @@ class AndroidPdfSongMapExportRepository @Inject constructor(
             val section = exportSection.section
             ensureSpace(150f)
             writeText(
-                "${exportSection.index}. ${section.label.toDisplayName()} " +
+                "${exportSection.index}. ${section.customLabel?.takeIf { section.label == SectionLabel.Other && it.isNotBlank() } ?: section.label.toDisplayName()} " +
                     "(${formatTimeCode(section.startMillis)} - ${formatTimeCode(section.endMillis)})",
                 headingPaint,
             )

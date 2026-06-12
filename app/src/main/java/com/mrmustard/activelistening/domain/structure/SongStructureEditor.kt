@@ -8,7 +8,22 @@ object SongStructureEditor {
         label: SectionLabel,
     ): List<SongSection> =
         sections.updateSection(sectionId) { section ->
-            section.copy(label = label)
+            section.copy(
+                label = label,
+                customLabel = section.customLabel.takeIf { label == SectionLabel.Other },
+            )
+        }
+
+    fun changeCustomLabel(
+        sections: List<SongSection>,
+        sectionId: Int,
+        customLabel: String,
+    ): List<SongSection> =
+        sections.updateSection(sectionId) { section ->
+            section.copy(
+                label = SectionLabel.Other,
+                customLabel = customLabel.trim().takeIf { it.isNotBlank() },
+            )
         }
 
     fun changeStatus(

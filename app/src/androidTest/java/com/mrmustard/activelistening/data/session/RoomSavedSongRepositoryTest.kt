@@ -6,6 +6,7 @@ import androidx.test.core.app.ApplicationProvider
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import com.mrmustard.activelistening.data.local.ActiveListeningDatabase
 import com.mrmustard.activelistening.data.structure.RoomSongStructureRepository
+import com.mrmustard.activelistening.data.progress.RoomLearningProgressRepository
 import com.mrmustard.activelistening.domain.session.SavedListeningSession
 import com.mrmustard.activelistening.domain.structure.SongStructureFactory
 import kotlinx.coroutines.runBlocking
@@ -23,6 +24,7 @@ class RoomSavedSongRepositoryTest {
     private lateinit var database: ActiveListeningDatabase
     private lateinit var sessionRepository: RoomSavedListeningSessionRepository
     private lateinit var structureRepository: RoomSongStructureRepository
+    private lateinit var progressRepository: RoomLearningProgressRepository
     private lateinit var repository: RoomSavedSongRepository
 
     @Before
@@ -34,7 +36,13 @@ class RoomSavedSongRepositoryTest {
         ).allowMainThreadQueries().build()
         sessionRepository = RoomSavedListeningSessionRepository(database.savedListeningSessionDao())
         structureRepository = RoomSongStructureRepository(database.songStructureDao())
-        repository = RoomSavedSongRepository(database, sessionRepository, structureRepository)
+        progressRepository = RoomLearningProgressRepository(database.learningProgressDao())
+        repository = RoomSavedSongRepository(
+            database,
+            sessionRepository,
+            structureRepository,
+            progressRepository,
+        )
     }
 
     @After

@@ -22,6 +22,7 @@ import com.mrmustard.activelistening.domain.learning.SectionLearningContent
 import com.mrmustard.activelistening.domain.structure.SectionLabel
 import com.mrmustard.activelistening.domain.structure.SongSection
 import com.mrmustard.activelistening.domain.structure.SongStructureFactory
+import com.mrmustard.activelistening.domain.learning.GuidanceIntensity
 import com.mrmustard.activelistening.ui.song.structure.SectionDetailsSheetContent
 import com.mrmustard.activelistening.ui.song.structure.StructureTimeline
 
@@ -40,10 +41,12 @@ fun ListeningSession(
     canRestoreOriginalProposal: Boolean,
     canExportMap: Boolean,
     isExportingMap: Boolean,
+    guidanceIntensity: GuidanceIntensity,
     onStartGuidedSession: () -> Unit,
     onSectionSelected: (Int) -> Unit,
     onSectionEditorDismiss: () -> Unit,
     onSectionLabelSelected: (SectionLabel) -> Unit,
+    onSectionCustomLabelChanged: (String) -> Unit,
     onSectionStatusClick: () -> Unit,
     onSectionMusicalContrastClick: () -> Unit,
     onAdjustSectionStart: (Long) -> Unit,
@@ -51,6 +54,11 @@ fun ListeningSession(
     onSplitAtCurrentPosition: () -> Unit,
     onMergeWithPrevious: () -> Unit,
     onMergeWithNext: () -> Unit,
+    onRepeatSection: () -> Unit,
+    onConfirmGuidedSection: () -> Unit,
+    onMarkGuidedSectionUncertain: () -> Unit,
+    onRepeatGuidedPrompt: () -> Unit,
+    onSkipGuidedSection: () -> Unit,
     onRestoreOriginalProposal: () -> Unit,
     onExportMapClick: () -> Unit,
     modifier: Modifier = Modifier,
@@ -82,6 +90,11 @@ fun ListeningSession(
                     section = guidanceSection,
                     isGuidanceLoading = isGuidanceLoading,
                     guidanceError = guidanceError,
+                    guidanceIntensity = guidanceIntensity,
+                    onConfirm = onConfirmGuidedSection,
+                    onMarkUncertain = onMarkGuidedSectionUncertain,
+                    onRepeat = onRepeatGuidedPrompt,
+                    onSkip = onSkipGuidedSection,
                 )
                 if (canRestoreOriginalProposal) {
                     OutlinedButton(
@@ -135,6 +148,7 @@ fun ListeningSession(
                 canMergeWithPrevious = sheetSectionIndex > 0,
                 canMergeWithNext = sheetSectionIndex in 0 until sections.lastIndex,
                 onLabelSelected = onSectionLabelSelected,
+                onCustomLabelChanged = onSectionCustomLabelChanged,
                 onStatusClick = onSectionStatusClick,
                 onMusicalContrastClick = onSectionMusicalContrastClick,
                 onAdjustStart = onAdjustSectionStart,
@@ -142,6 +156,7 @@ fun ListeningSession(
                 onSplitAtCurrentPosition = onSplitAtCurrentPosition,
                 onMergeWithPrevious = onMergeWithPrevious,
                 onMergeWithNext = onMergeWithNext,
+                onRepeatSection = onRepeatSection,
                 modifier = Modifier.padding(horizontal = 24.dp, vertical = 12.dp),
             )
         }

@@ -7,6 +7,7 @@ import com.mrmustard.activelistening.domain.learning.GuidanceIntensity
 import com.mrmustard.activelistening.domain.learning.LearningLevel
 import com.mrmustard.activelistening.domain.structure.SectionLabel
 import com.mrmustard.activelistening.domain.structure.SectionStatus
+import com.mrmustard.activelistening.domain.structure.SongSection
 import com.mrmustard.activelistening.domain.time.formatTimeCode
 
 @Composable
@@ -19,6 +20,11 @@ fun SectionLabel.toDisplayName(): String =
         SectionLabel.Outro -> stringResource(R.string.section_label_outro)
         SectionLabel.Other -> stringResource(R.string.section_label_other)
     }
+
+@Composable
+fun SongSection.toDisplayName(): String =
+    customLabel?.takeIf { label == SectionLabel.Other && it.isNotBlank() }
+        ?: label.toDisplayName()
 
 @Composable
 fun SectionStatus.toDisplayName(): String =

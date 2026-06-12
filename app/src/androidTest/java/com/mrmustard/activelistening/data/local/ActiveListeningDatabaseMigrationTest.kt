@@ -30,7 +30,7 @@ class ActiveListeningDatabaseMigrationTest {
     }
 
     @Test
-    fun migratesFromVersion1To3AndPreservesSettings() {
+    fun migratesFromVersion1To4AndPreservesSettings() {
         createVersion1Database()
 
         val migratedDatabase = openMigratedDatabase()
@@ -43,10 +43,11 @@ class ActiveListeningDatabaseMigrationTest {
         }
         assertTrue(sqliteDatabase.hasTable("song_structure_sections"))
         assertTrue(sqliteDatabase.hasTable("saved_listening_sessions"))
+        assertTrue(sqliteDatabase.hasTable("learning_progress_sessions"))
     }
 
     @Test
-    fun migratesFromVersion2To3AndPreservesStructure() {
+    fun migratesFromVersion2To4AndPreservesStructure() {
         createVersion2Database()
 
         val migratedDatabase = openMigratedDatabase()
@@ -62,6 +63,21 @@ class ActiveListeningDatabaseMigrationTest {
             assertEquals(30_000L, cursor.getLong(2))
         }
         assertTrue(sqliteDatabase.hasTable("saved_listening_sessions"))
+        assertTrue(sqliteDatabase.hasColumn("song_structure_sections", "custom_label"))
+        assertTrue(sqliteDatabase.hasTable("learning_progress_sessions"))
+    }
+
+    @Test
+    fun migratesFromVersion3To4AndPreservesSavedSessions() {
+        createVersion3Database()
+
+        val sqliteDatabase = openMigratedDatabase().openHelper.writableDatabase
+        sqliteDatabase.query("SELECT display_name FROM saved_listening_sessions").use { cursor ->
+            assertTrue(cursor.moveToFirst())
+            assertEquals("Practice.mp3", cursor.getString(0))
+        }
+        assertTrue(sqliteDatabase.hasColumn("song_structure_sections", "custom_label"))
+        assertTrue(sqliteDatabase.hasTable("learning_progress_sessions"))
     }
 
     private fun createVersion1Database() {
@@ -97,6 +113,23 @@ class ActiveListeningDatabaseMigrationTest {
         }
     }
 
+    private fun createVersion3Database() {
+        openLegacyDatabase().use { database ->
+            database.execSQL(CREATE_USER_SETTINGS_TABLE)
+            database.execSQL(CREATE_SONG_STRUCTURE_TABLE)
+            database.execSQL(CREATE_SAVED_SESSIONS_TABLE)
+            database.execSQL(
+                """
+                INSERT INTO saved_listening_sessions (
+                    song_key, display_name, mime_type, duration_millis,
+                    last_position_millis, created_at_millis, updated_at_millis
+                ) VALUES ('content://song', 'Practice.mp3', 'audio/mpeg', 120000, 30000, 1, 2)
+                """.trimIndent(),
+            )
+            database.version = 3
+        }
+    }
+
     private fun openLegacyDatabase(): SQLiteDatabase =
         context.openOrCreateDatabase(TEST_DATABASE_NAME, Context.MODE_PRIVATE, null)
 
@@ -116,6 +149,13 @@ class ActiveListeningDatabaseMigrationTest {
             "SELECT name FROM sqlite_master WHERE type = 'table' AND name = ?",
             arrayOf(tableName),
         ).use { cursor -> cursor.moveToFirst() }
+
+    private fun androidx.sqlite.db.SupportSQLiteDatabase.hasColumn(tableName: String, columnName: String): Boolean =
+        query("PRAGMA table_info($tableName)").use { cursor ->
+            val nameIndex = cursor.getColumnIndex("name")
+            generateSequence { if (cursor.moveToNext()) cursor.getString(nameIndex) else null }
+                .any { it == columnName }
+        }
 
     private companion object {
         const val TEST_DATABASE_NAME = "active-listening-migration-test.db"
@@ -145,6 +185,19 @@ class ActiveListeningDatabaseMigrationTest {
                 musical_contrast_confidence TEXT,
                 musical_contrast_explanation TEXT,
                 PRIMARY KEY(song_key, version, section_id)
+            )
+            """.trimIndent()
+
+        val CREATE_SAVED_SESSIONS_TABLE =
+            """
+            CREATE TABLE IF NOT EXISTS saved_listening_sessions (
+                song_key TEXT NOT NULL PRIMARY KEY,
+                display_name TEXT NOT NULL,
+                mime_type TEXT,
+                duration_millis INTEGER NOT NULL,
+                last_position_millis INTEGER NOT NULL,
+                created_at_millis INTEGER NOT NULL,
+                updated_at_millis INTEGER NOT NULL
             )
             """.trimIndent()
     }

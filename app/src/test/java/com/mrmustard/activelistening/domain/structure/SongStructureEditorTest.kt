@@ -49,4 +49,14 @@ class SongStructureEditorTest {
         assertEquals(sections[0], updated[0])
         assertEquals(sections[1], updated[1])
     }
+
+    @Test
+    fun `custom label uses other category and trims its name`() {
+        val sections = SongStructureFactory.createInitialSections(durationMillis = 120_000L)
+
+        val updated = SongStructureEditor.changeCustomLabel(sections, 1, "  Pre-coro  ")
+
+        assertEquals(SectionLabel.Other, updated[1].label)
+        assertEquals("Pre-coro", updated[1].customLabel)
+    }
 }

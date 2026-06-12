@@ -5,6 +5,7 @@ data class SongSection(
     val startMillis: Long,
     val endMillis: Long,
     val label: SectionLabel,
+    val customLabel: String? = null,
     val status: SectionStatus = SectionStatus.Suggested,
     val prompt: String,
     val isApproximate: Boolean = true,

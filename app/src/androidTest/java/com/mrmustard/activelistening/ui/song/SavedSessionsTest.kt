@@ -1,14 +1,18 @@
 package com.mrmustard.activelistening.ui.song
 
 import androidx.compose.ui.test.assertLeftPositionInRootIsEqualTo
+import androidx.compose.ui.test.assertCountEquals
 import androidx.compose.ui.test.junit4.v2.createComposeRule
 import androidx.compose.ui.test.onNodeWithTag
+import androidx.compose.ui.test.onAllNodesWithText
 import androidx.compose.ui.test.performClick
 import androidx.compose.ui.test.performTouchInput
 import androidx.compose.ui.test.swipeLeft
 import androidx.compose.ui.test.swipeRight
 import androidx.compose.ui.unit.dp
 import com.mrmustard.activelistening.domain.session.SavedListeningSession
+import com.mrmustard.activelistening.domain.progress.AutonomyLevel
+import com.mrmustard.activelistening.domain.progress.LearningProgressSummary
 import com.mrmustard.activelistening.ui.theme.ActiveListeningTheme
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertNull
@@ -79,14 +83,37 @@ class SavedSessionsTest {
             .assertLeftPositionInRootIsEqualTo(24.dp)
     }
 
+    @Test
+    fun savedSessionShowsLearningProgressSummary() {
+        setContent(
+            progressSummaries = mapOf(
+                first.songKey to LearningProgressSummary(
+                    songKey = first.songKey,
+                    sessionCount = 3,
+                    reviewedSections = 2,
+                    totalSections = 4,
+                    lastPracticeAtMillis = 1_700_000_000_000L,
+                    autonomyLevel = AutonomyLevel.Progressing,
+                ),
+            ),
+        )
+
+        composeRule.onAllNodesWithText("3 sesiones · 2/4 secciones revisadas").assertCountEquals(1)
+        composeRule.onAllNodesWithText("En progreso").assertCountEquals(1)
+    }
+
     private fun setContent(
         onResume: (SavedListeningSession) -> Unit = {},
         onDelete: (String) -> Unit = {},
+        progressSummaries: Map<String, LearningProgressSummary> = emptyMap(),
     ) {
         composeRule.setContent {
             ActiveListeningTheme {
                 SongScreen(
-                    state = ActiveListeningUiState(savedSessions = listOf(first, second)),
+                    state = ActiveListeningUiState(
+                        savedSessions = listOf(first, second),
+                        progressSummaries = progressSummaries,
+                    ),
                     onImportClick = {},
                     onSavedSessionClick = onResume,
                     onDeleteSavedSession = onDelete,
@@ -101,6 +128,7 @@ class SavedSessionsTest {
                     onSectionSelected = {},
                     onSectionEditorDismiss = {},
                     onSectionLabelSelected = {},
+                    onSectionCustomLabelChanged = {},
                     onSectionStatusClick = {},
                     onSectionMusicalContrastClick = {},
                     onAdjustSectionStart = {},
@@ -108,6 +136,11 @@ class SavedSessionsTest {
                     onSplitAtCurrentPosition = {},
                     onMergeWithPrevious = {},
                     onMergeWithNext = {},
+                    onRepeatSection = {},
+                    onConfirmGuidedSection = {},
+                    onMarkGuidedSectionUncertain = {},
+                    onRepeatGuidedPrompt = {},
+                    onSkipGuidedSection = {},
                     onRestoreOriginalProposal = {},
                     onExportMapClick = {},
                     onErrorShown = {},

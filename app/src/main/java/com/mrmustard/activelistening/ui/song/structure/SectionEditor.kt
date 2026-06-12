@@ -17,11 +17,21 @@ import androidx.compose.material3.FilterChipDefaults
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedButton
+import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.focus.onFocusChanged
+import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.res.stringResource
+import androidx.compose.foundation.text.KeyboardActions
+import androidx.compose.foundation.text.KeyboardOptions
+import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import com.mrmustard.activelistening.R
@@ -43,6 +53,7 @@ fun SectionDetailsSheetContent(
     canMergeWithPrevious: Boolean,
     canMergeWithNext: Boolean,
     onLabelSelected: (SectionLabel) -> Unit,
+    onCustomLabelChanged: (String) -> Unit,
     onStatusClick: () -> Unit,
     onMusicalContrastClick: () -> Unit,
     onAdjustStart: (Long) -> Unit,
@@ -50,8 +61,19 @@ fun SectionDetailsSheetContent(
     onSplitAtCurrentPosition: () -> Unit,
     onMergeWithPrevious: () -> Unit,
     onMergeWithNext: () -> Unit,
+    onRepeatSection: () -> Unit,
     modifier: Modifier = Modifier,
 ) {
+    var customLabelText by remember(section.id, section.customLabel) {
+        mutableStateOf(section.customLabel.orEmpty())
+    }
+    val focusManager = LocalFocusManager.current
+    fun commitCustomLabel() {
+        if (customLabelText.trim() != section.customLabel.orEmpty()) {
+            onCustomLabelChanged(customLabelText)
+        }
+    }
+
     Column(
         modifier = modifier
             .fillMaxWidth()
@@ -109,6 +131,24 @@ fun SectionDetailsSheetContent(
                 )
             }
         }
+        if (section.label == SectionLabel.Other) {
+            OutlinedTextField(
+                value = customLabelText,
+                onValueChange = { customLabelText = it },
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .onFocusChanged { if (!it.isFocused) commitCustomLabel() },
+                label = { Text(stringResource(R.string.structure_custom_label)) },
+                singleLine = true,
+                keyboardOptions = KeyboardOptions(imeAction = ImeAction.Done),
+                keyboardActions = KeyboardActions(
+                    onDone = {
+                        commitCustomLabel()
+                        focusManager.clearFocus()
+                    },
+                ),
+            )
+        }
 
         RhythmInfoPanel(
             rhythmInfo = section.rhythmInfo,
@@ -148,6 +188,12 @@ fun SectionDetailsSheetContent(
                     formatSectionTime(currentPositionMillis),
                 ),
             )
+        }
+        OutlinedButton(
+            onClick = onRepeatSection,
+            modifier = Modifier.fillMaxWidth(),
+        ) {
+            Text(stringResource(R.string.structure_repeat_section))
         }
         Row(
             modifier = Modifier.fillMaxWidth(),
