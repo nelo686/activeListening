@@ -1,12 +1,14 @@
 <resources>
-    <string name="app_name">Active Listening</string>
+    <string name="app_name">Escucha Activa</string>
     <string name="screen_import_song_title">Escucha activa</string>
     <string name="song_back_to_start">Volver a inicio</string>
     <string name="settings_open">Abrir configuracion</string>
-    <string name="settings_title">Configuracion</string>
+    <string name="settings_title">Ajustes</string>
     <string name="settings_back">Volver</string>
-    <string name="settings_learning_level_description">Ajusta la profundidad de las explicaciones sobre secciones musicales.</string>
-    <string name="settings_guidance_intensity_description">Controla cuantas pistas aparecen durante la escucha guiada.</string>
+    <string name="settings_learning_level_description">Selecciona tu nivel de experiencia musical para ajustar la complejidad de las herramientas de analisis.</string>
+    <string name="settings_guidance_intensity_description">Controla la cantidad de sugerencias y marcadores automaticos generados por la IA durante la escucha.</string>
+    <string name="settings_guidance_intensity_normal_description">Sugerencias activas, resaltados de estructura completos y consejos en tiempo real.</string>
+    <string name="settings_guidance_intensity_reduced_description">Solo marcadores esenciales. Ideal para evaluaciones o trabajo independiente profundo.</string>
     <string name="import_song_header_title">Importa una cancion para empezar</string>
     <string name="import_song_header_description">Escucha, pausa, vuelve atras y localiza los primeros cambios antes de dibujar la estructura.</string>
     <string name="import_song_ready_title">Cancion lista para escuchar</string>
