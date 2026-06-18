@@ -32,10 +32,10 @@ class AndroidSongImportGateway @Inject constructor(
                 return@withContext SongImportResult.Error(ImportSongError.UnreadableFile)
             }
 
-            val durationMillis = readDurationMillis(uri)
+            val metadata = readMetadata(uri)
                 ?: return@withContext SongImportResult.Error(ImportSongError.UnreadableFile)
 
-            validator.validateDuration(durationMillis)?.let { error ->
+            validator.validateDuration(metadata.durationMillis)?.let { error ->
                 return@withContext SongImportResult.Error(error)
             }
 
@@ -44,7 +44,10 @@ class AndroidSongImportGateway @Inject constructor(
                     uri = uri,
                     displayName = displayName,
                     mimeType = mimeType,
-                    durationMillis = durationMillis,
+                    durationMillis = metadata.durationMillis,
+                    title = metadata.title ?: displayName.substringBeforeLast('.'),
+                    artist = metadata.artist,
+                    artwork = metadata.artwork,
                 ),
             )
         }.getOrElse {
@@ -71,13 +74,52 @@ class AndroidSongImportGateway @Inject constructor(
             } != null
         }.getOrDefault(false)
 
-    private fun readDurationMillis(uri: Uri): Long? =
+    private fun readMetadata(uri: Uri): SongMetadata? =
         runCatching {
             MediaMetadataRetriever().use { retriever ->
                 retriever.setDataSource(context, uri)
-                retriever.extractMetadata(MediaMetadataRetriever.METADATA_KEY_DURATION)
+                val durationMillis = retriever
+                    .extractMetadata(MediaMetadataRetriever.METADATA_KEY_DURATION)
                     ?.toLongOrNull()
                     ?.takeIf { it > 0L }
+                    ?: return@use null
+                SongMetadata(
+                    durationMillis = durationMillis,
+                    title = retriever.extractMetadata(MediaMetadataRetriever.METADATA_KEY_TITLE)
+                        ?.takeIf { it.isNotBlank() },
+                    artist = retriever.extractMetadata(MediaMetadataRetriever.METADATA_KEY_ARTIST)
+                        ?.takeIf { it.isNotBlank() },
+                    artwork = retriever.embeddedPicture,
+                )
             }
         }.getOrNull()
+
+    private data class SongMetadata(
+        val durationMillis: Long,
+        val title: String?,
+        val artist: String?,
+        val artwork: ByteArray?,
+    ) {
+        override fun equals(other: Any?): Boolean {
+            if (this === other) return true
+            if (javaClass != other?.javaClass) return false
+
+            other as SongMetadata
+
+            if (durationMillis != other.durationMillis) return false
+            if (title != other.title) return false
+            if (artist != other.artist) return false
+            if (!artwork.contentEquals(other.artwork)) return false
+
+            return true
+        }
+
+        override fun hashCode(): Int {
+            var result = durationMillis.hashCode()
+            result = 31 * result + (title?.hashCode() ?: 0)
+            result = 31 * result + (artist?.hashCode() ?: 0)
+            result = 31 * result + (artwork?.contentHashCode() ?: 0)
+            return result
+        }
+    }
 }

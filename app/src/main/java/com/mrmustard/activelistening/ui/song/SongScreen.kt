@@ -191,12 +191,11 @@ fun SongScreen(
             } else {
                 Column(modifier = Modifier.fillMaxSize()) {
                     SongPlayerHeader(
-                        title = song.displayName,
+                        song = song,
                         playbackState = state.playbackState,
                         onPlayClick = onPlayClick,
                         onPauseClick = onPauseClick,
                         onSeek = onSeek,
-                        onChangeSongClick = onImportClick,
                     )
                     LazyColumn(
                         modifier = Modifier

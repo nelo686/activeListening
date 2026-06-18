@@ -2,7 +2,6 @@ package com.mrmustard.activelistening.ui.song
 
 import android.graphics.BitmapFactory
 import android.media.MediaMetadataRetriever
-import android.net.Uri
 import androidx.compose.animation.core.animate
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
@@ -35,7 +34,6 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.produceState
-import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableFloatStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
@@ -62,6 +60,7 @@ import com.mrmustard.activelistening.domain.progress.AutonomyLevel
 import com.mrmustard.activelistening.domain.progress.LearningProgressSummary
 import com.mrmustard.activelistening.domain.session.SavedListeningSession
 import kotlinx.coroutines.launch
+import androidx.core.net.toUri
 
 fun LazyListScope.savedSessions(
     sessions: List<SavedListeningSession>,
@@ -291,7 +290,7 @@ private fun SavedSessionArtwork(
     ) {
         value = runCatching {
             MediaMetadataRetriever().use { retriever ->
-                retriever.setDataSource(context, Uri.parse(songKey))
+                retriever.setDataSource(context, songKey.toUri())
                 retriever.embeddedPicture
                     ?.let { picture ->
                         BitmapFactory.decodeByteArray(picture, 0, picture.size)?.asImageBitmap()

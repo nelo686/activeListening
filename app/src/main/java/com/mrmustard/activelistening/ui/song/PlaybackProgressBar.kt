@@ -13,15 +13,12 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.geometry.Offset
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.StrokeCap
-import androidx.compose.ui.graphics.drawscope.Stroke
 import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.semantics.contentDescription
 import androidx.compose.ui.semantics.progressBarRangeInfo
 import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.unit.dp
-import kotlin.math.min
 
 @Composable
 fun PlaybackProgressBar(
@@ -39,7 +36,7 @@ fun PlaybackProgressBar(
     Box(
         modifier = modifier
             .fillMaxWidth()
-            .height(28.dp)
+            .height(18.dp)
             .pointerInput(enabled, safeDuration) {
                 if (!enabled) return@pointerInput
                 awaitEachGesture {
@@ -65,44 +62,25 @@ fun PlaybackProgressBar(
                 },
         ) {
             val centerY = size.height / 2f
-            val thumbCenterX = (size.width * progress).coerceIn(0f, size.width)
-            val thumbRadiusPx = min(size.height * 0.22f, 8.dp.toPx())
+            val progressEndX = (size.width * progress).coerceIn(0f, size.width)
+            val strokeWidth = 8.dp.toPx()
 
             drawLine(
                 color = trackColor,
                 start = Offset(0f, centerY),
                 end = Offset(size.width, centerY),
-                strokeWidth = 4f,
+                strokeWidth = strokeWidth,
                 cap = StrokeCap.Round,
             )
-            drawLine(
-                color = progressColor,
-                start = Offset(0f, centerY),
-                end = Offset(thumbCenterX, centerY),
-                strokeWidth = 4f,
-                cap = StrokeCap.Round,
-            )
-            drawCircle(
-                color = progressColor.copy(alpha = 0.16f),
-                radius = thumbRadiusPx + 8f,
-                center = Offset(thumbCenterX, centerY),
-            )
-            drawCircle(
-                color = Color.White.copy(alpha = 0.86f),
-                radius = thumbRadiusPx + 1.5f,
-                center = Offset(thumbCenterX, centerY),
-            )
-            drawCircle(
-                color = progressColor,
-                radius = thumbRadiusPx,
-                center = Offset(thumbCenterX, centerY),
-            )
-            drawCircle(
-                color = Color.White.copy(alpha = 0.30f),
-                radius = thumbRadiusPx - 2f,
-                center = Offset(thumbCenterX, centerY),
-                style = Stroke(width = 1.2f),
-            )
+            if (progressEndX > 0f) {
+                drawLine(
+                    color = progressColor,
+                    start = Offset(0f, centerY),
+                    end = Offset(progressEndX, centerY),
+                    strokeWidth = strokeWidth,
+                    cap = StrokeCap.Round,
+                )
+            }
         }
     }
 }

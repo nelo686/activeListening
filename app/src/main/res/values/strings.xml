@@ -27,6 +27,8 @@
     <string name="import_song_listening_prompt">Primera escucha: marca mentalmente donde cambia la energia, el ritmo o la instrumentacion.</string>
     <string name="playback_pause">Pausar</string>
     <string name="playback_play">Reproducir</string>
+    <string name="playback_unknown_artist">Artista desconocido</string>
+    <string name="playback_artwork_description">Portada de %1$s</string>
     <string name="guided_listening_start">Iniciar escucha guiada</string>
     <string name="guided_timeline_title">Linea de tiempo guiada</string>
     <string name="guided_prompt_waiting">Inicia la reproduccion para recibir la primera pista de escucha.</string>
