@@ -11,6 +11,7 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.SnackbarHost
 import androidx.compose.material3.SnackbarHostState
@@ -19,6 +20,7 @@ import androidx.compose.material3.SnackbarResult
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
+import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
@@ -125,6 +127,10 @@ fun SongScreen(
         topBar = {
             TopAppBar(
                 title = { Text(stringResource(R.string.screen_import_song_title)) },
+                colors = TopAppBarDefaults.topAppBarColors(
+                    containerColor = MaterialTheme.colorScheme.background,
+                    scrolledContainerColor = MaterialTheme.colorScheme.background,
+                ),
                 navigationIcon = {
                     if (state.importedSong != null) {
                         IconButton(onClick = onBackToStartClick) {
@@ -151,6 +157,7 @@ fun SongScreen(
             modifier = Modifier
                 .fillMaxSize()
                 .padding(innerPadding),
+            color = MaterialTheme.colorScheme.background,
         ) {
             val song = state.importedSong
             if (song == null) {
@@ -158,17 +165,18 @@ fun SongScreen(
                     modifier = Modifier
                         .fillMaxSize()
                         .imePadding(),
-                    contentPadding = PaddingValues(24.dp),
-                    verticalArrangement = Arrangement.spacedBy(12.dp),
+                    contentPadding = PaddingValues(
+                        start = 12.dp,
+                        top = 10.dp,
+                        end = 12.dp,
+                        bottom = 42.dp,
+                    ),
+                    verticalArrangement = Arrangement.spacedBy(28.dp),
                 ) {
-                    item {
-                        Header(modifier = Modifier.padding(bottom = 12.dp))
-                    }
                     item {
                         EmptySession(
                             isImporting = state.isImporting,
                             onImportClick = onImportClick,
-                            modifier = Modifier.padding(bottom = 12.dp),
                         )
                     }
                     savedSessions(
