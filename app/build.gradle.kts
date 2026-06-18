@@ -108,7 +108,6 @@ dependencies {
     runtimeOnly(libs.ktor.client.okhttp)
     ksp(libs.hilt.compiler)
     ksp(libs.androidx.room.compiler)
-    ksp(libs.kotlin.metadata.jvm)
     testImplementation(libs.junit)
     testImplementation(libs.kotlinx.coroutines.test)
     testImplementation(libs.robolectric)

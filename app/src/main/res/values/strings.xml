@@ -51,6 +51,7 @@
     <string name="structure_timeline_title">Mapa estructural editable</string>
     <string name="structure_timeline_position">%1$s de %2$s</string>
     <string name="structure_timeline_section_description">%1$s desde %2$s hasta %3$s</string>
+    <string name="structure_timeline_cursor_description">Posición de reproducción: %1$d por ciento</string>
     <string name="structure_section_duration">Dur. %1$s</string>
     <string name="structure_rhythm_title">Compases y sensacion ritmica</string>
     <string name="structure_rhythm_estimated_bars">%1$d compases estimados</string>
