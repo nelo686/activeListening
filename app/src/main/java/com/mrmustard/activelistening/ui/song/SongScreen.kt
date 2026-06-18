@@ -171,7 +171,7 @@ fun SongScreen(
                         end = 12.dp,
                         bottom = 42.dp,
                     ),
-                    verticalArrangement = Arrangement.spacedBy(28.dp),
+                    verticalArrangement = Arrangement.spacedBy(0.dp),
                 ) {
                     item {
                         EmptySession(

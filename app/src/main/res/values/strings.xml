@@ -20,7 +20,6 @@
     <string name="import_song_supported_formats_description">Formatos compatibles: MP3, WAV, FLAC</string>
     <string name="saved_sessions_title">Canciones guardadas</string>
     <string name="saved_sessions_resume">Continuar</string>
-    <string name="saved_sessions_resume_context">%1$s de %2$s</string>
     <string name="saved_sessions_delete">Eliminar cancion</string>
     <string name="saved_sessions_deleted">%1$s eliminada</string>
     <string name="saved_sessions_delete_error">No se ha podido eliminar la cancion</string>
@@ -81,8 +80,7 @@
     <string name="map_export_error_unable_to_write">No se ha podido guardar el PDF.</string>
     <string name="structure_repeat_section">Repetir esta seccion</string>
     <string name="structure_custom_label">Nombre de la seccion</string>
-    <string name="saved_sessions_progress">%1$d sesiones · %2$d/%3$d secciones revisadas</string>
-    <string name="saved_sessions_last_practice">Ultima practica: %1$s</string>
+    <string name="saved_sessions_progress_summary">%1$d sesiones · %2$d/%3$d secciones revisadas</string>
     <string name="autonomy_guided">Con guia</string>
     <string name="autonomy_progressing">En progreso</string>
     <string name="autonomy_more_autonomous">Mas autonoma</string>

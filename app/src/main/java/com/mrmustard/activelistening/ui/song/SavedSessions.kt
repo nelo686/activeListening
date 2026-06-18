@@ -1,6 +1,10 @@
 package com.mrmustard.activelistening.ui.song
 
+import android.graphics.BitmapFactory
+import android.media.MediaMetadataRetriever
+import android.net.Uri
 import androidx.compose.animation.core.animate
+import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.gestures.awaitEachGesture
@@ -13,15 +17,16 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.fillMaxHeight
+import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyListScope
-import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.lazy.itemsIndexed
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
+import androidx.compose.material3.ElevatedCard
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
@@ -29,14 +34,19 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.produceState
+import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableFloatStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
+import androidx.compose.ui.graphics.asImageBitmap
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.input.pointer.pointerInput
+import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.input.pointer.positionChange
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.platform.LocalLayoutDirection
@@ -48,12 +58,9 @@ import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.LayoutDirection
 import androidx.compose.ui.unit.dp
 import com.mrmustard.activelistening.R
-import com.mrmustard.activelistening.domain.session.SavedListeningSession
-import com.mrmustard.activelistening.domain.progress.LearningProgressSummary
 import com.mrmustard.activelistening.domain.progress.AutonomyLevel
-import java.text.DateFormat
-import java.util.Date
-import com.mrmustard.activelistening.domain.time.formatTimeCode
+import com.mrmustard.activelistening.domain.progress.LearningProgressSummary
+import com.mrmustard.activelistening.domain.session.SavedListeningSession
 import kotlinx.coroutines.launch
 
 fun LazyListScope.savedSessions(
@@ -67,14 +74,17 @@ fun LazyListScope.savedSessions(
     if (sessions.isEmpty()) return
 
     item(key = "saved_sessions_header") {
-        SavedSessionsHeader()
+        SavedSessionsHeader(
+            modifier = Modifier.padding(top = 28.dp, bottom = 10.dp),
+        )
     }
-    items(
+    itemsIndexed(
         items = sessions,
-        key = SavedListeningSession::songKey,
-        contentType = { "saved_session" },
-    ) { session ->
+        key = { _, session -> session.songKey },
+        contentType = { _, _ -> "saved_session" },
+    ) { index, session ->
         SavedSessionItem(
+            modifier = Modifier.padding(bottom = if (index < sessions.lastIndex) 6.dp else 0.dp),
             session = session,
             progress = progressSummaries[session.songKey],
             isOpen = openSessionKey == session.songKey,
@@ -96,8 +106,11 @@ fun LazyListScope.savedSessions(
 }
 
 @Composable
-private fun SavedSessionsHeader() {
+private fun SavedSessionsHeader(
+    modifier: Modifier = Modifier,
+) {
     Text(
+        modifier = modifier,
         text = stringResource(R.string.saved_sessions_title),
         style = MaterialTheme.typography.titleMedium,
         fontWeight = FontWeight.Medium,
@@ -195,16 +208,17 @@ private fun SavedSessionItem(
             }
         }
 
-        Card(
+        ElevatedCard(
             modifier = Modifier
                 .fillMaxWidth()
                 .offset { IntOffset(offsetX.toInt(), 0) }
                 .clickable(onClick = onClick)
                 .testTag("saved_session_${session.songKey}"),
             shape = shape,
-            colors = CardDefaults.cardColors(
-                containerColor = MaterialTheme.colorScheme.surfaceVariant,
+            colors = CardDefaults.elevatedCardColors(
+                containerColor = MaterialTheme.colorScheme.surface,
             ),
+            elevation = CardDefaults.elevatedCardElevation(defaultElevation = 2.dp),
         ) {
             Row(
                 modifier = Modifier
@@ -213,8 +227,19 @@ private fun SavedSessionItem(
                 horizontalArrangement = Arrangement.SpaceBetween,
                 verticalAlignment = Alignment.CenterVertically,
             ) {
+                Box(
+                    modifier = Modifier
+                        .size(56.dp)
+                        .clip(RoundedCornerShape(8.dp))
+                        .background(MaterialTheme.colorScheme.surfaceVariant),
+                    contentAlignment = Alignment.Center,
+                ) {
+                    SavedSessionArtwork(songKey = session.songKey)
+                }
                 Column(
-                    modifier = Modifier.weight(1f),
+                    modifier = Modifier
+                        .weight(1f)
+                        .padding(start = 16.dp),
                     verticalArrangement = Arrangement.spacedBy(4.dp),
                 ) {
                     Text(
@@ -225,18 +250,10 @@ private fun SavedSessionItem(
                     progress?.let {
                         Text(
                             text = stringResource(
-                                R.string.saved_sessions_progress,
+                                R.string.saved_sessions_progress_summary,
                                 it.sessionCount,
                                 it.reviewedSections,
                                 it.totalSections,
-                            ),
-                            style = MaterialTheme.typography.bodySmall,
-                            color = MaterialTheme.colorScheme.onSurfaceVariant,
-                        )
-                        Text(
-                            text = stringResource(
-                                R.string.saved_sessions_last_practice,
-                                DateFormat.getDateInstance(DateFormat.MEDIUM).format(Date(it.lastPracticeAtMillis)),
                             ),
                             style = MaterialTheme.typography.bodySmall,
                             color = MaterialTheme.colorScheme.onSurfaceVariant,
@@ -247,17 +264,11 @@ private fun SavedSessionItem(
                             color = MaterialTheme.colorScheme.primary,
                         )
                     }
-                    Text(
-                        text = stringResource(
-                            R.string.saved_sessions_resume_context,
-                            formatTimeCode(session.lastPositionMillis),
-                            formatTimeCode(session.durationMillis),
-                        ),
-                        style = MaterialTheme.typography.bodySmall,
-                        color = MaterialTheme.colorScheme.onSurfaceVariant,
-                    )
                 }
-                IconButton(onClick = onClick) {
+                IconButton(
+                    onClick = onClick,
+                    modifier = Modifier.offset(x = 7.dp),
+                ) {
                     Icon(
                         painter = painterResource(R.drawable.ic_chevron_right_24),
                         contentDescription = stringResource(R.string.saved_sessions_resume),
@@ -265,6 +276,44 @@ private fun SavedSessionItem(
                 }
             }
         }
+    }
+}
+
+@Composable
+private fun SavedSessionArtwork(
+    songKey: String,
+    modifier: Modifier = Modifier,
+) {
+    val context = LocalContext.current
+    val artworkBitmap by produceState<androidx.compose.ui.graphics.ImageBitmap?>(
+        initialValue = null,
+        key1 = songKey,
+    ) {
+        value = runCatching {
+            MediaMetadataRetriever().use { retriever ->
+                retriever.setDataSource(context, Uri.parse(songKey))
+                retriever.embeddedPicture
+                    ?.let { picture ->
+                        BitmapFactory.decodeByteArray(picture, 0, picture.size)?.asImageBitmap()
+                    }
+            }
+        }.getOrNull()
+    }
+
+    if (artworkBitmap != null) {
+        Image(
+            bitmap = artworkBitmap!!,
+            contentDescription = null,
+            modifier = modifier.fillMaxSize(),
+            contentScale = ContentScale.Crop,
+        )
+    } else {
+        Icon(
+            painter = painterResource(R.drawable.ic_music_note_24),
+            contentDescription = null,
+            tint = MaterialTheme.colorScheme.primary,
+            modifier = modifier.size(24.dp),
+        )
     }
 }
 
