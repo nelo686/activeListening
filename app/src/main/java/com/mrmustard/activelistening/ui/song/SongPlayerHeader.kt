@@ -25,7 +25,7 @@ fun SongPlayerHeader(
     Surface(
         modifier = modifier
             .fillMaxWidth()
-            .padding(horizontal = 18.dp, vertical = 12.dp),
+            .padding(start = 18.dp, top = 12.dp, end = 18.dp, bottom = 0.dp),
         shape = RoundedCornerShape(14.dp),
         tonalElevation = 1.dp,
         shadowElevation = 2.dp,

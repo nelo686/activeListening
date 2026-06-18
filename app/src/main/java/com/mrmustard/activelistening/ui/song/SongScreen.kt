@@ -202,7 +202,12 @@ fun SongScreen(
                             .fillMaxSize()
                             .weight(1f)
                             .imePadding(),
-                        contentPadding = PaddingValues(24.dp),
+                        contentPadding = PaddingValues(
+                            start = 18.dp,
+                            top = 14.dp,
+                            end = 18.dp,
+                            bottom = 24.dp,
+                        ),
                         verticalArrangement = Arrangement.spacedBy(24.dp),
                     ) {
                     item {
