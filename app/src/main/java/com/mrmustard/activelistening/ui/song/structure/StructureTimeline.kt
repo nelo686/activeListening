@@ -213,8 +213,8 @@ private fun SectionBlock(
             Column(
                 modifier = Modifier
                     .align(Alignment.CenterStart)
-                    .padding(horizontal = 14.dp, vertical = 12.dp),
-                verticalArrangement = Arrangement.spacedBy(8.dp),
+                    .padding(horizontal = 14.dp, vertical = 10.dp),
+                verticalArrangement = Arrangement.spacedBy(4.dp),
             ) {
                 Text(
                     text = section.toDisplayName(),
@@ -229,10 +229,19 @@ private fun SectionBlock(
                     maxLines = 1,
                     overflow = TextOverflow.Clip,
                 )
+                Text(
+                    text = formatDurationLabel(section.durationMillis),
+                    style = MaterialTheme.typography.labelMedium,
+                    maxLines = 1,
+                    overflow = TextOverflow.Clip,
+                )
             }
         }
     }
 }
+
+private fun formatDurationLabel(durationMillis: Long): String =
+    "Duración ${formatSectionTime(durationMillis)}"
 
 @Composable
 private fun SongSection.containerColor(
