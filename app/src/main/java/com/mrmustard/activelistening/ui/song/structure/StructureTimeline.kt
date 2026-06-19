@@ -178,7 +178,7 @@ private fun SectionBlock(
 
     Surface(
         modifier = modifier
-            .padding(horizontal = 2.dp, vertical = 22.dp)
+            .padding(horizontal = 2.dp, vertical = 16.dp)
             .semantics { contentDescription = description }
             .clickable(onClick = onClick)
             .then(
@@ -212,8 +212,8 @@ private fun SectionBlock(
             }
             Column(
                 modifier = Modifier
-                    .align(Alignment.CenterStart)
-                    .padding(horizontal = 14.dp, vertical = 10.dp),
+                    .align(Alignment.TopStart)
+                    .padding(start = 14.dp, top = 30.dp, end = 14.dp, bottom = 10.dp),
                 verticalArrangement = Arrangement.spacedBy(4.dp),
             ) {
                 Text(
