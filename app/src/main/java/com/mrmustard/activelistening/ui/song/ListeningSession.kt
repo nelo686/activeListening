@@ -13,6 +13,7 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.ModalBottomSheet
 import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.Text
+import androidx.compose.material3.rememberModalBottomSheetState
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
@@ -53,6 +54,7 @@ fun ListeningSession(
     onSectionMusicalContrastClick: () -> Unit,
     onAdjustSectionStart: (Long) -> Unit,
     onAdjustSectionEnd: (Long) -> Unit,
+    onTimelineBoundaryChanged: (Int, Long) -> Unit,
     onSplitAtCurrentPosition: () -> Unit,
     onMergeWithPrevious: () -> Unit,
     onMergeWithNext: () -> Unit,
@@ -65,6 +67,7 @@ fun ListeningSession(
     onExportMapClick: () -> Unit,
     modifier: Modifier = Modifier,
 ) {
+    val sheetState = rememberModalBottomSheetState(skipPartiallyExpanded = true)
     val sheetSection = sections.firstOrNull { it.id == editingSectionId }
     val sheetSectionIndex = sections.indexOfFirst { it.id == editingSectionId }
     val canSplitAtCurrentPosition = sheetSection?.let { section ->
@@ -96,6 +99,7 @@ fun ListeningSession(
                     positionMillis = playbackState.positionMillis,
                     durationMillis = playbackState.durationMillis,
                     onSectionClick = onSectionSelected,
+                    onBoundaryChanged = onTimelineBoundaryChanged,
                 )
                 GuidedPromptPanel(
                     section = guidanceSection,
@@ -150,6 +154,7 @@ fun ListeningSession(
     if (sheetSection != null) {
         ModalBottomSheet(
             onDismissRequest = onSectionEditorDismiss,
+            sheetState = sheetState,
             shape = RoundedCornerShape(topStart = 32.dp, topEnd = 32.dp),
             containerColor = MaterialTheme.colorScheme.surface,
         ) {

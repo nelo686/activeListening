@@ -287,6 +287,47 @@ class ActiveListeningViewModelTest {
     }
 
     @Test
+    fun `pending time change after dismiss does not reopen section editor`() = runTest {
+        val song = testSong()
+        importGateway.result = SongImportResult.Success(song)
+        viewModel.importSong(song.uri)
+        advanceUntilIdle()
+        viewModel.startGuidedSession()
+        advanceUntilIdle()
+        val section = viewModel.uiState.value.sections.first()
+        viewModel.openSectionEditor(section.id)
+
+        viewModel.closeSectionEditor()
+        viewModel.setSelectedSectionEnd(section.endMillis - 1_000L)
+        advanceUntilIdle()
+
+        assertNull(viewModel.uiState.value.editingSectionId)
+        assertEquals(section.endMillis - 1_000L, viewModel.uiState.value.sections.first().endMillis)
+    }
+
+    @Test
+    fun `dragging timeline boundary updates both neighboring sections`() = runTest {
+        val song = testSong()
+        importGateway.result = SongImportResult.Success(song)
+        viewModel.importSong(song.uri)
+        advanceUntilIdle()
+        viewModel.startGuidedSession()
+        advanceUntilIdle()
+        val leftSection = viewModel.uiState.value.sections.first()
+
+        viewModel.setTimelineBoundaryAfter(leftSection.id, 35_000L)
+        advanceUntilIdle()
+
+        val sections = viewModel.uiState.value.sections
+        assertEquals(35_000L, sections[0].endMillis)
+        assertEquals(35_000L, sections[1].startMillis)
+        assertEquals(
+            35_000L,
+            structureRepository.structures[song.uri.toString()]?.editedSections?.get(1)?.startMillis,
+        )
+    }
+
+    @Test
     fun `playing after song ended restarts playback from beginning`() = runTest {
         val song = testSong()
         importGateway.result = SongImportResult.Success(song)

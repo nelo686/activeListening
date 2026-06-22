@@ -303,9 +303,9 @@ class ActiveListeningViewModel @Inject constructor(
             state.copy(
                 sections = result.sections,
                 selectedSectionId = result.selectedSectionId,
-                editingSectionId = result.editingSectionId,
-                editingSectionLearningContent = result.learningContent,
-            ).also(::saveStructure)
+                editingSectionId = state.editingSectionId,
+            ).withEditingSectionLearningContent()
+                .also(::saveStructure)
         }
         recordManualEdit()
     }
@@ -322,9 +322,9 @@ class ActiveListeningViewModel @Inject constructor(
             state.copy(
                 sections = result.sections,
                 selectedSectionId = result.selectedSectionId,
-                editingSectionId = result.editingSectionId,
-                editingSectionLearningContent = result.learningContent,
-            ).also(::saveStructure)
+                editingSectionId = state.editingSectionId,
+            ).withEditingSectionLearningContent()
+                .also(::saveStructure)
         }
         recordManualEdit()
     }
@@ -340,9 +340,9 @@ class ActiveListeningViewModel @Inject constructor(
             state.copy(
                 sections = result.sections,
                 selectedSectionId = result.selectedSectionId,
-                editingSectionId = result.editingSectionId,
-                editingSectionLearningContent = result.learningContent,
-            ).also(::saveStructure)
+                editingSectionId = state.editingSectionId,
+            ).withEditingSectionLearningContent()
+                .also(::saveStructure)
         }
         val section = _uiState.value.sections.firstOrNull {
             it.id == _uiState.value.currentEditableSectionId()
@@ -393,9 +393,9 @@ class ActiveListeningViewModel @Inject constructor(
             state.copy(
                 sections = result.sections,
                 selectedSectionId = result.selectedSectionId,
-                editingSectionId = result.editingSectionId,
-                editingSectionLearningContent = result.learningContent,
-            ).also(::saveStructure)
+                editingSectionId = state.editingSectionId,
+            ).withEditingSectionLearningContent()
+                .also(::saveStructure)
         }
         recordManualEdit()
     }
@@ -406,6 +406,23 @@ class ActiveListeningViewModel @Inject constructor(
 
     fun setSelectedSectionEnd(positionMillis: Long) {
         setSelectedSectionBoundary(SectionBoundary.End, positionMillis)
+    }
+
+    fun setTimelineBoundaryAfter(sectionId: Int, positionMillis: Long) {
+        _uiState.update { state ->
+            val result = sectionEditingUseCase.setBoundary(
+                sections = state.sections,
+                sectionId = sectionId,
+                boundary = SectionBoundary.End,
+                positionMillis = positionMillis,
+                learningLevel = state.learningLevel,
+            )
+            state.copy(sections = result.sections)
+                .withSectionProgress(state.playbackState.positionMillis)
+                .withEditingSectionLearningContent()
+                .also(::saveStructure)
+        }
+        recordManualEdit()
     }
 
     fun splitAtCurrentPosition() {
@@ -689,9 +706,9 @@ class ActiveListeningViewModel @Inject constructor(
             state.copy(
                 sections = result.sections,
                 selectedSectionId = result.selectedSectionId,
-                editingSectionId = result.editingSectionId,
-                editingSectionLearningContent = result.learningContent,
+                editingSectionId = state.editingSectionId,
             ).withSectionProgress(state.playbackState.positionMillis)
+                .withEditingSectionLearningContent()
                 .also(::saveStructure)
         }
         recordManualEdit()

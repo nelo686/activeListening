@@ -135,6 +135,7 @@ class SavedSessionsTest {
                     onSectionMusicalContrastClick = {},
                     onAdjustSectionStart = {},
                     onAdjustSectionEnd = {},
+                    onTimelineBoundaryChanged = { _, _ -> },
                     onSplitAtCurrentPosition = {},
                     onMergeWithPrevious = {},
                     onMergeWithNext = {},

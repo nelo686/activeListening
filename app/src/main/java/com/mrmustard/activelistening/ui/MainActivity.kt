@@ -78,6 +78,7 @@ class MainActivity : ComponentActivity() {
                         onSectionMusicalContrastClick = viewModel::toggleSelectedSectionMusicalContrast,
                         onAdjustSectionStart = viewModel::setSelectedSectionStart,
                         onAdjustSectionEnd = viewModel::setSelectedSectionEnd,
+                        onTimelineBoundaryChanged = viewModel::setTimelineBoundaryAfter,
                         onSplitAtCurrentPosition = viewModel::splitAtCurrentPosition,
                         onMergeWithPrevious = viewModel::mergeSelectedSectionWithPrevious,
                         onMergeWithNext = viewModel::mergeSelectedSectionWithNext,

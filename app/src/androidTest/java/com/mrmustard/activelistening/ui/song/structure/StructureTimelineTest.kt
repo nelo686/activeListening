@@ -7,14 +7,19 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.test.assertCountEquals
 import androidx.compose.ui.test.junit4.v2.createComposeRule
 import androidx.compose.ui.test.onAllNodesWithText
+import androidx.compose.ui.test.onNodeWithTag
 import androidx.compose.ui.test.onNodeWithText
 import androidx.compose.ui.test.performClick
+import androidx.compose.ui.test.performTouchInput
+import androidx.compose.ui.test.swipeRight
 import com.mrmustard.activelistening.domain.structure.SectionLabel
 import com.mrmustard.activelistening.domain.structure.SectionMusicalContrast
 import com.mrmustard.activelistening.domain.structure.SectionRhythmConfidence
 import com.mrmustard.activelistening.domain.structure.SectionStatus
 import com.mrmustard.activelistening.domain.structure.SongSection
 import com.mrmustard.activelistening.ui.theme.ActiveListeningTheme
+import org.junit.Assert.assertEquals
+import org.junit.Assert.assertTrue
 import org.junit.Rule
 import org.junit.Test
 
@@ -73,6 +78,44 @@ class StructureTimelineTest {
         }
 
         composeRule.onAllNodesWithText("Dudosa").assertCountEquals(1)
+        composeRule.onAllNodesWithText(
+            "Desliza para explorar. Usa los bordes para ajustar.",
+        ).assertCountEquals(1)
+    }
+
+    @Test
+    fun draggingBoundaryReportsNewSharedPosition() {
+        var changedSectionId: Int? = null
+        var changedPositionMillis: Long? = null
+        composeRule.setContent {
+            ActiveListeningTheme {
+                StructureTimeline(
+                    sections = listOf(
+                        section(),
+                        section().copy(
+                            id = 1,
+                            startMillis = 30_000L,
+                            endMillis = 60_000L,
+                            label = SectionLabel.Verse,
+                        ),
+                    ),
+                    selectedSectionId = null,
+                    activeSectionId = null,
+                    positionMillis = 0L,
+                    durationMillis = 60_000L,
+                    onSectionClick = {},
+                    onBoundaryChanged = { sectionId, positionMillis ->
+                        changedSectionId = sectionId
+                        changedPositionMillis = positionMillis
+                    },
+                )
+            }
+        }
+
+        composeRule.onNodeWithTag("structure_boundary_0").performTouchInput { swipeRight() }
+
+        assertEquals(0, changedSectionId)
+        assertTrue((changedPositionMillis ?: 0L) > 30_000L)
     }
 
     private fun section() = SongSection(
