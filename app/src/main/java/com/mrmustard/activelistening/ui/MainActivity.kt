@@ -46,8 +46,14 @@ class MainActivity : ComponentActivity() {
                 val state by viewModel.uiState.collectAsStateWithLifecycle()
                 var currentScreen by remember { mutableStateOf(MainScreen.Song) }
 
-                BackHandler(enabled = currentScreen == MainScreen.Config) {
-                    currentScreen = MainScreen.Song
+                BackHandler(
+                    enabled = currentScreen == MainScreen.Config || state.importedSong != null,
+                ) {
+                    if (currentScreen == MainScreen.Config) {
+                        currentScreen = MainScreen.Song
+                    } else {
+                        viewModel.returnToStart()
+                    }
                 }
 
                 when (currentScreen) {

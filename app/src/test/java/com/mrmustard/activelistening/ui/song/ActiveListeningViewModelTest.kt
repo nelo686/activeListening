@@ -34,10 +34,12 @@ import com.mrmustard.activelistening.domain.usecase.ImportSongUseCase
 import com.mrmustard.activelistening.domain.usecase.SectionEditingUseCase
 import com.mrmustard.activelistening.test.MainDispatcherRule
 import kotlinx.coroutines.ExperimentalCoroutinesApi
+import kotlinx.coroutines.CompletableDeferred
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.test.advanceUntilIdle
+import kotlinx.coroutines.test.runCurrent
 import kotlinx.coroutines.test.runTest
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertFalse
@@ -64,6 +66,7 @@ class ActiveListeningViewModelTest {
     private lateinit var structureRepository: FakeSongStructureRepository
     private lateinit var savedSongRepository: FakeSavedSongRepository
     private lateinit var exportRepository: FakeSongMapExportRepository
+    private lateinit var learningProgressRepository: FakeLearningProgressRepository
     private lateinit var viewModel: ActiveListeningViewModel
 
     @Before
@@ -74,6 +77,7 @@ class ActiveListeningViewModelTest {
         structureRepository = FakeSongStructureRepository()
         savedSongRepository = FakeSavedSongRepository(sessionRepository, structureRepository)
         exportRepository = FakeSongMapExportRepository()
+        learningProgressRepository = FakeLearningProgressRepository()
         viewModel = ActiveListeningViewModel(
             importSongUseCase = ImportSongUseCase(importGateway, audioPlayer),
             audioPlayer = audioPlayer,
@@ -85,7 +89,7 @@ class ActiveListeningViewModelTest {
             songMapExportRepository = exportRepository,
             guidedSessionUseCase = GuidedSessionUseCase(),
             sectionEditingUseCase = SectionEditingUseCase(),
-            learningProgressRepository = FakeLearningProgressRepository(),
+            learningProgressRepository = learningProgressRepository,
         )
     }
 
@@ -151,6 +155,25 @@ class ActiveListeningViewModelTest {
 
         viewModel.markGuidedSectionUncertain()
         assertEquals(SectionStatus.Uncertain, viewModel.uiState.value.sections.first().status)
+    }
+
+    @Test
+    fun `guided action waits for progress session initialization`() = runTest {
+        val song = testSong()
+        importGateway.result = SongImportResult.Success(song)
+        learningProgressRepository.startSessionGate = CompletableDeferred()
+        viewModel.importSong(song.uri)
+        advanceUntilIdle()
+
+        viewModel.startGuidedSession()
+        viewModel.confirmGuidedSection()
+        runCurrent()
+
+        assertTrue(learningProgressRepository.reviewedSections.isEmpty())
+        learningProgressRepository.startSessionGate?.complete(Unit)
+        advanceUntilIdle()
+
+        assertEquals(listOf(1L to 0), learningProgressRepository.reviewedSections)
     }
 
     @Test
@@ -496,14 +519,21 @@ private object FakeGuidedListeningRepository : GuidedListeningRepository {
 private class FakeLearningProgressRepository : LearningProgressRepository {
     override val summaries: Flow<Map<String, LearningProgressSummary>> = MutableStateFlow(emptyMap())
     private var nextId = 1L
+    var startSessionGate: CompletableDeferred<Unit>? = null
+    val reviewedSections = mutableListOf<Pair<Long, Int>>()
 
     override suspend fun startSession(
         songKey: String,
         guidanceIntensity: GuidanceIntensity,
         totalSections: Int,
-    ): Long = nextId++
+    ): Long {
+        startSessionGate?.await()
+        return nextId++
+    }
 
-    override suspend fun markSectionReviewed(sessionId: Long, sectionId: Int) = Unit
+    override suspend fun markSectionReviewed(sessionId: Long, sectionId: Int) {
+        reviewedSections += sessionId to sectionId
+    }
     override suspend fun recordManualEdit(sessionId: Long) = Unit
     override suspend fun recordRepetition(sessionId: Long) = Unit
     override suspend fun recordExplanationConsulted(sessionId: Long) = Unit

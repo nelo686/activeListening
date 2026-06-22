@@ -37,6 +37,8 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.update
+import kotlinx.coroutines.CoroutineStart
+import kotlinx.coroutines.Job
 import kotlinx.coroutines.launch
 import kotlin.math.abs
 import androidx.core.net.toUri
@@ -64,6 +66,7 @@ class ActiveListeningViewModel @Inject constructor(
     private var lastDeletedSavedSong: DeletedSavedSong? = null
     private var savedSessionDeletionEventId = 0L
     private var progressSessionId: Long? = null
+    private var progressSessionInitializationJob: Job? = null
 
     init {
         observeSavedSessions()
@@ -150,6 +153,8 @@ class ActiveListeningViewModel @Inject constructor(
             }
         }
         isCurrentSessionSaved = false
+        progressSessionInitializationJob?.cancel()
+        progressSessionInitializationJob = null
         progressSessionId = null
         _uiState.update {
             it.copy(
@@ -219,13 +224,21 @@ class ActiveListeningViewModel @Inject constructor(
             editedSections = plan.sections,
         )
         _uiState.value.importedSong?.uri?.toString()?.let { songKey ->
-            viewModelScope.launch {
-                progressSessionId = learningProgressRepository.startSession(
+            progressSessionInitializationJob?.cancel()
+            progressSessionId = null
+            lateinit var initializationJob: Job
+            initializationJob = viewModelScope.launch(start = CoroutineStart.LAZY) {
+                val sessionId = learningProgressRepository.startSession(
                     songKey = songKey,
                     guidanceIntensity = _uiState.value.guidanceIntensity,
                     totalSections = plan.sections.size,
                 )
+                if (progressSessionInitializationJob === initializationJob) {
+                    progressSessionId = sessionId
+                }
             }
+            progressSessionInitializationJob = initializationJob
+            initializationJob.start()
         }
 
         if (plan.guidanceRequest != null) {
@@ -637,8 +650,17 @@ class ActiveListeningViewModel @Inject constructor(
     }
 
     private fun recordProgress(action: suspend (Long) -> Unit) {
-        val sessionId = progressSessionId ?: return
-        viewModelScope.launch { action(sessionId) }
+        val sessionId = progressSessionId
+        if (sessionId != null) {
+            viewModelScope.launch { action(sessionId) }
+            return
+        }
+        val initializationJob = progressSessionInitializationJob ?: return
+        viewModelScope.launch {
+            initializationJob.join()
+            if (progressSessionInitializationJob !== initializationJob) return@launch
+            progressSessionId?.let { action(it) }
+        }
     }
 
     private fun setSelectedSectionBoundary(
@@ -696,6 +718,8 @@ class ActiveListeningViewModel @Inject constructor(
             )
                 .withSectionProgress(savedSession?.lastPositionMillis ?: it.playbackState.positionMillis)
         }
+        progressSessionInitializationJob?.cancel()
+        progressSessionInitializationJob = null
         progressSessionId = null
         if (savedStructure != null) {
             progressSessionId = learningProgressRepository.startSession(

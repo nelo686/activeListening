@@ -59,7 +59,9 @@ import com.mrmustard.activelistening.R
 import com.mrmustard.activelistening.domain.progress.AutonomyLevel
 import com.mrmustard.activelistening.domain.progress.LearningProgressSummary
 import com.mrmustard.activelistening.domain.session.SavedListeningSession
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 import androidx.core.net.toUri
 
 fun LazyListScope.savedSessions(
@@ -288,15 +290,17 @@ private fun SavedSessionArtwork(
         initialValue = null,
         key1 = songKey,
     ) {
-        value = runCatching {
-            MediaMetadataRetriever().use { retriever ->
-                retriever.setDataSource(context, songKey.toUri())
-                retriever.embeddedPicture
-                    ?.let { picture ->
-                        BitmapFactory.decodeByteArray(picture, 0, picture.size)?.asImageBitmap()
+        value = withContext(Dispatchers.IO) {
+            runCatching {
+                MediaMetadataRetriever().use { retriever ->
+                    retriever.setDataSource(context, songKey.toUri())
+                    retriever.embeddedPicture
+                        ?.let { picture ->
+                            BitmapFactory.decodeByteArray(picture, 0, picture.size)?.asImageBitmap()
+                        }
                     }
-            }
-        }.getOrNull()
+            }.getOrNull()
+        }
     }
 
     if (artworkBitmap != null) {
