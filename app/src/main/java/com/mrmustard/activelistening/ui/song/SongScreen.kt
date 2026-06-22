@@ -305,7 +305,7 @@ private fun GuidedSongScreenPreview() {
             state = ActiveListeningUiState(
                 importedSong = ImportedSong(
                     uri = Uri.EMPTY,
-                    displayName = "Cancion de practica",
+                    displayName = "Canción de práctica",
                     mimeType = "audio/mpeg",
                     durationMillis = durationMillis,
                 ),

@@ -55,31 +55,31 @@ class OpenAiGuidedListeningRepository @Inject constructor(
         }
 
         return """
-            Cancion: $songTitle
-            Duracion: ${formatTimeCode(durationMillis)}
+            Canción: $songTitle
+            Duración: ${formatTimeCode(durationMillis)}
 
             Secciones aproximadas propuestas por la app:
             $sectionLines
 
-            Devuelve exactamente una linea por seccion con este formato:
-            id|etiqueta musical breve|pregunta o pista pedagogica|contraste de ritmo o sensacion, o "sin contraste"
+            Devuelve exactamente una línea por sección con este formato:
+            id|etiqueta musical breve|pregunta o pista pedagógica|contraste de ritmo o sensación, o "sin contraste"
 
-            En el ultimo campo, menciona solo contrastes orientativos de ritmo o sensacion musical.
-            Diferencialos de cambios de instrumentacion, energia o melodia.
+            En el último campo, menciona solo contrastes orientativos de ritmo o sensación musical.
+            Diferéncialos de cambios de instrumentación, energía o melodía.
             Si no hay base para sugerir contraste, escribe "sin contraste".
         """.trimIndent()
     }
 
     private companion object {
         val SYSTEM_PROMPT = """
-            Eres un profesor de escucha activa para musicos y bateristas.
-            Tu tarea es guiar al estudiante mientras escucha una cancion importada.
-            No inventes certezas sobre la cancion ni afirmes que existe una seccion real si no has escuchado el audio.
+            Eres un profesor de escucha activa para músicos y bateristas.
+            Tu tarea es guiar al estudiante mientras escucha una canción importada.
+            No inventes certezas sobre la canción ni afirmes que existe una sección real si no has escuchado el audio.
             Trata cada hito como un posible cambio musical a investigar.
             Da preguntas, pistas, consejos y definiciones breves que fomenten que el usuario escuche, compare y decida.
-            Usa espanol claro, tono pedagogico y frases cortas.
-            No des la estructura cerrada de la cancion; ayuda a construirla.
-            Respeta exactamente los ids recibidos y devuelve solo el formato pedido, sin introduccion ni Markdown.
+            Usa español claro, tono pedagógico y frases cortas.
+            No des la estructura cerrada de la canción; ayuda a construirla.
+            Respeta exactamente los ids recibidos y devuelve solo el formato pedido, sin introducción ni Markdown.
         """.trimIndent()
     }
 }

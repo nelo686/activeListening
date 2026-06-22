@@ -51,7 +51,7 @@ class SectionEditingUseCaseTest {
         assertEquals(1, result.editingSectionId)
         assertNotNull(result.learningContent)
         assertTrue(result.learningContent?.summary.orEmpty().contains("puente"))
-        assertTrue(result.learningContent?.details.orEmpty().contains("transicion"))
+        assertTrue(result.learningContent?.details.orEmpty().contains("transición"))
     }
 
     @Test

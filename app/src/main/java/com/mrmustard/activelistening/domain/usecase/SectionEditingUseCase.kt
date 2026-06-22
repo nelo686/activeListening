@@ -269,4 +269,4 @@ data class SectionEditingResult(
 )
 
 private const val MANUAL_MUSICAL_CONTRAST_EXPLANATION =
-    "Cambio marcado manualmente. Comprueba si el contraste esta en el ritmo o la sensacion."
+    "Cambio marcado manualmente. Comprueba si el contraste está en el ritmo o la sensación."

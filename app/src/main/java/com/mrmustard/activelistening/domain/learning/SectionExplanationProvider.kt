@@ -26,114 +26,114 @@ object SectionExplanationProvider {
     private val explanations = mapOf(
         SectionLabel.Intro to mapOf(
             LearningLevel.Introductory to Explanation(
-                summary = "La intro presenta la cancion y prepara tu oido antes de que llegue la idea principal.",
-                details = "Fijate en que instrumentos entran primero, si aparece ya el pulso y si la energia se mantiene contenida o empieza fuerte.",
+                summary = "La intro presenta la canción y prepara tu oído antes de que llegue la idea principal.",
+                details = "Fíjate en qué instrumentos entran primero, si aparece ya el pulso y si la energía se mantiene contenida o empieza fuerte.",
             ),
             LearningLevel.Intermediate to Explanation(
-                summary = "La intro establece el pulso, el ambiente y algunos materiales que pueden volver despues.",
-                details = "Escucha si anticipa el riff, la armonia, la textura o el patron ritmico que sostendra el verso o el estribillo.",
+                summary = "La intro establece el pulso, el ambiente y algunos materiales que pueden volver después.",
+                details = "Escucha si anticipa el riff, la armonía, la textura o el patrón rítmico que sostendrá el verso o el estribillo.",
             ),
             LearningLevel.Advanced to Explanation(
-                summary = "La intro cumple una funcion de planteamiento: fija tempo, tonalidad, textura y expectativa formal.",
-                details = "Puede presentar un motivo, preparar una entrada vocal, crear tension o retrasar la seccion estable para que el cambio sea perceptible.",
+                summary = "La intro cumple una función de planteamiento: fija tempo, tonalidad, textura y expectativa formal.",
+                details = "Puede presentar un motivo, preparar una entrada vocal, crear tensión o retrasar la sección estable para que el cambio sea perceptible.",
             ),
             LearningLevel.Expert to Explanation(
-                summary = "La intro articula el marco formal y timbrico antes de la exposicion funcional de la cancion.",
-                details = "Analiza densidad, registro, ritmo armonico, estabilidad metrica y grado de anticipacion tematica respecto a verso, coro o material recurrente.",
+                summary = "La intro articula el marco formal y tímbrico antes de la exposición funcional de la canción.",
+                details = "Analiza densidad, registro, ritmo armónico, estabilidad métrica y grado de anticipación temática respecto a verso, coro o material recurrente.",
             ),
         ),
         SectionLabel.Verse to mapOf(
             LearningLevel.Introductory to Explanation(
-                summary = "Podria ser verso si desarrolla la historia o una idea nueva con una energia mas estable que el estribillo.",
-                details = "Busca si la melodia cambia de frase en frase mientras el acompanamiento se repite para sostener la letra y preparar una parte mas central.",
+                summary = "Podría ser verso si desarrolla la historia o una idea nueva con una energía más estable que el estribillo.",
+                details = "Busca si la melodía cambia de frase en frase mientras el acompañamiento se repite para sostener la letra y preparar una parte más central.",
             ),
             LearningLevel.Intermediate to Explanation(
-                summary = "Podria ser verso si desarrolla contenido nuevo sobre una base reconocible y normalmente prepara el estribillo.",
-                details = "Compara su energia con el coro: suele haber menos densidad, una melodia menos expansiva o una instrumentacion mas contenida.",
+                summary = "Podría ser verso si desarrolla contenido nuevo sobre una base reconocible y normalmente prepara el estribillo.",
+                details = "Compara su energía con el coro: suele haber menos densidad, una melodía menos expansiva o una instrumentación más contenida.",
             ),
             LearningLevel.Advanced to Explanation(
-                summary = "Podria ser verso si funciona como zona narrativa y de acumulacion antes de una seccion de mayor resolucion.",
-                details = "Observa repeticion armonica, fraseo vocal, variaciones de arreglo y como la bateria organiza continuidad o anticipa transiciones.",
+                summary = "Podría ser verso si funciona como zona narrativa y de acumulación antes de una sección de mayor resolución.",
+                details = "Observa repetición armónica, fraseo vocal, variaciones de arreglo y cómo la batería organiza continuidad o anticipa transiciones.",
             ),
             LearningLevel.Expert to Explanation(
-                summary = "Podria ser verso si sostiene informacion semantica con menor clausura formal que el coro.",
-                details = "Evalua estabilidad de groove, periodicidad fraseologica, tension pre-cadencial y economia de arreglo frente a secciones de mayor pregnancia.",
+                summary = "Podría ser verso si sostiene información semántica con menor clausura formal que el coro.",
+                details = "Evalúa estabilidad de groove, periodicidad fraseológica, tensión pre-cadencial y economía de arreglo frente a secciones de mayor pregnancia.",
             ),
         ),
         SectionLabel.Chorus to mapOf(
             LearningLevel.Introductory to Explanation(
-                summary = "Podria ser coro o estribillo si es una parte repetitiva, memorable y central de la cancion.",
-                details = "Pregunta si sube la energia, si aparece una frase central y si esta parte vuelve casi igual mas adelante.",
+                summary = "Podría ser coro o estribillo si es una parte repetitiva, memorable y central de la canción.",
+                details = "Pregunta si sube la energía, si aparece una frase central y si esta parte vuelve casi igual más adelante.",
             ),
             LearningLevel.Intermediate to Explanation(
-                summary = "Podria ser coro si concentra el gancho principal, se repite y suele sentirse como llegada o recompensa.",
-                details = "Busca melodias memorables, mas capas de instrumentos, cambios de registro o un patron ritmico que refuerce la sensacion de resolucion central.",
+                summary = "Podría ser coro si concentra el gancho principal, se repite y suele sentirse como llegada o recompensa.",
+                details = "Busca melodías memorables, más capas de instrumentos, cambios de registro o un patrón rítmico que refuerce la sensación de resolución central.",
             ),
             LearningLevel.Advanced to Explanation(
-                summary = "Podria ser coro si maximiza contraste, memorabilidad y funcion cadencial dentro de la forma.",
-                details = "Analiza densidad, rango melodico, estabilidad armonica, repeticion textual y relacion de tension/resolucion con verso y puente.",
+                summary = "Podría ser coro si maximiza contraste, memorabilidad y función cadencial dentro de la forma.",
+                details = "Analiza densidad, rango melódico, estabilidad armónica, repetición textual y relación de tensión/resolución con verso y puente.",
             ),
             LearningLevel.Expert to Explanation(
-                summary = "Podria ser coro si actua como nucleo central de alta saliencia formal y semantica, a menudo con mayor clausura perceptiva.",
-                details = "Contrasta contour melodico, ritmo armonico, orquestacion, compresion dinamica y recurrencia motivica respecto al resto de la estructura.",
+                summary = "Podría ser coro si actúa como núcleo central de alta saliencia formal y semántica, a menudo con mayor clausura perceptiva.",
+                details = "Contrasta contour melódico, ritmo armónico, orquestación, compresión dinámica y recurrencia motívica respecto al resto de la estructura.",
             ),
         ),
         SectionLabel.Bridge to mapOf(
             LearningLevel.Introductory to Explanation(
-                summary = "Podria ser puente si ofrece contraste, transicion o un cambio claro respecto al resto de la cancion.",
-                details = "Escucha si cambia la sensacion: otra armonia, menos instrumentos, un descanso o una preparacion para volver al estribillo.",
+                summary = "Podría ser puente si ofrece contraste, transición o un cambio claro respecto al resto de la canción.",
+                details = "Escucha si cambia la sensación: otra armonía, menos instrumentos, un descanso o una preparación para volver al estribillo.",
             ),
             LearningLevel.Intermediate to Explanation(
-                summary = "Podria ser puente si rompe la repeticion y aporta aire antes de regresar a una parte conocida.",
-                details = "Puede funcionar como transicion: cambiar acordes, textura, ritmo o direccion melodica para que la vuelta al coro tenga mas fuerza.",
+                summary = "Podría ser puente si rompe la repetición y aporta aire antes de regresar a una parte conocida.",
+                details = "Puede funcionar como transición: cambiar acordes, textura, ritmo o dirección melódica para que la vuelta al coro tenga más fuerza.",
             ),
             LearningLevel.Advanced to Explanation(
-                summary = "Podria ser puente si introduce contraste formal y reorienta la energia acumulada por verso y coro.",
-                details = "Observa modulaciones, reducciones de arreglo, cambios de groove o frases no periodicas que preparan una reexposicion.",
+                summary = "Podría ser puente si introduce contraste formal y reorienta la energía acumulada por verso y coro.",
+                details = "Observa modulaciones, reducciones de arreglo, cambios de groove o frases no periódicas que preparan una reexposición.",
             ),
             LearningLevel.Expert to Explanation(
-                summary = "Podria ser puente si funciona como episodio contrastante con valor de desviacion formal y preparacion re-transicional.",
-                details = "Evalua pivotes armonicos, ruptura de hipermetro, redistribucion timbrica y mecanismos de tension que revalidan la seccion de retorno.",
+                summary = "Podría ser puente si funciona como episodio contrastante con valor de desviación formal y preparación re-transicional.",
+                details = "Evalúa pivotes armónicos, ruptura de hipermetro, redistribución tímbrica y mecanismos de tensión que revalidan la sección de retorno.",
             ),
         ),
         SectionLabel.Outro to mapOf(
             LearningLevel.Introductory to Explanation(
-                summary = "El outro es la parte final: muestra como la cancion decide terminar.",
-                details = "Puede repetirse, bajar la energia, cortar de golpe o dejar que algunos instrumentos desaparezcan poco a poco.",
+                summary = "El outro es la parte final: muestra cómo la canción decide terminar.",
+                details = "Puede repetirse, bajar la energía, cortar de golpe o dejar que algunos instrumentos desaparezcan poco a poco.",
             ),
             LearningLevel.Intermediate to Explanation(
-                summary = "El outro cierra la forma y puede reutilizar material anterior con otra energia.",
-                details = "Busca fade out, repeticion del coro, variacion instrumental, cadencia final o un cambio de textura que indique cierre.",
+                summary = "El outro cierra la forma y puede reutilizar material anterior con otra energía.",
+                details = "Busca fade out, repetición del coro, variación instrumental, cadencia final o un cambio de textura que indique cierre.",
             ),
             LearningLevel.Advanced to Explanation(
-                summary = "El outro resuelve o disuelve la energia formal acumulada durante la cancion.",
-                details = "Analiza si hay prolongacion cadencial, reduccion progresiva, vamp, coda o transformacion del motivo principal.",
+                summary = "El outro resuelve o disuelve la energía formal acumulada durante la canción.",
+                details = "Analiza si hay prolongación cadencial, reducción progresiva, vamp, coda o transformación del motivo principal.",
             ),
             LearningLevel.Expert to Explanation(
                 summary = "El outro estabiliza, clausura o suspende el discurso formal mediante estrategias de coda.",
-                details = "Observa procesos de liquidacion motivica, cadencialidad, densidad decreciente, repeticion hipermetrica o cierre abrupto como gesto estructural.",
+                details = "Observa procesos de liquidación motívica, cadencialidad, densidad decreciente, repetición hipermétrica o cierre abrupto como gesto estructural.",
             ),
         ),
         SectionLabel.Other to mapOf(
             LearningLevel.Introductory to Explanation(
-                summary = "Esta seccion puede tener una funcion especial que no encaja claramente con las etiquetas habituales.",
-                details = "Describe con tus palabras que ocurre: solo, pausa, cambio de ritmo, parte instrumental o transicion.",
+                summary = "Esta sección puede tener una función especial que no encaja claramente con las etiquetas habituales.",
+                details = "Describe con tus palabras qué ocurre: solo, pausa, cambio de ritmo, parte instrumental o transición.",
             ),
             LearningLevel.Intermediate to Explanation(
-                summary = "Una seccion 'otra' permite nombrar partes no convencionales sin forzar la estructura.",
-                details = "Escucha si funciona como solo, interludio, pre-coro, breakdown, enlace o variacion de una parte anterior.",
+                summary = "Una sección 'otra' permite nombrar partes no convencionales sin forzar la estructura.",
+                details = "Escucha si funciona como solo, interludio, pre-coro, breakdown, enlace o variación de una parte anterior.",
             ),
             LearningLevel.Advanced to Explanation(
-                summary = "Esta etiqueta sirve para conservar ambiguedades reales y estructuras no estandar.",
-                details = "Relaciona la seccion con su funcion: contraste, desarrollo, transicion, extension, interrupcion o preparacion de una reentrada.",
+                summary = "Esta etiqueta sirve para conservar ambigüedades reales y estructuras no estándar.",
+                details = "Relaciona la sección con su función: contraste, desarrollo, transición, extensión, interrupción o preparación de una reentrada.",
             ),
             LearningLevel.Expert to Explanation(
-                summary = "La categoria abierta evita imponer una taxonomia formal cuando la funcion perceptiva es hibrida.",
-                details = "Evalua funcion retorica, posicion formal, recurrencia, parentesco motivico y grado de independencia frente a las secciones etiquetadas.",
+                summary = "La categoría abierta evita imponer una taxonomía formal cuando la función perceptiva es híbrida.",
+                details = "Evalúa función retórica, posición formal, recurrencia, parentesco motívico y grado de independencia frente a las secciones etiquetadas.",
             ),
         ),
     )
 
     private const val UNCERTAIN_NOTE =
-        "Esta clasificacion es una hipotesis de escucha, no una verdad absoluta: si no encaja del todo, marcala como dudosa y ajusta la etiqueta o los tiempos."
+        "Esta clasificación es una hipótesis de escucha, no una verdad absoluta: si no encaja del todo, márcala como dudosa y ajusta la etiqueta o los tiempos."
 }

@@ -34,7 +34,7 @@ class SectionExplanationProviderTest {
         )
 
         assertNotNull(content.uncertainNote)
-        assertTrue(content.uncertainNote.orEmpty().contains("hipotesis de escucha"))
+        assertTrue(content.uncertainNote.orEmpty().contains("hipótesis de escucha"))
         assertTrue(content.uncertainNote.orEmpty().contains("no una verdad absoluta"))
     }
 
@@ -75,7 +75,7 @@ class SectionExplanationProviderTest {
         val fullText = "${content.summary} ${content.details}".lowercase()
 
         assertTrue(fullText.contains("historia"))
-        assertTrue(fullText.contains("energia mas estable"))
+        assertTrue(fullText.contains("energía más estable"))
     }
 
     @Test
@@ -102,7 +102,7 @@ class SectionExplanationProviderTest {
         val fullText = "${content.summary} ${content.details}".lowercase()
 
         assertTrue(fullText.contains("contraste"))
-        assertTrue(fullText.contains("transicion"))
+        assertTrue(fullText.contains("transición"))
         assertTrue(fullText.contains("cambio"))
     }
 }

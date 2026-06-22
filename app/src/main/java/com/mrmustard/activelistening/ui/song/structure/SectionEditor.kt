@@ -589,9 +589,9 @@ private fun RhythmInfoPanel(
                 if (contrast.confidence == SectionRhythmConfidence.Low) {
                     Text(
                         text = stringResource(R.string.structure_warning_title),
-                        style = MaterialTheme.typography.titleSmall,
+                        style = MaterialTheme.typography.titleMedium,
                         fontWeight = FontWeight.Bold,
-                        color = MaterialTheme.colorScheme.onSurfaceVariant,
+                        color = MaterialTheme.colorScheme.primary,
                     )
                     Text(
                         text = stringResource(R.string.structure_contrast_low_confidence),

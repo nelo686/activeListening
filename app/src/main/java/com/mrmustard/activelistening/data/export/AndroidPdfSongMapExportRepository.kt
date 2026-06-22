@@ -43,7 +43,7 @@ class AndroidPdfSongMapExportRepository @Inject constructor(
         val writer = PdfPageWriter(document)
         writer.writeTitle("Mapa estructural")
         writer.writeText(map.song.displayName, titlePaint)
-        writer.writeText("Duracion: ${formatTimeCode(map.song.durationMillis)}", bodyPaint)
+        writer.writeText("Duración: ${formatTimeCode(map.song.durationMillis)}", bodyPaint)
         writer.addSpace(18f)
         writer.writeText("Secciones", headingPaint)
         map.sections.forEach { section -> writer.writeSection(section) }
@@ -72,19 +72,19 @@ class AndroidPdfSongMapExportRepository @Inject constructor(
                     "(${formatTimeCode(section.startMillis)} - ${formatTimeCode(section.endMillis)})",
                 headingPaint,
             )
-            writeText("Duracion: ${formatTimeCode(section.durationMillis)}", bodyPaint)
+            writeText("Duración: ${formatTimeCode(section.durationMillis)}", bodyPaint)
             writeText("Estado: ${section.status.toDisplayName()}", bodyPaint)
             val bars = section.rhythmInfo?.estimatedBars?.let { "$it compases estimados" }
                 ?: "Compases no disponibles"
             writeText(bars, bodyPaint)
             if (section.isApproximate || section.status == SectionStatus.Uncertain) {
                 writeText(
-                    "Punto aproximado: revisa esta transicion escuchando la cancion.",
+                    "Punto aproximado: revisa esta transición escuchando la canción.",
                     warningPaint,
                 )
             }
             section.musicalContrast?.let { contrast ->
-                writeText("Cambio ritmico: ${contrast.explanation}", bodyPaint)
+                writeText("Cambio rítmico: ${contrast.explanation}", bodyPaint)
             }
             writeText("Nota educativa: ${exportSection.educationalNote}", bodyPaint)
             addSpace(12f)
