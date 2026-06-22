@@ -61,7 +61,8 @@
     <string name="structure_rhythm_unavailable">Aun no hay duracion suficiente para estimar compases con sentido.</string>
     <string name="structure_contrast_title">Cambio de ritmo o sensacion</string>
     <string name="structure_contrast_chip">Cambio ritmo</string>
-    <string name="structure_contrast_low_confidence">Deteccion orientativa: confirma si el cambio esta en el ritmo o sensacion, no solo en instrumentacion, energia o melodia.</string>
+    <string name="structure_warning_title">Aviso</string>
+    <string name="structure_contrast_low_confidence">Esto es una detección orientativa, confirma si el cambio está en el ritmo o sensación, no solo en la instrumentación, energía o melodía.</string>
     <string name="structure_timeline_contrast_marker">Cambio</string>
     <string name="structure_section_waiting">Selecciona una seccion para etiquetarla y ajustar sus transiciones.</string>
     <string name="structure_editor_title">Detalle de sección</string>

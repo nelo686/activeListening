@@ -17,6 +17,7 @@ import androidx.compose.foundation.text.KeyboardActions
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.Button
+import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.ElevatedCard
 import androidx.compose.material3.FilterChip
@@ -517,21 +518,24 @@ private fun RhythmInfoPanel(
     rhythmInfo: SectionRhythmInfo?,
     musicalContrast: SectionMusicalContrast?,
 ) {
-    ElevatedCard(
-        colors = CardDefaults.elevatedCardColors(
-            containerColor = MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.55f),
+    Card(
+        modifier = Modifier.fillMaxWidth(),
+        shape = RoundedCornerShape(16.dp),
+        colors = CardDefaults.cardColors(
+            containerColor = MaterialTheme.colorScheme.primary.copy(alpha = 0.10f),
         ),
     ) {
         Column(
             modifier = Modifier
                 .fillMaxWidth()
-                .padding(14.dp),
-            verticalArrangement = Arrangement.spacedBy(8.dp),
+                .padding(16.dp),
+            verticalArrangement = Arrangement.spacedBy(10.dp),
         ) {
             Text(
                 text = stringResource(R.string.structure_rhythm_title),
-                style = MaterialTheme.typography.titleSmall,
-                fontWeight = FontWeight.SemiBold,
+                style = MaterialTheme.typography.titleMedium,
+                fontWeight = FontWeight.Bold,
+                color = MaterialTheme.colorScheme.primary,
             )
 
             when {
@@ -568,11 +572,14 @@ private fun RhythmInfoPanel(
             }
 
             musicalContrast?.let { contrast ->
-                HorizontalDivider()
+                HorizontalDivider(
+                    color = MaterialTheme.colorScheme.primary.copy(alpha = 0.18f),
+                )
                 Text(
                     text = stringResource(R.string.structure_contrast_title),
-                    style = MaterialTheme.typography.titleSmall,
-                    fontWeight = FontWeight.SemiBold,
+                    style = MaterialTheme.typography.titleMedium,
+                    fontWeight = FontWeight.Bold,
+                    color = MaterialTheme.colorScheme.primary,
                 )
                 Text(
                     text = contrast.explanation,
@@ -581,9 +588,15 @@ private fun RhythmInfoPanel(
                 )
                 if (contrast.confidence == SectionRhythmConfidence.Low) {
                     Text(
+                        text = stringResource(R.string.structure_warning_title),
+                        style = MaterialTheme.typography.titleSmall,
+                        fontWeight = FontWeight.Bold,
+                        color = MaterialTheme.colorScheme.onSurfaceVariant,
+                    )
+                    Text(
                         text = stringResource(R.string.structure_contrast_low_confidence),
-                        style = MaterialTheme.typography.bodySmall,
-                        color = MaterialTheme.colorScheme.error,
+                        style = MaterialTheme.typography.bodyMedium,
+                        color = MaterialTheme.colorScheme.onSurfaceVariant,
                     )
                 }
             }
