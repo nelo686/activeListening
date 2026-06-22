@@ -64,7 +64,11 @@
     <string name="structure_contrast_low_confidence">Deteccion orientativa: confirma si el cambio esta en el ritmo o sensacion, no solo en instrumentacion, energia o melodia.</string>
     <string name="structure_timeline_contrast_marker">Cambio</string>
     <string name="structure_section_waiting">Selecciona una seccion para etiquetarla y ajustar sus transiciones.</string>
-    <string name="structure_editor_title">Seccion seleccionada</string>
+    <string name="structure_editor_title">Detalle de sección</string>
+    <string name="structure_editor_subtitle">Etiqueta, ajusta tiempos e incluso fusiona secciones</string>
+    <string name="structure_time_adjustment_title">Ajuste de tiempo</string>
+    <string name="structure_time_start">Inicio</string>
+    <string name="structure_time_end">Fin</string>
     <string name="structure_label_title">Etiqueta musical</string>
     <string name="structure_adjust_start">Ajustar inicio</string>
     <string name="structure_adjust_end">Ajustar fin</string>
@@ -84,6 +88,7 @@
     <string name="map_export_error_unable_to_write">No se ha podido guardar el PDF.</string>
     <string name="structure_repeat_section">Repetir esta seccion</string>
     <string name="structure_custom_label">Nombre de la seccion</string>
+    <string name="structure_custom_label_action">Personalizado</string>
     <string name="saved_sessions_progress_summary">%1$d sesiones · %2$d/%3$d secciones revisadas</string>
     <string name="autonomy_guided">Con guia</string>
     <string name="autonomy_progressing">En progreso</string>
@@ -93,6 +98,7 @@
     <string name="guidance_intensity_reduced">Reducida</string>
     <string name="guidance_reduced_description">Guia reducida: escucha sin interrupciones frecuentes y vuelve a la pista cuando quieras revisar.</string>
     <string name="section_learning_title">Por que podria ser esta seccion</string>
+    <string name="section_learning_title_for_label">¿Por qué podría ser un %1$s?</string>
     <string name="section_learning_description">Usa estas pistas como guia para comprobarlo con tu escucha.</string>
     <string name="section_learning_more">Mas detalle</string>
     <string name="section_learning_less">Menos detalle</string>

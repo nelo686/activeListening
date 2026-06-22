@@ -150,6 +150,8 @@ fun ListeningSession(
     if (sheetSection != null) {
         ModalBottomSheet(
             onDismissRequest = onSectionEditorDismiss,
+            shape = RoundedCornerShape(topStart = 32.dp, topEnd = 32.dp),
+            containerColor = MaterialTheme.colorScheme.surface,
         ) {
             SectionDetailsSheetContent(
                 section = sheetSection,
@@ -168,7 +170,7 @@ fun ListeningSession(
                 onMergeWithPrevious = onMergeWithPrevious,
                 onMergeWithNext = onMergeWithNext,
                 onRepeatSection = onRepeatSection,
-                modifier = Modifier.padding(horizontal = 24.dp, vertical = 12.dp),
+                modifier = Modifier.padding(horizontal = 24.dp, vertical = 8.dp),
             )
         }
     }
