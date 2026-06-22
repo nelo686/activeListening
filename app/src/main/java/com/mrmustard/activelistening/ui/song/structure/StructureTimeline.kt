@@ -62,8 +62,8 @@ fun StructureTimeline(
     positionMillis: Long,
     durationMillis: Long,
     onSectionClick: (Int) -> Unit,
-    onBoundaryChanged: (Int, Long) -> Unit = { _, _ -> },
     modifier: Modifier = Modifier,
+    onBoundaryChanged: (Int, Long) -> Unit = { _, _ -> },
 ) {
     val safeDuration = durationMillis.coerceAtLeast(1L)
     val progress = positionMillis.coerceIn(0L, safeDuration).toFloat() / safeDuration

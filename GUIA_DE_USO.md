@@ -1,233 +1,199 @@
 # Guía de uso de Active Listening
 
-Esta guia esta pensada para alguien que abre la app por primera vez y quiere entender, sin tecnicismos, para que sirve cada pantalla y que puede hacer en cada momento.
+[English user guide](./USER_GUIDE.md) | **Español**
 
-## Que hace la app
+Esta guía explica, sin tecnicismos, para qué sirve cada pantalla y qué puedes hacer durante una sesión de escucha activa.
 
-Active Listening te ayuda a escuchar una cancion de forma activa. En lugar de darte una respuesta cerrada, te acompana para que identifiques por ti mismo cosas como:
+## Qué hace la app
 
-- donde empieza una intro, un verso, un coro o un puente,
-- en que momento cambia la energia, el ritmo o la sensacion,
-- como ajustar manualmente los limites de cada seccion,
-- como guardar y exportar tu trabajo.
+Active Listening te ayuda a descubrir la estructura de una canción por ti mismo. En lugar de ofrecer una respuesta cerrada, propone puntos de escucha para que puedas:
 
-La app no pretende decidir por ti la estructura musical correcta. Las sugerencias son una base para escuchar, comparar y corregir.
+- reconocer intros, versos, coros, puentes, outros u otras partes;
+- localizar cambios de ritmo, energía, instrumentación o sensación;
+- marcar y revisar transiciones;
+- construir, guardar y exportar un mapa estructural.
+
+Las sugerencias son hipótesis editables. La decisión final depende siempre de tu escucha.
 
 ## Antes de empezar
 
-Necesitas una cancion local en un formato compatible:
+Necesitas una canción local en MP3, WAV, M4A o AAC, con una duración máxima de 15 minutos. La aplicación solo conserva acceso al documento elegido: no copia ni elimina el audio original.
 
-- MP3
-- WAV
-- M4A
-- AAC
+## Pantalla inicial
 
-El limite inicial es de 15 minutos.
+La pantalla inicial contiene:
 
-## Pantalla principal
+- el botón para importar una canción;
+- acceso a Ajustes;
+- las canciones guardadas, si ya has iniciado sesiones anteriormente.
 
-Al abrir la app veras la pantalla de escucha activa. Normalmente ahi encontraras:
+Cada canción guardada muestra exactamente tres líneas: título; artista y duración; y estado `Analizado` o `En progreso`.
 
-- un boton para importar una cancion,
-- una vez importada o, recuperada una seisón anterior, aparecerán los controles de reproduccion,
-- una zona de escucha guiada,
-- el mapa estructural editable,
-- la configuracion de nivel e intensidad de guia,
-- acceso a canciones guardadas.
+## 1. Importar una canción
 
-Si todavia no has importado nada, la pantalla te pedira que selecciones una cancion.
+Pulsa `Importar canción` y elige un archivo desde el selector de Android. La app comprueba el formato, que el documento se pueda leer y que no supere el límite de duración.
 
-## Paso 1: importar una cancion
+Cuando existen metadatos, se muestran título, artista y portada. Si falta el artista, aparece `Artista desconocido`.
 
-Pulsa `Importar cancion` y elige un archivo del dispositivo.
+Importar no crea todavía una sesión guardada. La sesión se guarda cuando inicias la escucha guiada.
 
-La app comprueba varias cosas antes de cargarlo:
+## 2. Primera escucha libre
 
-- que el formato sea compatible,
-- que el archivo se pueda leer,
-- que no supere el limite de duracion.
+Usa los controles para reproducir, pausar o buscar en la canción. Antes de editar, escucha una parte representativa y presta atención a:
 
-Si todo va bien, la cancion quedara lista para escuchar y podras empezar con la primera escucha.
+- cambios de energía;
+- cambios de ritmo o pulso;
+- entradas o salidas de instrumentos;
+- repeticiones y contrastes;
+- momentos en los que parece comenzar una idea nueva.
 
-## Paso 2: primera escucha libre
+No necesitas acertar a la primera. El objetivo es formular hipótesis.
 
-Antes de editar nada, escucha la cancion completa o una parte representativa.
+## 3. Iniciar la escucha guiada
 
-En esta fase lo mas importante es prestar atencion a:
+Pulsa `Iniciar escucha guiada`. La app crea una propuesta inicial, empieza a guardar la sesión y muestra una pista para la sección actual.
 
-- cambios de energia,
-- cambios de ritmo,
-- cambios de instrumentacion,
-- momentos en los que la sensacion general cambia.
+Las acciones guiadas permiten:
 
-No hace falta que aciertes de entrada. Esta fase sirve para empezar a orientarte.
+- `Confirmar` una sección;
+- marcarla como `Dudosa`;
+- volver ocho segundos;
+- saltar a la siguiente sección.
 
-## Paso 3: escucha guiada
+La guía puede ser local o remota. Si no existe una clave configurada o la petición falla, el flujo continúa con pistas locales. La IA no escucha el audio: solo recibe título, duración y marcadores iniciales.
 
-Cuando pulses `Iniciar escucha guiada`, la app empezara a darte pistas por puntos de escucha.
+## 4. Explorar la línea de tiempo
 
-En esta vista puedes ver:
+El mapa estructural es horizontal. Desliza para explorar canciones que no caben en pantalla. El cursor rojo indica la posición de reproducción.
 
-- una pista actual,
-- el contexto de la seccion,
-- un mensaje de estado de la guia,
-- restaurar la propuesta original si algo no encaja.
+Cada bloque muestra:
 
-El panel ofrece acciones para confirmar el punto, marcarlo como dudoso, volver ocho segundos o saltar temporalmente a la siguiente seccion.
+- nombre de la sección;
+- tiempo de inicio y final;
+- duración;
+- insignia `Sugerida` o `Dudosa` cuando corresponda;
+- indicador `Cambio de ritmo` cuando está marcado.
 
-Si quieres actuar sobre esa seccion, hazlo desde el mapa estructural editable:
+Las secciones confirmadas no muestran una insignia de estado para mantener el mapa más limpio.
 
-- toca la seccion correspondiente,
-- abre su panel de edicion,
-- cambia su estado, su etiqueta o sus limites segun lo que realmente escuches.
+## 5. Arrastrar fronteras
 
-La guia puede ser local o generada con IA. Si no hay clave configurada o la peticion falla, la app sigue funcionando con guia local.
+Los bordes entre bloques tienen un tirador vertical. Arrástralo para cambiar una transición:
 
-## Paso 4: mapa estructural editable
+- el final del bloque izquierdo y el inicio del derecho se mueven juntos;
+- durante el gesto aparece el nuevo código de tiempo;
+- el cambio se guarda al soltar;
+- la app impide crear secciones de menos de cinco segundos.
 
-El mapa estructural es la parte donde construyes la forma de la cancion.
+El texto bajo el mapa recuerda la interacción: `Desliza para explorar. Usa los bordes para ajustar.`
 
-Cada bloque representa una seccion y puede tener etiquetas como:
+## 6. Editar una sección en detalle
 
-- `Intro`
-- `Verso`
-- `Coro`
-- `Puente`
-- `Outro`
-- `Otra`
+Toca un bloque para abrir su panel. El panel se despliega completamente, se puede desplazar y deja visible el campo activo por encima del teclado virtual.
 
-Tambien puedes ver:
+Desde el detalle puedes:
 
-- el tiempo de inicio y fin,
-- la duracion de la seccion,
-- si la sugerencia es solo orientativa,
-- una estimacion de compases y sensacion ritmica.
+- cambiar la etiqueta musical;
+- elegir `Otra` y escribir un nombre como `Pre-coro`, `Solo` o `Interludio`;
+- recorrer los estados `Sugerida`, `Confirmada` y `Dudosa`;
+- activar o desactivar `Cambio de ritmo`;
+- introducir tiempos de inicio y final;
+- repetir la sección desde su comienzo;
+- dividir en la posición de reproducción;
+- fusionar con la sección anterior o siguiente.
 
-En algunas secciones aparece tambien la etiqueta `Cambio Ritmo`.
+Los tiempos aceptan el formato `mm:ss`. Si cierras el panel después de editar, el valor pendiente se guarda sin volver a abrir el panel.
 
-Esa etiqueta indica que la app ha detectado o sugerido un posible cambio de ritmo o de sensacion musical en esa seccion. No significa simplemente que "pasa algo", sino que podria haber un contraste real en el pulso, la regularidad o la sensacion del fragmento.
+## 7. Cambio de ritmo y estimaciones
 
-Puedes tocar `Cambio Ritmo` en el panel de edicion para activar o desactivar la etiqueta segun lo que escuches.
+`Cambio de ritmo` indica un posible contraste en pulso, regularidad o sensación. Puede proceder de una sugerencia o marcarse manualmente. Al activarlo en el detalle también aparece en el bloque del mapa.
 
-Tomala como una pista de escucha, no como una certeza. Su funcion es ayudarte a volver a oir ese punto con mas atencion y comprobar si el cambio esta realmente en el ritmo o la sensacion, y no solo en la instrumentacion, la energia o la melodia.
+No significa que la detección sea segura. Comprueba si el contraste está realmente en el ritmo o la sensación y no solo en la instrumentación, energía o melodía.
 
-Piensa en esta vista como un borrador editable, no como una verdad definitiva.
+La estimación de compases se calcula a partir de la duración. Es una ayuda orientativa y puede mostrarse como aproximada, de baja confianza o irregular.
 
-## Paso 5: editar una seccion
+## 8. Dividir, fusionar y restaurar
 
-Cuando seleccionas una seccion puedes:
+- `Dividir` crea dos secciones en la posición actual si ambas pueden conservar la duración mínima.
+- `Fusionar anterior` o `Fusionar siguiente` elimina la frontera compartida.
+- `Restaurar propuesta original` descarta las ediciones estructurales y recupera el mapa inicial.
 
-- cambiar su etiqueta musical,
-- escribir un nombre libre al elegir `Otra`, por ejemplo `Pre-coro`, `Solo` o `Interludio`,
-- activar o desactivar la etiqueta `Cambio Ritmo`,
-- ajustar su inicio,
-- ajustar su final,
-- dividirla en el tiempo actual,
-- fusionarla con la anterior o la siguiente.
-- repetirla desde su inicio.
+Estas acciones son útiles, pero conviene volver a escuchar la transición después de aplicarlas.
 
-Si ves un tiempo sugerido en formato `mm:ss`, puedes usarlo para mover un limite con precision.
+## 9. Ajustes pedagógicos
 
-Consejo practico: primero escucha, luego ajusta. Si empiezas moviendo limites sin volver a oir el fragmento, es facil perder la referencia.
+En Ajustes puedes elegir nivel e intensidad.
 
-## Paso 6: revisar las pistas educativas
-
-La app puede mostrar explicaciones sobre por que una seccion podria ser una intro, un verso o un coro.
-
-Estas explicaciones cambian segun el nivel educativo:
+Niveles:
 
 - `Introductorio`
 - `Intermedio`
 - `Avanzado`
 - `Experto`
 
-Si eres nuevo, conviene empezar por un nivel simple y subirlo cuando te sientas mas comodo.
+La explicación de cada sección cambia según el nivel. La intensidad `Normal` muestra más contexto; `Reducida` simplifica la guía y deja más espacio para escuchar de forma autónoma.
 
-## Paso 7: ajustar la intensidad de guia
+## 10. Canciones guardadas
 
-En `Configuracion` puedes cambiar la `Intensidad de guia`.
+Al volver al inicio encontrarás las sesiones guardadas. Una tarjeta muestra:
 
-- `Normal`: aparecen mas pistas y acompanamiento.
-- `Reducida`: la app interrumpe menos y te deja escuchar con mas autonomia.
+1. título destacado;
+2. `artista · duración`;
+3. `Analizado` si se han revisado todas las secciones, o `En progreso` si queda alguna.
 
-En el modo reducido se oculta la pregunta extensa y se mantienen las decisiones esenciales de confirmar o avanzar.
+Toca la tarjeta o su flecha para continuar. Se restauran el mapa y la última posición reproducida.
 
-Si te sientes abrumado, usa guia normal. Si ya sabes ubicar bien los cambios, prueba la reducida.
+Para borrar, desliza la tarjeta hacia la izquierda y pulsa la papelera. Se eliminan la sesión, el mapa y el progreso local, pero no el audio. Puedes pulsar `Deshacer` en el mensaje inferior para restaurarlos.
 
-## Paso 8: canciones guardadas
+## 11. Exportar a PDF
 
-La app guarda tu progreso para que puedas volver mas tarde.
+Cuando exista una estructura temporal válida, pulsa `Exportar mapa PDF` y elige un destino.
 
-En `Canciones guardadas` puedes:
+El PDF contiene:
 
-- reabrir una sesion anterior,
-- continuar desde la ultima posicion reproducida,
-- eliminar una cancion guardada deslizando su tarjeta hacia la izquierda y pulsando la papelera.
-- revisar cuantas sesiones has realizado, cuantas secciones has revisado y una tendencia descriptiva de autonomia.
+- título y duración;
+- secciones e intervalos;
+- estado de cada sección;
+- compases estimados y avisos;
+- cambios rítmicos;
+- notas educativas adaptadas al nivel.
 
-La tendencia se calcula solo con acciones realizadas dentro de la app. No es una nota ni una certificacion de aprendizaje musical.
-
-Al eliminarla, la app borra la sesion guardada y su mapa estructural. El archivo de audio original permanece en el dispositivo. Durante unos segundos puedes pulsar `Deshacer` en el mensaje inferior para recuperar la sesion y el mapa.
-
-Esto es util si quieres trabajar una cancion por partes.
-
-## Paso 9: exportar a PDF
-
-Cuando ya tengas una estructura minima, puedes pulsar `Exportar mapa PDF`.
-
-El PDF incluye:
-
-- titulo de la cancion,
-- duracion,
-- secciones,
-- tiempos,
-- estados,
-- estimaciones ritmicas,
-- notas educativas.
-
-Si la estructura todavia es demasiado incompleta, la exportacion se bloquea hasta que haya una base util.
-
-## Que significa cada etiqueta o estado
+## Etiquetas y estados
 
 ### Etiquetas musicales
 
-- `Intro`: parte inicial.
-- `Verso`: parte narrativa o de desarrollo.
-- `Coro`: parte principal o mas reconocible.
-- `Puente`: cambio que conecta o transforma el recorrido.
+- `Intro`: inicio de la canción.
+- `Verso`: desarrollo o parte narrativa.
+- `Coro`: idea principal o más reconocible.
+- `Puente`: sección de contraste o conexión.
 - `Outro`: cierre.
-- `Otra`: cuando ninguna etiqueta encaja bien.
+- `Otra`: cualquier nombre que encaje mejor con tu análisis.
 
-### Estados de una seccion
+### Estados
 
-- `Sugerida`: propuesta inicial.
-- `Confirmada`: ya la has revisado y te cuadra.
-- `Dudosa`: necesitas revisarla mas.
-
-### Etiqueta `Cambio Ritmo`
-
-- `Cambio Ritmo`: posible contraste de ritmo o de sensacion dentro de esa seccion.
-- Puedes activarla o desactivarla desde el panel de edicion de la seccion.
-- No es una confirmacion automatica. Es una ayuda para que escuches mejor ese fragmento y decidas si el contraste realmente existe.
-
-## Recomendacion para empezar bien
-
-Si es tu primera vez, sigue este orden:
-
-1. Importa una cancion.
-2. Escuchala una vez sin tocar casi nada.
-3. Inicia la escucha guiada.
-4. Confirma o duda los puntos que te sugiera la app.
-5. Ajusta una o dos secciones a mano.
-6. Guarda tu progreso y vuelve mas tarde si hace falta.
+- `Sugerida`: propuesta pendiente de revisión.
+- `Confirmada`: la has escuchado y te encaja.
+- `Dudosa`: necesita otra escucha o una decisión posterior.
 
 ## Si algo falla
 
-- Si no puedes importar la cancion, revisa el formato y la duracion.
-- Si no aparece la guia de IA, la app puede seguir con guia local.
-- Si un archivo ya no se puede leer, tendras que importarlo de nuevo.
-- Si la exportacion falla, primero comprueba que la estructura tenga una base minima.
+- **No se puede importar:** revisa formato, duración y acceso al archivo.
+- **No aparece la guía remota:** la aplicación puede continuar con la guía local.
+- **Una sesión guardada no abre:** el archivo puede haberse movido o eliminado; selecciónalo de nuevo.
+- **No se puede dividir:** la posición dejaría una sección con menos de cinco segundos.
+- **No se puede exportar:** revisa que las secciones formen una línea temporal válida.
+
+## Recorrido recomendado
+
+1. Importa una canción.
+2. Escúchala una vez sin editar.
+3. Inicia la guía.
+4. Confirma o marca dudas.
+5. Arrastra una frontera y vuelve a escucharla.
+6. Edita nombres o divide solo cuando sea necesario.
+7. Regresa más tarde desde canciones guardadas.
+8. Exporta el mapa cuando represente tu escucha.
 
 ## Idea clave
 
-Active Listening no esta hecha para darte una solucion cerrada, sino para acompanarte mientras aprendes a escuchar mejor. El valor de la app esta en escuchar, comparar, corregir y volver a probar.
+Active Listening no está hecha para darte una solución cerrada. Su valor está en escuchar, comparar, corregir y volver a probar.
