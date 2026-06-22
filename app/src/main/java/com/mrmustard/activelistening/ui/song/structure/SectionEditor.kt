@@ -401,7 +401,7 @@ private fun LabelOptionCard(
                 Box(
                     Modifier
                         .size(24.dp)
-                        .background(label.swatchColor(), RoundedCornerShape(4.dp)),
+                        .background(label.sectionColor(), RoundedCornerShape(4.dp)),
                 )
                 if (selected) {
                     Box(
@@ -471,16 +471,6 @@ private fun SectionHeading(text: String) {
         fontWeight = FontWeight.Bold,
         color = MaterialTheme.colorScheme.onSurfaceVariant,
     )
-}
-
-@Composable
-private fun SectionLabel.swatchColor(): Color = when (this) {
-    SectionLabel.Intro -> Color(0xFFC9ADFF)
-    SectionLabel.Verse -> Color(0xFFE3D8FF)
-    SectionLabel.Chorus -> Color(0xFFD0C5DE)
-    SectionLabel.Bridge -> Color(0xFFF0B1C4)
-    SectionLabel.Outro -> Color(0xFFE91E63)
-    SectionLabel.Other -> MaterialTheme.colorScheme.outline
 }
 
 private fun parseEditorTime(input: String): Long? {

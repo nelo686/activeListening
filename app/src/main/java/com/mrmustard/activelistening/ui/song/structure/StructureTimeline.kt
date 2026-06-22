@@ -166,8 +166,8 @@ private fun SectionBlock(
     onClick: () -> Unit,
     modifier: Modifier = Modifier,
 ) {
-    val containerColor = section.containerColor(isSelected, isActive)
-    val contentColor = section.contentColor(isSelected, isActive)
+    val containerColor = section.label.sectionColor()
+    val contentColor = section.label.onSectionColor()
     val description = stringResource(
         R.string.structure_timeline_section_description,
         section.toDisplayName(),
@@ -242,29 +242,3 @@ private fun SectionBlock(
 
 private fun formatDurationLabel(durationMillis: Long): String =
     "Duración ${formatSectionTime(durationMillis)}"
-
-@Composable
-private fun SongSection.containerColor(
-    isSelected: Boolean,
-    isActive: Boolean,
-): Color =
-    when {
-        isSelected -> MaterialTheme.colorScheme.surface
-        isActive -> MaterialTheme.colorScheme.primaryContainer.copy(alpha = 0.45f)
-        status == SectionStatus.Confirmed -> MaterialTheme.colorScheme.tertiaryContainer
-        status == SectionStatus.Uncertain -> MaterialTheme.colorScheme.errorContainer
-        else -> MaterialTheme.colorScheme.surface
-    }
-
-@Composable
-private fun SongSection.contentColor(
-    isSelected: Boolean,
-    isActive: Boolean,
-): Color =
-    when {
-        isSelected -> MaterialTheme.colorScheme.primary
-        isActive -> MaterialTheme.colorScheme.onPrimaryContainer
-        status == SectionStatus.Confirmed -> MaterialTheme.colorScheme.onTertiaryContainer
-        status == SectionStatus.Uncertain -> MaterialTheme.colorScheme.onErrorContainer
-        else -> MaterialTheme.colorScheme.onSurface
-    }
