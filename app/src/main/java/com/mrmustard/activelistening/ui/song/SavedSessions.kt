@@ -52,13 +52,14 @@ import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.LayoutDirection
 import androidx.compose.ui.unit.dp
 import com.mrmustard.activelistening.R
-import com.mrmustard.activelistening.domain.progress.AutonomyLevel
 import com.mrmustard.activelistening.domain.progress.LearningProgressSummary
 import com.mrmustard.activelistening.domain.session.SavedListeningSession
+import com.mrmustard.activelistening.domain.time.formatTimeCode
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
@@ -244,27 +245,38 @@ private fun SavedSessionItem(
                     verticalArrangement = Arrangement.spacedBy(4.dp),
                 ) {
                     Text(
-                        text = session.displayName,
-                        style = MaterialTheme.typography.titleSmall,
+                        text = session.title
+                            ?.takeIf { it.isNotBlank() }
+                            ?: session.displayName.substringBeforeLast('.'),
+                        style = MaterialTheme.typography.titleMedium,
+                        fontWeight = FontWeight.SemiBold,
+                        maxLines = 1,
+                        overflow = TextOverflow.Ellipsis,
+                    )
+                    Text(
+                        text = stringResource(
+                            R.string.saved_sessions_metadata,
+                            session.artist?.takeIf { it.isNotBlank() }
+                                ?: stringResource(R.string.playback_unknown_artist),
+                            formatTimeCode(session.durationMillis),
+                        ),
+                        style = MaterialTheme.typography.bodySmall,
+                        color = MaterialTheme.colorScheme.onSurfaceVariant,
+                        maxLines = 1,
+                        overflow = TextOverflow.Ellipsis,
+                    )
+                    Text(
+                        text = stringResource(
+                            if (progress.isAnalyzed()) {
+                                R.string.saved_sessions_analyzed
+                            } else {
+                                R.string.saved_sessions_in_progress
+                            },
+                        ),
+                        style = MaterialTheme.typography.labelMedium,
+                        color = MaterialTheme.colorScheme.primary,
                         maxLines = 1,
                     )
-                    progress?.let {
-                        Text(
-                            text = stringResource(
-                                R.string.saved_sessions_progress_summary,
-                                it.sessionCount,
-                                it.reviewedSections,
-                                it.totalSections,
-                            ),
-                            style = MaterialTheme.typography.bodySmall,
-                            color = MaterialTheme.colorScheme.onSurfaceVariant,
-                        )
-                        Text(
-                            text = it.autonomyLevel.toDisplayName(),
-                            style = MaterialTheme.typography.labelMedium,
-                            color = MaterialTheme.colorScheme.primary,
-                        )
-                    }
                 }
                 IconButton(
                     onClick = onClick,
@@ -320,9 +332,5 @@ private fun SavedSessionArtwork(
     }
 }
 
-@Composable
-private fun AutonomyLevel.toDisplayName(): String = when (this) {
-    AutonomyLevel.Guided -> stringResource(R.string.autonomy_guided)
-    AutonomyLevel.Progressing -> stringResource(R.string.autonomy_progressing)
-    AutonomyLevel.MoreAutonomous -> stringResource(R.string.autonomy_more_autonomous)
-}
+private fun LearningProgressSummary?.isAnalyzed(): Boolean =
+    this != null && totalSections > 0 && reviewedSections >= totalSections

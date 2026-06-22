@@ -36,7 +36,7 @@ import com.mrmustard.activelistening.R
 import com.mrmustard.activelistening.domain.structure.SectionStatus
 import com.mrmustard.activelistening.domain.structure.SongSection
 
-private val TimelineHeight = 150.dp
+private val TimelineHeight = 175.dp
 private val TimelinePadding = 6.dp
 private val SectionCornerRadius = 10.dp
 private val PlaybackCursorColor = Color(0xFFC5222A)
@@ -168,12 +168,17 @@ private fun SectionBlock(
 ) {
     val containerColor = section.label.sectionColor()
     val contentColor = section.label.onSectionColor()
+    val contrastDescription = if (section.musicalContrast != null) {
+        ", ${stringResource(R.string.structure_timeline_contrast_description)}"
+    } else {
+        ""
+    }
     val description = stringResource(
         R.string.structure_timeline_section_description,
         section.toDisplayName(),
         formatSectionTime(section.startMillis),
         formatSectionTime(section.endMillis),
-    )
+    ) + contrastDescription
     val shape = RoundedCornerShape(SectionCornerRadius)
 
     Surface(
@@ -194,7 +199,7 @@ private fun SectionBlock(
         shape = shape,
     ) {
         Box {
-            if (section.status == SectionStatus.Suggested) {
+            if (section.status != SectionStatus.Confirmed) {
                 Text(
                     text = section.status.toDisplayName(),
                     modifier = Modifier
@@ -213,7 +218,12 @@ private fun SectionBlock(
             Column(
                 modifier = Modifier
                     .align(Alignment.TopStart)
-                    .padding(start = 14.dp, top = 30.dp, end = 14.dp, bottom = 10.dp),
+                    .padding(
+                        start = 14.dp,
+                        top = 30.dp,
+                        end = 14.dp,
+                        bottom = if (section.musicalContrast != null) 32.dp else 10.dp,
+                    ),
                 verticalArrangement = Arrangement.spacedBy(4.dp),
             ) {
                 Text(
@@ -234,6 +244,23 @@ private fun SectionBlock(
                     style = MaterialTheme.typography.labelMedium,
                     maxLines = 1,
                     overflow = TextOverflow.Clip,
+                )
+            }
+            if (section.musicalContrast != null) {
+                Text(
+                    text = stringResource(R.string.structure_timeline_contrast_marker),
+                    modifier = Modifier
+                        .align(Alignment.BottomStart)
+                        .padding(start = 10.dp, bottom = 7.dp)
+                        .background(
+                            color = contentColor.copy(alpha = 0.14f),
+                            shape = RoundedCornerShape(50),
+                        )
+                        .padding(horizontal = 7.dp, vertical = 2.dp),
+                    style = MaterialTheme.typography.labelSmall,
+                    fontWeight = FontWeight.SemiBold,
+                    maxLines = 1,
+                    overflow = TextOverflow.Ellipsis,
                 )
             }
         }

@@ -17,6 +17,8 @@ class RoomSavedListeningSessionRepositoryTest {
         repository.upsertSession(
             songKey = "content://song",
             displayName = "Practice.mp3",
+            title = "Practice",
+            artist = "The Band",
             mimeType = "audio/mpeg",
             durationMillis = 120_000L,
         )
@@ -25,6 +27,8 @@ class RoomSavedListeningSessionRepositoryTest {
 
         assertNotNull(restored)
         assertEquals("Practice.mp3", restored?.displayName)
+        assertEquals("Practice", restored?.title)
+        assertEquals("The Band", restored?.artist)
         assertEquals("audio/mpeg", restored?.mimeType)
         assertEquals(120_000L, restored?.durationMillis)
         assertEquals(0L, restored?.lastPositionMillis)
@@ -35,6 +39,8 @@ class RoomSavedListeningSessionRepositoryTest {
         repository.upsertSession(
             songKey = "content://song",
             displayName = "Practice.mp3",
+            title = "Practice",
+            artist = "The Band",
             mimeType = "audio/mpeg",
             durationMillis = 120_000L,
         )
@@ -55,6 +61,8 @@ class RoomSavedListeningSessionRepositoryTest {
         repository.upsertSession(
             songKey = "content://song",
             displayName = "Practice.mp3",
+            title = "Practice",
+            artist = "The Band",
             mimeType = "audio/mpeg",
             durationMillis = 120_000L,
         )
@@ -72,6 +80,8 @@ class RoomSavedListeningSessionRepositoryTest {
         repository.upsertSession(
             songKey = "content://song",
             displayName = "Practice.mp3",
+            title = "Practice",
+            artist = "The Band",
             mimeType = "audio/mpeg",
             durationMillis = 120_000L,
         )
@@ -80,6 +90,8 @@ class RoomSavedListeningSessionRepositoryTest {
         repository.upsertSession(
             songKey = "content://song",
             displayName = "Practice renamed.mp3",
+            title = "Practice renamed",
+            artist = "The Band",
             mimeType = "audio/mpeg",
             durationMillis = 120_000L,
         )
@@ -95,6 +107,8 @@ class RoomSavedListeningSessionRepositoryTest {
         val session = SavedListeningSessionEntity(
             songKey = "content://song",
             displayName = "Practice.mp3",
+            title = "Practice",
+            artist = "The Band",
             mimeType = "audio/mpeg",
             durationMillis = 120_000L,
             lastPositionMillis = 42_000L,
@@ -110,6 +124,8 @@ class RoomSavedListeningSessionRepositoryTest {
             com.mrmustard.activelistening.domain.session.SavedListeningSession(
                 songKey = session.songKey,
                 displayName = session.displayName,
+                title = session.title,
+                artist = session.artist,
                 mimeType = session.mimeType,
                 durationMillis = session.durationMillis,
                 lastPositionMillis = session.lastPositionMillis,

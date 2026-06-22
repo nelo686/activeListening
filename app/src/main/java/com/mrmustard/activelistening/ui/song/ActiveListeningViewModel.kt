@@ -67,6 +67,8 @@ class ActiveListeningViewModel @Inject constructor(
     private var savedSessionDeletionEventId = 0L
     private var progressSessionId: Long? = null
     private var progressSessionInitializationJob: Job? = null
+    private var guidanceJob: Job? = null
+    private var guidanceRequestId = 0L
 
     init {
         observeSavedSessions()
@@ -76,6 +78,7 @@ class ActiveListeningViewModel @Inject constructor(
     }
 
     fun importSong(uri: Uri) {
+        cancelGuidanceRequest()
         viewModelScope.launch {
             _uiState.update { it.copy(isImporting = true, importError = null) }
 
@@ -153,6 +156,7 @@ class ActiveListeningViewModel @Inject constructor(
             }
         }
         isCurrentSessionSaved = false
+        cancelGuidanceRequest()
         progressSessionInitializationJob?.cancel()
         progressSessionInitializationJob = null
         progressSessionId = null
@@ -199,6 +203,7 @@ class ActiveListeningViewModel @Inject constructor(
     }
 
     fun startGuidedSession() {
+        cancelGuidanceRequest()
         saveCurrentSession()
         val plan = guidedSessionUseCase(
             playbackState = _uiState.value.playbackState,
@@ -242,7 +247,13 @@ class ActiveListeningViewModel @Inject constructor(
         }
 
         if (plan.guidanceRequest != null) {
-            loadAiGuidance(plan.guidanceRequest)
+            val songKey = _uiState.value.importedSong?.uri?.toString()
+            if (songKey != null) {
+                loadAiGuidance(
+                    request = plan.guidanceRequest,
+                    songKey = songKey,
+                )
+            }
         } else {
             _uiState.update {
                 it.copy(
@@ -565,7 +576,6 @@ class ActiveListeningViewModel @Inject constructor(
 
     override fun onCleared() {
         audioPlayer.release()
-        super.onCleared()
     }
 
     private fun observePlaybackState() {
@@ -735,44 +745,65 @@ class ActiveListeningViewModel @Inject constructor(
 
     private fun loadAiGuidance(
         request: com.mrmustard.activelistening.domain.guidance.GuidedListeningRequest,
+        songKey: String,
     ) {
-        viewModelScope.launch {
+        val requestId = guidanceRequestId
+        guidanceJob = viewModelScope.launch {
             val result = guidedListeningRepository.createGuidedListeningPlan(request)
+            val currentState = _uiState.value
+            if (requestId != guidanceRequestId ||
+                currentState.importedSong?.uri?.toString() != songKey ||
+                !currentState.isGuidedSessionActive
+            ) {
+                return@launch
+            }
 
-            _uiState.update { currentState ->
+            _uiState.update { latestState ->
+                if (requestId != guidanceRequestId ||
+                    latestState.importedSong?.uri?.toString() != songKey ||
+                    !latestState.isGuidedSessionActive
+                ) {
+                    return@update latestState
+                }
                 when (result) {
                     is GuidedListeningResult.Success -> {
                         val mergedSections = guidedSessionUseCase.mergeSuggestions(
-                            sections = currentState.sections,
+                            sections = latestState.sections,
                             result = result,
                         )
-                        val shouldUpdateOriginal = currentState.sections == currentState.originalSections
-                        currentState.copy(
+                        val shouldUpdateOriginal = latestState.sections == latestState.originalSections
+                        latestState.copy(
                             isGuidanceLoading = false,
                             guidanceError = null,
                             sections = mergedSections,
                             originalSections = if (shouldUpdateOriginal) {
                                 mergedSections
                             } else {
-                                currentState.originalSections
+                                latestState.originalSections
                             },
-                        ).withSectionProgress(currentState.playbackState.positionMillis)
+                        ).withSectionProgress(latestState.playbackState.positionMillis)
                             .withEditingSectionLearningContent()
                             .also(::saveStructure)
                     }
 
-                    GuidedListeningResult.MissingApiKey -> currentState.copy(
+                    GuidedListeningResult.MissingApiKey -> latestState.copy(
                         isGuidanceLoading = false,
                         guidanceError = GuidanceError.MissingApiKey,
                     )
 
-                    GuidedListeningResult.UnableToGenerate -> currentState.copy(
+                    GuidedListeningResult.UnableToGenerate -> latestState.copy(
                         isGuidanceLoading = false,
                         guidanceError = GuidanceError.UnableToGenerate,
                     )
                 }
             }
         }
+    }
+
+    private fun cancelGuidanceRequest() {
+        guidanceRequestId++
+        guidanceJob?.cancel()
+        guidanceJob = null
     }
 
     private fun ActiveListeningUiState.currentEditableSectionId(): Int? =

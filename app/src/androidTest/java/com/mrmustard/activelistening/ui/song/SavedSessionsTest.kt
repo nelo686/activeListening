@@ -84,21 +84,23 @@ class SavedSessionsTest {
     }
 
     @Test
-    fun savedSessionShowsLearningProgressSummary() {
+    fun savedSessionShowsTitleMetadataAndListeningStatus() {
         setContent(
             progressSummaries = mapOf(
                 first.songKey to LearningProgressSummary(
-                    songKey = first.songKey,
                     sessionCount = 3,
-                    reviewedSections = 2,
+                    reviewedSections = 4,
                     totalSections = 4,
-                    lastPracticeAtMillis = 1_700_000_000_000L,
+                    manualEdits = 5,
+                    exports = 1,
                     autonomyLevel = AutonomyLevel.Progressing,
                 ),
             ),
         )
 
-        composeRule.onAllNodesWithText("3 sesiones · 2/4 secciones revisadas").assertCountEquals(1)
+        composeRule.onAllNodesWithText("One").assertCountEquals(1)
+        composeRule.onAllNodesWithText("One Artist · 2:00").assertCountEquals(1)
+        composeRule.onAllNodesWithText("Analizado").assertCountEquals(1)
         composeRule.onAllNodesWithText("En progreso").assertCountEquals(1)
     }
 
@@ -154,6 +156,8 @@ class SavedSessionsTest {
         SavedListeningSession(
             songKey = songKey,
             displayName = displayName,
+            title = displayName.substringBeforeLast('.'),
+            artist = "${displayName.substringBeforeLast('.')} Artist",
             mimeType = "audio/mpeg",
             durationMillis = 120_000L,
             lastPositionMillis = 42_000L,

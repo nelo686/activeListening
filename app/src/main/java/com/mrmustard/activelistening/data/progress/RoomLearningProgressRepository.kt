@@ -8,6 +8,7 @@ import com.mrmustard.activelistening.domain.progress.LearningProgressSummary
 import javax.inject.Inject
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.map
+import kotlin.enums.enumEntries
 
 class RoomLearningProgressRepository @Inject constructor(
     private val dao: LearningProgressDao,
@@ -75,7 +76,6 @@ class RoomLearningProgressRepository @Inject constructor(
     }
 
     private fun List<LearningProgressSessionEntity>.toSummary(): LearningProgressSummary {
-        val latest = maxBy { it.updatedAtMillis }
         val reviewed = flatMap { it.reviewedIds() }.toSet().size
         val total = maxOf(1, maxOfOrNull { it.totalSections } ?: 1)
         val recent = sortedByDescending { it.startedAtMillis }.take(3)
@@ -89,11 +89,11 @@ class RoomLearningProgressRepository @Inject constructor(
             else -> AutonomyLevel.Guided
         }
         return LearningProgressSummary(
-            songKey = latest.songKey,
             sessionCount = size,
             reviewedSections = reviewed.coerceAtMost(total),
             totalSections = total,
-            lastPracticeAtMillis = latest.updatedAtMillis,
+            manualEdits = sumOf { it.manualEdits },
+            exports = sumOf { it.exports },
             autonomyLevel = autonomy,
         )
     }
@@ -103,7 +103,7 @@ class RoomLearningProgressRepository @Inject constructor(
 
     private fun LearningProgressSessionEntity.toDomain() = LearningProgressSession(
         id, songKey, startedAtMillis, updatedAtMillis,
-        enumValues<GuidanceIntensity>().firstOrNull { it.name == guidanceIntensity } ?: GuidanceIntensity.Normal,
+        enumEntries<GuidanceIntensity>().firstOrNull { it.name == guidanceIntensity } ?: GuidanceIntensity.Normal,
         totalSections, reviewedIds(), manualEdits, repetitions, explanationsConsulted, exports,
     )
 

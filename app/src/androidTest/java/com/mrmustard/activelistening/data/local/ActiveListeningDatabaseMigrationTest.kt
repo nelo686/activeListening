@@ -30,7 +30,7 @@ class ActiveListeningDatabaseMigrationTest {
     }
 
     @Test
-    fun migratesFromVersion1To4AndPreservesSettings() {
+    fun migratesFromVersion1To5AndPreservesSettings() {
         createVersion1Database()
 
         val migratedDatabase = openMigratedDatabase()
@@ -47,7 +47,7 @@ class ActiveListeningDatabaseMigrationTest {
     }
 
     @Test
-    fun migratesFromVersion2To4AndPreservesStructure() {
+    fun migratesFromVersion2To5AndPreservesStructure() {
         createVersion2Database()
 
         val migratedDatabase = openMigratedDatabase()
@@ -68,7 +68,7 @@ class ActiveListeningDatabaseMigrationTest {
     }
 
     @Test
-    fun migratesFromVersion3To4AndPreservesSavedSessions() {
+    fun migratesFromVersion3To5AndPreservesSavedSessions() {
         createVersion3Database()
 
         val sqliteDatabase = openMigratedDatabase().openHelper.writableDatabase
@@ -78,6 +78,23 @@ class ActiveListeningDatabaseMigrationTest {
         }
         assertTrue(sqliteDatabase.hasColumn("song_structure_sections", "custom_label"))
         assertTrue(sqliteDatabase.hasTable("learning_progress_sessions"))
+        assertTrue(sqliteDatabase.hasColumn("saved_listening_sessions", "title"))
+        assertTrue(sqliteDatabase.hasColumn("saved_listening_sessions", "artist"))
+    }
+
+    @Test
+    fun migratesFromVersion4To5AndPreservesSavedSessions() {
+        createVersion4Database()
+
+        val sqliteDatabase = openMigratedDatabase().openHelper.writableDatabase
+        sqliteDatabase.query(
+            "SELECT display_name, title, artist FROM saved_listening_sessions",
+        ).use { cursor ->
+            assertTrue(cursor.moveToFirst())
+            assertEquals("Practice.mp3", cursor.getString(0))
+            assertTrue(cursor.isNull(1))
+            assertTrue(cursor.isNull(2))
+        }
     }
 
     private fun createVersion1Database() {
@@ -127,6 +144,25 @@ class ActiveListeningDatabaseMigrationTest {
                 """.trimIndent(),
             )
             database.version = 3
+        }
+    }
+
+    private fun createVersion4Database() {
+        openLegacyDatabase().use { database ->
+            database.execSQL(CREATE_USER_SETTINGS_TABLE)
+            database.execSQL(CREATE_SONG_STRUCTURE_TABLE)
+            database.execSQL("ALTER TABLE song_structure_sections ADD COLUMN custom_label TEXT")
+            database.execSQL(CREATE_SAVED_SESSIONS_TABLE)
+            database.execSQL(CREATE_LEARNING_PROGRESS_TABLE)
+            database.execSQL(
+                """
+                INSERT INTO saved_listening_sessions (
+                    song_key, display_name, mime_type, duration_millis,
+                    last_position_millis, created_at_millis, updated_at_millis
+                ) VALUES ('content://song', 'Practice.mp3', 'audio/mpeg', 120000, 30000, 1, 2)
+                """.trimIndent(),
+            )
+            database.version = 4
         }
     }
 
@@ -198,6 +234,23 @@ class ActiveListeningDatabaseMigrationTest {
                 last_position_millis INTEGER NOT NULL,
                 created_at_millis INTEGER NOT NULL,
                 updated_at_millis INTEGER NOT NULL
+            )
+            """.trimIndent()
+
+        val CREATE_LEARNING_PROGRESS_TABLE =
+            """
+            CREATE TABLE IF NOT EXISTS learning_progress_sessions (
+                id INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL,
+                song_key TEXT NOT NULL,
+                started_at_millis INTEGER NOT NULL,
+                updated_at_millis INTEGER NOT NULL,
+                guidance_intensity TEXT NOT NULL,
+                total_sections INTEGER NOT NULL,
+                reviewed_section_ids TEXT NOT NULL,
+                manual_edits INTEGER NOT NULL,
+                repetitions INTEGER NOT NULL,
+                explanations_consulted INTEGER NOT NULL,
+                exports INTEGER NOT NULL
             )
             """.trimIndent()
     }

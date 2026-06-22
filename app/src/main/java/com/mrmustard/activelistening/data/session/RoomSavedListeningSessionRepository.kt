@@ -21,6 +21,8 @@ class RoomSavedListeningSessionRepository @Inject constructor(
         upsertSession(
             songKey = song.uri.toString(),
             displayName = song.displayName,
+            title = song.title,
+            artist = song.artist,
             mimeType = song.mimeType,
             durationMillis = song.durationMillis,
         )
@@ -37,6 +39,8 @@ class RoomSavedListeningSessionRepository @Inject constructor(
     suspend fun upsertSession(
         songKey: String,
         displayName: String,
+        title: String?,
+        artist: String?,
         mimeType: String?,
         durationMillis: Long,
     ) {
@@ -46,6 +50,8 @@ class RoomSavedListeningSessionRepository @Inject constructor(
             SavedListeningSessionEntity(
                 songKey = songKey,
                 displayName = displayName,
+                title = title,
+                artist = artist,
                 mimeType = mimeType,
                 durationMillis = durationMillis,
                 lastPositionMillis = existingSession?.lastPositionMillis ?: 0L,
@@ -70,6 +76,8 @@ class RoomSavedListeningSessionRepository @Inject constructor(
         SavedListeningSession(
             songKey = songKey,
             displayName = displayName,
+            title = title,
+            artist = artist,
             mimeType = mimeType,
             durationMillis = durationMillis,
             lastPositionMillis = lastPositionMillis,
@@ -81,6 +89,8 @@ class RoomSavedListeningSessionRepository @Inject constructor(
         SavedListeningSessionEntity(
             songKey = songKey,
             displayName = displayName,
+            title = title,
+            artist = artist,
             mimeType = mimeType,
             durationMillis = durationMillis,
             lastPositionMillis = lastPositionMillis,

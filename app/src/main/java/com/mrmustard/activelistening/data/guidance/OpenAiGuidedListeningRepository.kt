@@ -10,6 +10,7 @@ import com.mrmustard.activelistening.domain.guidance.GuidedListeningRepository
 import com.mrmustard.activelistening.domain.guidance.GuidedListeningResult
 import com.mrmustard.activelistening.domain.time.formatTimeCode
 import javax.inject.Inject
+import kotlinx.coroutines.CancellationException
 
 class OpenAiGuidedListeningRepository @Inject constructor(
     private val openAI: OpenAI,
@@ -44,7 +45,8 @@ class OpenAiGuidedListeningRepository @Inject constructor(
             } else {
                 GuidedListeningResult.Success(markers)
             }
-        }.getOrElse {
+        }.getOrElse { error ->
+            if (error is CancellationException) throw error
             GuidedListeningResult.UnableToGenerate
         }
     }

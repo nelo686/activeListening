@@ -70,5 +70,12 @@ object DatabaseMigrations {
         }
     }
 
-    val all = arrayOf(migration1To2, migration2To3, migration3To4)
+    val migration4To5 = object : Migration(4, 5) {
+        override fun migrate(db: SupportSQLiteDatabase) {
+            db.execSQL("ALTER TABLE saved_listening_sessions ADD COLUMN title TEXT")
+            db.execSQL("ALTER TABLE saved_listening_sessions ADD COLUMN artist TEXT")
+        }
+    }
+
+    val all = arrayOf(migration1To2, migration2To3, migration3To4, migration4To5)
 }

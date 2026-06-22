@@ -24,11 +24,11 @@ data class LearningProgressSession(
 )
 
 data class LearningProgressSummary(
-    val songKey: String,
     val sessionCount: Int,
     val reviewedSections: Int,
     val totalSections: Int,
-    val lastPracticeAtMillis: Long,
+    val manualEdits: Int,
+    val exports: Int,
     val autonomyLevel: AutonomyLevel,
 )
 

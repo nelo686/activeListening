@@ -9,6 +9,8 @@ data class SavedListeningSessionEntity(
     @PrimaryKey
     @ColumnInfo(name = "song_key") val songKey: String,
     @ColumnInfo(name = "display_name") val displayName: String,
+    @ColumnInfo(name = "title") val title: String?,
+    @ColumnInfo(name = "artist") val artist: String?,
     @ColumnInfo(name = "mime_type") val mimeType: String?,
     @ColumnInfo(name = "duration_millis") val durationMillis: Long,
     @ColumnInfo(name = "last_position_millis") val lastPositionMillis: Long,

@@ -97,6 +97,8 @@ class RoomSavedSongRepositoryTest {
         SavedListeningSession(
             songKey = songKey,
             displayName = displayName,
+            title = displayName.substringBeforeLast('.'),
+            artist = "The Band",
             mimeType = "audio/mpeg",
             durationMillis = 120_000L,
             lastPositionMillis = 42_000L,

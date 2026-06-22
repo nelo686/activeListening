@@ -52,6 +52,18 @@ class RoomLearningProgressRepositoryTest {
         val summary = repository.summaries.first().getValue("song")
         assertEquals(AutonomyLevel.Progressing, summary.autonomyLevel)
     }
+
+    @Test
+    fun `manual edits and exports are included in summary`() = runTest {
+        val sessionId = repository.startSession("song", GuidanceIntensity.Normal, 4)
+
+        repeat(3) { repository.recordManualEdit(sessionId) }
+        repository.recordExport(sessionId)
+
+        val summary = repository.summaries.first().getValue("song")
+        assertEquals(3, summary.manualEdits)
+        assertEquals(1, summary.exports)
+    }
 }
 
 private class FakeLearningProgressDao : LearningProgressDao {

@@ -8,6 +8,7 @@ import com.mrmustard.activelistening.domain.export.SongMapExportResult
 import com.mrmustard.activelistening.domain.guidance.GuidedListeningRepository
 import com.mrmustard.activelistening.domain.guidance.GuidedListeningRequest
 import com.mrmustard.activelistening.domain.guidance.GuidedListeningResult
+import com.mrmustard.activelistening.domain.guidance.GuidedListeningMarkerSuggestion
 import com.mrmustard.activelistening.domain.importsong.ImportedSong
 import com.mrmustard.activelistening.domain.importsong.SongImportGateway
 import com.mrmustard.activelistening.domain.importsong.SongImportResult
@@ -35,12 +36,14 @@ import com.mrmustard.activelistening.domain.usecase.SectionEditingUseCase
 import com.mrmustard.activelistening.test.MainDispatcherRule
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.CompletableDeferred
+import kotlinx.coroutines.NonCancellable
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.test.advanceUntilIdle
 import kotlinx.coroutines.test.runCurrent
 import kotlinx.coroutines.test.runTest
+import kotlinx.coroutines.withContext
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertFalse
 import org.junit.Assert.assertNull
@@ -67,6 +70,7 @@ class ActiveListeningViewModelTest {
     private lateinit var savedSongRepository: FakeSavedSongRepository
     private lateinit var exportRepository: FakeSongMapExportRepository
     private lateinit var learningProgressRepository: FakeLearningProgressRepository
+    private lateinit var guidedListeningRepository: FakeGuidedListeningRepository
     private lateinit var viewModel: ActiveListeningViewModel
 
     @Before
@@ -78,10 +82,11 @@ class ActiveListeningViewModelTest {
         savedSongRepository = FakeSavedSongRepository(sessionRepository, structureRepository)
         exportRepository = FakeSongMapExportRepository()
         learningProgressRepository = FakeLearningProgressRepository()
+        guidedListeningRepository = FakeGuidedListeningRepository()
         viewModel = ActiveListeningViewModel(
             importSongUseCase = ImportSongUseCase(importGateway, audioPlayer),
             audioPlayer = audioPlayer,
-            guidedListeningRepository = FakeGuidedListeningRepository,
+            guidedListeningRepository = guidedListeningRepository,
             userSettingsRepository = FakeUserSettingsRepository(),
             songStructureRepository = structureRepository,
             savedListeningSessionRepository = sessionRepository,
@@ -177,6 +182,57 @@ class ActiveListeningViewModelTest {
     }
 
     @Test
+    fun `late guidance response does not modify the next song`() = runTest {
+        val firstSong = testSong()
+        val secondSong = firstSong.copy(
+            uri = Uri.parse("content://songs/second.mp3"),
+            displayName = "Second.mp3",
+            title = "Second",
+        )
+        val firstResponse = CompletableDeferred<GuidedListeningResult>()
+        val secondResponse = CompletableDeferred<GuidedListeningResult>()
+        guidedListeningRepository.responses += firstResponse
+        guidedListeningRepository.responses += secondResponse
+
+        importGateway.result = SongImportResult.Success(firstSong)
+        viewModel.importSong(firstSong.uri)
+        advanceUntilIdle()
+        viewModel.startGuidedSession()
+        runCurrent()
+
+        viewModel.returnToStart()
+        importGateway.result = SongImportResult.Success(secondSong)
+        viewModel.importSong(secondSong.uri)
+        runCurrent()
+        viewModel.startGuidedSession()
+        runCurrent()
+
+        secondResponse.complete(guidanceResult(prompt = "Pista para la segunda canción"))
+        runCurrent()
+        firstResponse.complete(guidanceResult(prompt = "Pista obsoleta de la primera canción"))
+        advanceUntilIdle()
+
+        val state = viewModel.uiState.value
+        assertEquals(secondSong, state.importedSong)
+        assertEquals("Pista para la segunda canción", state.sections.first().prompt)
+        assertEquals(
+            "Pista para la segunda canción",
+            structureRepository.structures[secondSong.uri.toString()]?.editedSections?.first()?.prompt,
+        )
+    }
+
+    private fun guidanceResult(prompt: String): GuidedListeningResult =
+        GuidedListeningResult.Success(
+            markers = listOf(
+                GuidedListeningMarkerSuggestion(
+                    id = 0,
+                    title = "Intro",
+                    prompt = prompt,
+                ),
+            ),
+        )
+
+    @Test
     fun `guided repeat seeks eight seconds back without crossing song start`() = runTest {
         val song = testSong()
         importGateway.result = SongImportResult.Success(song)
@@ -205,6 +261,29 @@ class ActiveListeningViewModelTest {
         viewModel.repeatSelectedSection()
 
         assertEquals(section.startMillis, audioPlayer.lastSeekPositionMillis)
+    }
+
+    @Test
+    fun `marking rhythm change updates timeline state and persisted structure`() = runTest {
+        val song = testSong()
+        importGateway.result = SongImportResult.Success(song)
+        viewModel.importSong(song.uri)
+        advanceUntilIdle()
+        viewModel.startGuidedSession()
+        advanceUntilIdle()
+        val section = viewModel.uiState.value.sections.first()
+        viewModel.openSectionEditor(section.id)
+
+        viewModel.toggleSelectedSectionMusicalContrast()
+        advanceUntilIdle()
+
+        assertTrue(viewModel.uiState.value.sections.first().musicalContrast != null)
+        assertTrue(
+            structureRepository.structures[song.uri.toString()]
+                ?.editedSections
+                ?.first()
+                ?.musicalContrast != null,
+        )
     }
 
     @Test
@@ -282,6 +361,7 @@ class ActiveListeningViewModelTest {
         assertEquals(secondSession, sessionRepository.storedSessions[secondSession.songKey])
     }
 
+    @Test
     fun `returning to start pauses playback and saves current position`() = runTest {
         val song = testSong()
         importGateway.result = SongImportResult.Success(song)
@@ -341,6 +421,8 @@ class ActiveListeningViewModelTest {
         SavedListeningSession(
             songKey = song.uri.toString(),
             displayName = song.displayName,
+            title = song.title,
+            artist = song.artist,
             mimeType = song.mimeType,
             durationMillis = song.durationMillis,
             lastPositionMillis = lastPositionMillis,
@@ -435,6 +517,8 @@ private class FakeSavedListeningSessionRepository : SavedListeningSessionReposit
         SavedListeningSession(
             songKey = song.uri.toString(),
             displayName = song.displayName,
+            title = song.title,
+            artist = song.artist,
             mimeType = song.mimeType,
             durationMillis = song.durationMillis,
             lastPositionMillis = positionMillis,
@@ -511,9 +595,13 @@ private class FakeUserSettingsRepository : UserSettingsRepository {
     }
 }
 
-private object FakeGuidedListeningRepository : GuidedListeningRepository {
-    override suspend fun createGuidedListeningPlan(request: GuidedListeningRequest): GuidedListeningResult =
-        GuidedListeningResult.UnableToGenerate
+private class FakeGuidedListeningRepository : GuidedListeningRepository {
+    val responses = ArrayDeque<CompletableDeferred<GuidedListeningResult>>()
+
+    override suspend fun createGuidedListeningPlan(request: GuidedListeningRequest): GuidedListeningResult {
+        val response = responses.removeFirstOrNull() ?: return GuidedListeningResult.UnableToGenerate
+        return withContext(NonCancellable) { response.await() }
+    }
 }
 
 private class FakeLearningProgressRepository : LearningProgressRepository {

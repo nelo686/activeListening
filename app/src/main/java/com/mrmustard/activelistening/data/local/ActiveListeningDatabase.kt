@@ -18,7 +18,7 @@ import com.mrmustard.activelistening.data.structure.SongStructureSectionEntity
         SavedListeningSessionEntity::class,
         LearningProgressSessionEntity::class,
     ],
-    version = 4,
+    version = 5,
     exportSchema = true,
 )
 abstract class ActiveListeningDatabase : RoomDatabase() {

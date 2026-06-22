@@ -3,6 +3,8 @@ package com.mrmustard.activelistening.domain.session
 data class SavedListeningSession(
     val songKey: String,
     val displayName: String,
+    val title: String?,
+    val artist: String?,
     val mimeType: String?,
     val durationMillis: Long,
     val lastPositionMillis: Long,
