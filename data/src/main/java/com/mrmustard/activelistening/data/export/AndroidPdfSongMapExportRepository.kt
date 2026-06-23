@@ -22,11 +22,11 @@ class AndroidPdfSongMapExportRepository @Inject constructor(
 ) : SongMapExportRepository {
 
     override suspend fun exportPdf(
-        destination: Uri,
+        destination: String,
         map: SongMapExport,
     ): SongMapExportResult = withContext(Dispatchers.IO) {
         runCatching {
-            context.contentResolver.openOutputStream(destination, "wt")?.use { output ->
+            context.contentResolver.openOutputStream(Uri.parse(destination), "wt")?.use { output ->
                 val document = createPdf(map)
                 try {
                     document.writeTo(output)

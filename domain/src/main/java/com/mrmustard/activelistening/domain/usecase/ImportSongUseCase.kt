@@ -1,6 +1,5 @@
 package com.mrmustard.activelistening.domain.usecase
 
-import android.net.Uri
 import com.mrmustard.activelistening.domain.importsong.SongImportGateway
 import com.mrmustard.activelistening.domain.importsong.SongImportResult
 import com.mrmustard.activelistening.domain.playback.AudioPlayer
@@ -10,7 +9,7 @@ class ImportSongUseCase @Inject constructor(
     private val songImportGateway: SongImportGateway,
     private val audioPlayer: AudioPlayer,
 ) {
-    suspend operator fun invoke(uri: Uri): SongImportResult {
+    suspend operator fun invoke(uri: String): SongImportResult {
         val result = songImportGateway.importSong(uri)
 
         when (result) {

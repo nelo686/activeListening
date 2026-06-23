@@ -4,10 +4,9 @@ import android.content.Context
 import android.media.MediaMetadataRetriever
 import android.net.Uri
 import android.provider.OpenableColumns
-import com.mrmustard.activelistening.R
 import com.mrmustard.activelistening.domain.importsong.ImportSongError
-import com.mrmustard.activelistening.domain.importsong.SongImportGateway
 import com.mrmustard.activelistening.domain.importsong.ImportedSong
+import com.mrmustard.activelistening.domain.importsong.SongImportGateway
 import com.mrmustard.activelistening.domain.importsong.SongImportResult
 import dagger.hilt.android.qualifiers.ApplicationContext
 import kotlinx.coroutines.Dispatchers
@@ -19,20 +18,21 @@ class AndroidSongImportGateway @Inject constructor(
     private val validator: SongImportValidator,
 ) : SongImportGateway {
 
-    override suspend fun importSong(uri: Uri): SongImportResult = withContext(Dispatchers.IO) {
+    override suspend fun importSong(uri: String): SongImportResult = withContext(Dispatchers.IO) {
         runCatching {
-            val displayName = resolveDisplayName(uri)
-            val mimeType = context.contentResolver.getType(uri)
+            val androidUri = Uri.parse(uri)
+            val displayName = resolveDisplayName(androidUri)
+            val mimeType = context.contentResolver.getType(androidUri)
 
             validator.validateFormat(mimeType, displayName)?.let { error ->
                 return@withContext SongImportResult.Error(error)
             }
 
-            if (!canOpen(uri)) {
+            if (!canOpen(androidUri)) {
                 return@withContext SongImportResult.Error(ImportSongError.UnreadableFile)
             }
 
-            val metadata = readMetadata(uri)
+            val metadata = readMetadata(androidUri)
                 ?: return@withContext SongImportResult.Error(ImportSongError.UnreadableFile)
 
             validator.validateDuration(metadata.durationMillis)?.let { error ->
@@ -64,7 +64,7 @@ class AndroidSongImportGateway @Inject constructor(
             }
         }
         return uri.lastPathSegment?.substringAfterLast('/')?.takeIf { it.isNotBlank() }
-            ?: context.getString(R.string.imported_song_default_name)
+            ?: DEFAULT_IMPORTED_SONG_NAME
     }
 
     private fun canOpen(uri: Uri): Boolean =
@@ -121,5 +121,9 @@ class AndroidSongImportGateway @Inject constructor(
             result = 31 * result + (artwork?.contentHashCode() ?: 0)
             return result
         }
+    }
+
+    private companion object {
+        const val DEFAULT_IMPORTED_SONG_NAME = "Cancion importada"
     }
 }

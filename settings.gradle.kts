@@ -24,4 +24,5 @@ dependencyResolutionManagement {
 
 rootProject.name = "Active Listening"
 include(":app")
- 
+include(":domain")
+include(":data")

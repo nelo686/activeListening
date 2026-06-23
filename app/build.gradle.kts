@@ -84,11 +84,9 @@ configurations.all {
     resolutionStrategy.force(libs.kotlin.metadata.jvm)
 }
 
-ksp {
-    arg("room.schemaLocation", "$projectDir/schemas")
-}
-
 dependencies {
+    implementation(project(":domain"))
+    implementation(project(":data"))
     implementation(platform(libs.androidx.compose.bom))
     implementation(libs.androidx.activity.compose)
     implementation(libs.androidx.compose.material3)
@@ -107,7 +105,6 @@ dependencies {
     implementation(libs.openai.client)
     runtimeOnly(libs.ktor.client.okhttp)
     ksp(libs.hilt.compiler)
-    ksp(libs.androidx.room.compiler)
     testImplementation(libs.junit)
     testImplementation(libs.kotlinx.coroutines.test)
     testImplementation(libs.robolectric)

@@ -311,7 +311,7 @@ private fun GuidedSongScreenPreview() {
         SongScreen(
             state = ActiveListeningUiState(
                 importedSong = ImportedSong(
-                    uri = Uri.EMPTY,
+                    uri = Uri.EMPTY.toString(),
                     displayName = "Canción de práctica",
                     mimeType = "audio/mpeg",
                     durationMillis = durationMillis,

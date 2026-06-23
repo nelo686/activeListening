@@ -37,6 +37,9 @@ internal fun RhythmInfoPanel(
             modifier = Modifier.fillMaxWidth().padding(16.dp),
             verticalArrangement = Arrangement.spacedBy(10.dp),
         ) {
+            val regularity = rhythmInfo?.regularity
+            val estimatedBars = rhythmInfo?.estimatedBars
+            val confidence = rhythmInfo?.confidence
             Text(
                 text = stringResource(R.string.structure_rhythm_title),
                 style = MaterialTheme.typography.titleMedium,
@@ -44,21 +47,23 @@ internal fun RhythmInfoPanel(
                 color = MaterialTheme.colorScheme.primary,
             )
             when {
-                rhythmInfo?.regularity == SectionRhythmRegularity.Irregular -> Text(
+                regularity == SectionRhythmRegularity.Irregular -> Text(
                     stringResource(R.string.structure_rhythm_irregular),
                     color = MaterialTheme.colorScheme.onSurfaceVariant,
                 )
-                rhythmInfo?.estimatedBars != null -> Text(
-                    stringResource(R.string.structure_rhythm_estimated_bars, rhythmInfo.estimatedBars),
-                    color = MaterialTheme.colorScheme.onSurfaceVariant,
-                )
+                estimatedBars != null -> {
+                    Text(
+                        stringResource(R.string.structure_rhythm_estimated_bars, estimatedBars),
+                        color = MaterialTheme.colorScheme.onSurfaceVariant,
+                    )
+                }
                 else -> Text(
                     stringResource(R.string.structure_rhythm_unavailable),
                     color = MaterialTheme.colorScheme.onSurfaceVariant,
                 )
             }
-            if (rhythmInfo?.confidence == SectionRhythmConfidence.Low &&
-                rhythmInfo.regularity != SectionRhythmRegularity.Irregular
+            if (confidence == SectionRhythmConfidence.Low &&
+                regularity != SectionRhythmRegularity.Irregular
             ) {
                 Text(
                     stringResource(R.string.structure_rhythm_low_confidence),

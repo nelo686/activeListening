@@ -1,6 +1,5 @@
 package com.mrmustard.activelistening.domain.usecase
 
-import android.net.Uri
 import com.mrmustard.activelistening.domain.export.SongMapExportFactory
 import com.mrmustard.activelistening.domain.export.SongMapExportRepository
 import com.mrmustard.activelistening.domain.export.SongMapExportResult
@@ -15,7 +14,7 @@ class ExportSongMapUseCase @Inject constructor(
     private val repository: SongMapExportRepository,
 ) {
     suspend operator fun invoke(
-        destination: Uri,
+        destination: String,
         song: ImportedSong?,
         sections: List<SongSection>,
         learningLevel: LearningLevel,

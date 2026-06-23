@@ -28,7 +28,7 @@ class SongSessionCoordinator @Inject constructor(
     private var isCurrentSessionSaved = false
 
     suspend fun load(song: ImportedSong): LoadedSongSession {
-        val songKey = song.uri.toString()
+        val songKey = song.uri
         val structure = structureRepository.getStructure(songKey)
         val session = sessionRepository.getSession(songKey)
         isCurrentSessionSaved = session != null || structure != null
@@ -42,7 +42,7 @@ class SongSessionCoordinator @Inject constructor(
 
     fun markSaved(scope: CoroutineScope, song: ImportedSong) {
         isCurrentSessionSaved = true
-        lastPersistedSongKey = song.uri.toString()
+        lastPersistedSongKey = song.uri
         scope.launch { sessionRepository.upsertSession(song) }
     }
 

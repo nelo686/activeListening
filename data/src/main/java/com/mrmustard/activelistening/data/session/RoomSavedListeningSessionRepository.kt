@@ -19,7 +19,7 @@ class RoomSavedListeningSessionRepository @Inject constructor(
 
     override suspend fun upsertSession(song: ImportedSong) {
         upsertSession(
-            songKey = song.uri.toString(),
+            songKey = song.uri,
             displayName = song.displayName,
             title = song.title,
             artist = song.artist,

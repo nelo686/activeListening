@@ -62,7 +62,7 @@ class ActiveListeningViewModel @Inject constructor(
         viewModelScope.launch {
             _uiState.update { it.copy(isImporting = true, importError = null) }
 
-            when (val result = importSongUseCase(uri)) {
+            when (val result = importSongUseCase(uri.toString())) {
                 is SongImportResult.Success -> {
                     loadImportedSong(result.song)
                 }
@@ -132,7 +132,7 @@ class ActiveListeningViewModel @Inject constructor(
 
     fun returnToStart() {
         val state = _uiState.value
-        val songKey = state.importedSong?.uri?.toString()
+        val songKey = state.importedSong?.uri
         val positionMillis = state.playbackState.positionMillis
         audioPlayer.pause()
         songSessionCoordinator.leave(viewModelScope, songKey, positionMillis)
@@ -205,7 +205,7 @@ class ActiveListeningViewModel @Inject constructor(
             originalSections = plan.sections,
             editedSections = plan.sections,
         )
-        _uiState.value.importedSong?.uri?.toString()?.let { songKey ->
+        _uiState.value.importedSong?.uri?.let { songKey ->
             guidedListeningCoordinator.startProgressSession(
                 scope = viewModelScope,
                 songKey = songKey,
@@ -214,11 +214,12 @@ class ActiveListeningViewModel @Inject constructor(
             )
         }
 
-        if (plan.guidanceRequest != null) {
-            val songKey = _uiState.value.importedSong?.uri?.toString()
+        val guidanceRequest = plan.guidanceRequest
+        if (guidanceRequest != null) {
+            val songKey = _uiState.value.importedSong?.uri
             if (songKey != null) {
                 loadAiGuidance(
-                    request = plan.guidanceRequest,
+                    request = guidanceRequest,
                     songKey = songKey,
                 )
             }
@@ -471,7 +472,7 @@ class ActiveListeningViewModel @Inject constructor(
                 )
             }
             when (val result = exportSongMapUseCase(
-                destination = destination,
+                destination = destination.toString(),
                 song = state.importedSong,
                 sections = state.sections,
                 learningLevel = state.learningLevel,
@@ -645,7 +646,7 @@ class ActiveListeningViewModel @Inject constructor(
     }
 
     private suspend fun loadImportedSong(song: ImportedSong) {
-        val songKey = song.uri.toString()
+        val songKey = song.uri
         val loadedSession = songSessionCoordinator.load(song)
         val savedStructure = loadedSession.structure
         val savedSession = loadedSession.session
@@ -692,7 +693,7 @@ class ActiveListeningViewModel @Inject constructor(
             songKey = songKey,
             isCurrentSong = {
                 val state = _uiState.value
-                state.importedSong?.uri?.toString() == songKey && state.isGuidedSessionActive
+                state.importedSong?.uri == songKey && state.isGuidedSessionActive
             },
         ) { result ->
             _uiState.update { latestState ->
@@ -745,7 +746,7 @@ class ActiveListeningViewModel @Inject constructor(
         originalSections: List<SongSection>,
         editedSections: List<SongSection>,
     ) {
-        val songKey = _uiState.value.importedSong?.uri?.toString() ?: return
+        val songKey = _uiState.value.importedSong?.uri ?: return
         songSessionCoordinator.saveStructure(
             scope = viewModelScope,
             songKey = songKey,
@@ -757,7 +758,7 @@ class ActiveListeningViewModel @Inject constructor(
     private fun persistPlaybackPositionIfNeeded(playbackState: PlaybackState) {
         songSessionCoordinator.persistPositionIfNeeded(
             scope = viewModelScope,
-            songKey = _uiState.value.importedSong?.uri?.toString(),
+            songKey = _uiState.value.importedSong?.uri,
             playbackState = playbackState,
         )
     }
