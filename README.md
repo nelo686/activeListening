@@ -147,6 +147,14 @@ También se aceptan `openai.apiKey`, `openai.guidanceModel` y la variable de ent
 
 El APK debug se genera en `app/build/outputs/apk/debug/`. Las pruebas instrumentadas necesitan un dispositivo o emulador.
 
+Para ejecutar la app desde Android Studio, abre la carpeta del proyecto, espera a que termine la sincronización de Gradle y selecciona un dispositivo o emulador con Android 10 / API 29 o superior. Si Gradle falla con un error de permisos dentro de `~/.gradle`, revisa que Android Studio o el terminal tengan permiso para escribir en la cache del usuario y vuelve a sincronizar.
+
+Los directorios `build/` de la raíz y de cada módulo son generados por Gradle. No deben versionarse; si aparecen como archivos sin seguimiento después de compilar, se pueden eliminar con:
+
+```bash
+git clean -fd app/build data/build domain/build build
+```
+
 ## Formatos y límites
 
 - Formatos: MP3, WAV, M4A y AAC.

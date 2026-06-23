@@ -182,6 +182,7 @@ The PDF includes:
 - **A saved session does not open:** the file may have moved or been deleted; select it again.
 - **A section cannot be split:** the position would leave a section shorter than five seconds.
 - **The map cannot be exported:** check that the sections form a valid timeline.
+- **The project does not start from Android Studio:** wait for Gradle sync to finish, select a compatible emulator or device, and check that Android Studio can write to `~/.gradle`.
 
 ## Recommended first workflow
 

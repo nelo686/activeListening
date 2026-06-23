@@ -182,6 +182,7 @@ El PDF contiene:
 - **Una sesión guardada no abre:** el archivo puede haberse movido o eliminado; selecciónalo de nuevo.
 - **No se puede dividir:** la posición dejaría una sección con menos de cinco segundos.
 - **No se puede exportar:** revisa que las secciones formen una línea temporal válida.
+- **El proyecto no arranca desde Android Studio:** espera a que termine la sincronización de Gradle, selecciona un emulador o dispositivo compatible y comprueba que Android Studio pueda escribir en `~/.gradle`.
 
 ## Recorrido recomendado
 
