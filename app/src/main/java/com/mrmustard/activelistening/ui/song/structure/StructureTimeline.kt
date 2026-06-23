@@ -4,7 +4,6 @@ import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
-import androidx.compose.foundation.gestures.detectDragGestures
 import androidx.compose.foundation.horizontalScroll
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -14,7 +13,6 @@ import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
-import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.rememberScrollState
@@ -23,18 +21,11 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
-import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.Path
-import androidx.compose.ui.input.pointer.pointerInput
-import androidx.compose.ui.platform.LocalDensity
-import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.semantics.contentDescription
 import androidx.compose.ui.semantics.semantics
@@ -44,15 +35,11 @@ import androidx.compose.ui.unit.dp
 import com.mrmustard.activelistening.R
 import com.mrmustard.activelistening.domain.structure.SectionStatus
 import com.mrmustard.activelistening.domain.structure.SongSection
-import com.mrmustard.activelistening.domain.structure.SongStructureFactory
-import kotlin.math.roundToLong
 
 private val TimelineHeight = 175.dp
 private val TimelinePadding = 6.dp
 private val SectionCornerRadius = 10.dp
 private val PlaybackCursorColor = Color(0xFFC5222A)
-private val BoundaryTouchWidth = 32.dp
-private val BoundaryLineWidth = 4.dp
 
 @Composable
 fun StructureTimeline(
@@ -131,11 +118,12 @@ fun StructureTimeline(
                     )
 
                     sections.zipWithNext().forEach { (leftSection, rightSection) ->
-                        BoundaryHandle(
+                        TimelineBoundaryHandle(
                             leftSection = leftSection,
                             rightSection = rightSection,
                             durationMillis = safeDuration,
                             sectionAreaWidth = sectionAreaWidth,
+                            timelinePadding = TimelinePadding,
                             onBoundaryChanged = onBoundaryChanged,
                         )
                     }
@@ -149,91 +137,6 @@ fun StructureTimeline(
             style = MaterialTheme.typography.bodyMedium,
             color = MaterialTheme.colorScheme.onSurfaceVariant,
         )
-    }
-}
-
-@Composable
-private fun BoundaryHandle(
-    leftSection: SongSection,
-    rightSection: SongSection,
-    durationMillis: Long,
-    sectionAreaWidth: androidx.compose.ui.unit.Dp,
-    onBoundaryChanged: (Int, Long) -> Unit,
-) {
-    val density = LocalDensity.current
-    val sectionAreaWidthPx = with(density) { sectionAreaWidth.toPx() }.coerceAtLeast(1f)
-    val minimumPosition = leftSection.startMillis + SongStructureFactory.MIN_SECTION_DURATION_MILLIS
-    val maximumPosition = rightSection.endMillis - SongStructureFactory.MIN_SECTION_DURATION_MILLIS
-    var draggedPositionMillis by remember(
-        leftSection.id,
-        leftSection.endMillis,
-        rightSection.id,
-    ) { mutableStateOf<Long?>(null) }
-    val displayedPositionMillis = draggedPositionMillis ?: leftSection.endMillis
-    val boundaryOffset = TimelinePadding + sectionAreaWidth *
-        (displayedPositionMillis.toFloat() / durationMillis)
-    val description = stringResource(
-        R.string.structure_timeline_boundary_description,
-        leftSection.toDisplayName(),
-        rightSection.toDisplayName(),
-    )
-
-    Box(
-        modifier = Modifier
-            .offset(x = boundaryOffset - BoundaryTouchWidth / 2)
-            .width(BoundaryTouchWidth)
-            .fillMaxHeight()
-            .testTag("structure_boundary_${leftSection.id}")
-            .semantics { contentDescription = description }
-            .pointerInput(leftSection.id, leftSection.endMillis, rightSection.id, durationMillis) {
-                detectDragGestures(
-                    onDragStart = { draggedPositionMillis = leftSection.endMillis },
-                    onDragCancel = { draggedPositionMillis = null },
-                    onDragEnd = {
-                        val newPosition = draggedPositionMillis
-                        draggedPositionMillis = null
-                        if (newPosition != null && newPosition != leftSection.endMillis) {
-                            onBoundaryChanged(leftSection.id, newPosition)
-                        }
-                    },
-                    onDrag = { change, dragAmount ->
-                        change.consume()
-                        val deltaMillis = (
-                            dragAmount.x / sectionAreaWidthPx * durationMillis
-                            ).roundToLong()
-                        draggedPositionMillis = (
-                            (draggedPositionMillis ?: leftSection.endMillis) + deltaMillis
-                            ).coerceIn(minimumPosition, maximumPosition)
-                    },
-                )
-            },
-        contentAlignment = Alignment.Center,
-    ) {
-        Box(
-            modifier = Modifier
-                .padding(vertical = 18.dp)
-                .width(BoundaryLineWidth)
-                .fillMaxHeight()
-                .background(
-                    color = MaterialTheme.colorScheme.primary.copy(alpha = 0.82f),
-                    shape = RoundedCornerShape(50),
-                ),
-        )
-        if (draggedPositionMillis != null) {
-            Text(
-                text = formatSectionTime(displayedPositionMillis),
-                modifier = Modifier
-                    .align(Alignment.TopCenter)
-                    .background(
-                        color = MaterialTheme.colorScheme.surface,
-                        shape = RoundedCornerShape(50),
-                    )
-                    .padding(horizontal = 6.dp, vertical = 2.dp),
-                style = MaterialTheme.typography.labelSmall,
-                color = MaterialTheme.colorScheme.onSurface,
-                maxLines = 1,
-            )
-        }
     }
 }
 

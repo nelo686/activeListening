@@ -1,8 +1,5 @@
 package com.mrmustard.activelistening.domain.usecase
 
-import com.mrmustard.activelistening.domain.learning.LearningLevel
-import com.mrmustard.activelistening.domain.learning.SectionExplanationProvider
-import com.mrmustard.activelistening.domain.learning.SectionLearningContent
 import com.mrmustard.activelistening.domain.structure.SectionBoundary
 import com.mrmustard.activelistening.domain.structure.SectionLabel
 import com.mrmustard.activelistening.domain.structure.SectionMusicalContrast
@@ -15,132 +12,52 @@ import javax.inject.Inject
 
 class SectionEditingUseCase @Inject constructor() {
 
-    fun selectSection(
-        sections: List<SongSection>,
-        sectionId: Int,
-    ): Int? =
-        sectionId.takeIf { id -> sections.any { it.id == id } }
-
-    fun openEditor(
-        sections: List<SongSection>,
-        sectionId: Int,
-    ): SectionEditorSelection? {
-        val validSectionId = selectSection(sections, sectionId) ?: return null
-        return SectionEditorSelection(
-            selectedSectionId = validSectionId,
-            editingSectionId = validSectionId,
-        )
-    }
-
-    fun closeEditor(
-        selectedSectionId: Int?,
-    ): SectionEditorSelection =
-        SectionEditorSelection(
-            selectedSectionId = selectedSectionId,
-            editingSectionId = null,
-        )
-
     fun changeLabel(
         sections: List<SongSection>,
         sectionId: Int,
         label: SectionLabel,
-        learningLevel: LearningLevel,
-    ): SectionEditingResult {
-        val updatedSections = SongStructureEditor.changeLabel(
-            sections = sections,
-            sectionId = sectionId,
-            label = label,
-        )
-        return SectionEditingResult(
-            sections = updatedSections,
-            selectedSectionId = sectionId,
-            editingSectionId = sectionId,
-            learningContent = learningContent(
-                sections = updatedSections,
-                editingSectionId = sectionId,
-                learningLevel = learningLevel,
-            ),
-        )
-    }
+    ): SectionEditingResult = result(
+        SongStructureEditor.changeLabel(sections, sectionId, label),
+        sectionId,
+    )
 
     fun changeCustomLabel(
         sections: List<SongSection>,
         sectionId: Int,
         customLabel: String,
-        learningLevel: LearningLevel,
-    ): SectionEditingResult {
-        val updatedSections = SongStructureEditor.changeCustomLabel(
-            sections = sections,
-            sectionId = sectionId,
-            customLabel = customLabel,
-        )
-        return SectionEditingResult(
-            sections = updatedSections,
-            selectedSectionId = sectionId,
-            editingSectionId = sectionId,
-            learningContent = learningContent(updatedSections, sectionId, learningLevel),
-        )
-    }
+    ): SectionEditingResult = result(
+        SongStructureEditor.changeCustomLabel(sections, sectionId, customLabel),
+        sectionId,
+    )
 
     fun changeStatus(
         sections: List<SongSection>,
         sectionId: Int,
         status: SectionStatus,
-        learningLevel: LearningLevel,
-    ): SectionEditingResult {
-        val updatedSections = SongStructureEditor.changeStatus(sections, sectionId, status)
-        return SectionEditingResult(
-            sections = updatedSections,
-            selectedSectionId = sectionId,
-            editingSectionId = sectionId,
-            learningContent = learningContent(updatedSections, sectionId, learningLevel),
-        )
-    }
+    ): SectionEditingResult = result(
+        SongStructureEditor.changeStatus(sections, sectionId, status),
+        sectionId,
+    )
 
     fun cycleStatus(
         sections: List<SongSection>,
         sectionId: Int,
-        learningLevel: LearningLevel,
     ): SectionEditingResult {
         val section = sections.firstOrNull { it.id == sectionId }
-            ?: return SectionEditingResult(
-                sections = sections,
-                selectedSectionId = sectionId,
-                editingSectionId = sectionId,
-                learningContent = learningContent(
-                    sections = sections,
-                    editingSectionId = sectionId,
-                    learningLevel = learningLevel,
-                ),
-            )
+            ?: return result(sections, sectionId)
         val nextStatus = when (section.status) {
             SectionStatus.Suggested -> SectionStatus.Confirmed
             SectionStatus.Confirmed -> SectionStatus.Uncertain
             SectionStatus.Uncertain -> SectionStatus.Suggested
         }
-        val updatedSections = SongStructureEditor.changeStatus(
-            sections = sections,
-            sectionId = sectionId,
-            status = nextStatus,
-        )
-        return SectionEditingResult(
-            sections = updatedSections,
-            selectedSectionId = sectionId,
-            editingSectionId = sectionId,
-            learningContent = learningContent(
-                sections = updatedSections,
-                editingSectionId = sectionId,
-                learningLevel = learningLevel,
-            ),
-        )
+        return changeStatus(sections, sectionId, nextStatus)
     }
 
     fun toggleMusicalContrast(
         sections: List<SongSection>,
         sectionId: Int,
-        learningLevel: LearningLevel,
-    ): SectionEditingResult {
-        val updatedSections = sections.map { section ->
+    ): SectionEditingResult = result(
+        sections.map { section ->
             if (section.id != sectionId) {
                 section
             } else {
@@ -155,117 +72,54 @@ class SectionEditingUseCase @Inject constructor() {
                     },
                 )
             }
-        }
-        return SectionEditingResult(
-            sections = updatedSections,
-            selectedSectionId = sectionId,
-            editingSectionId = sectionId,
-            learningContent = learningContent(
-                sections = updatedSections,
-                editingSectionId = sectionId,
-                learningLevel = learningLevel,
-            ),
-        )
-    }
+        },
+        sectionId,
+    )
 
     fun setBoundary(
         sections: List<SongSection>,
         sectionId: Int,
         boundary: SectionBoundary,
         positionMillis: Long,
-        learningLevel: LearningLevel,
-    ): SectionEditingResult {
-        val updatedSections = SongStructureFactory.setSectionBoundary(
-            sections = sections,
-            sectionId = sectionId,
-            boundary = boundary,
-            positionMillis = positionMillis,
-        )
-        return SectionEditingResult(
-            sections = updatedSections,
-            selectedSectionId = sectionId,
-            editingSectionId = sectionId,
-            learningContent = learningContent(
-                sections = updatedSections,
-                editingSectionId = sectionId,
-                learningLevel = learningLevel,
-            ),
-        )
-    }
+    ): SectionEditingResult = result(
+        SongStructureFactory.setSectionBoundary(sections, sectionId, boundary, positionMillis),
+        sectionId,
+    )
 
     fun splitAtPosition(
         sections: List<SongSection>,
         positionMillis: Long,
-        learningLevel: LearningLevel,
     ): SectionEditingResult {
-        val updatedSections = SongStructureFactory.splitSectionAt(
-            sections = sections,
-            positionMillis = positionMillis,
-        )
-        val selectedSectionId = SongStructureFactory.activeSectionId(
+        val updatedSections = SongStructureFactory.splitSectionAt(sections, positionMillis)
+        return result(
             sections = updatedSections,
-            positionMillis = positionMillis,
-        )
-        return SectionEditingResult(
-            sections = updatedSections,
-            selectedSectionId = selectedSectionId,
-            editingSectionId = selectedSectionId,
-            learningContent = learningContent(
-                sections = updatedSections,
-                editingSectionId = selectedSectionId,
-                learningLevel = learningLevel,
-            ),
+            selectedSectionId = SongStructureFactory.activeSectionId(updatedSections, positionMillis),
         )
     }
 
     fun removeBoundaryAfter(
         sections: List<SongSection>,
         sectionId: Int,
-        learningLevel: LearningLevel,
     ): SectionEditingResult {
-        val updatedSections = SongStructureFactory.removeBoundaryAfter(
-            sections = sections,
-            sectionId = sectionId,
-        )
-        val selectedSectionId = sectionId.takeIf { id ->
-            updatedSections.any { section -> section.id == id }
-        }
-        return SectionEditingResult(
+        val updatedSections = SongStructureFactory.removeBoundaryAfter(sections, sectionId)
+        return result(
             sections = updatedSections,
-            selectedSectionId = selectedSectionId,
-            editingSectionId = selectedSectionId,
-            learningContent = learningContent(
-                sections = updatedSections,
-                editingSectionId = selectedSectionId,
-                learningLevel = learningLevel,
-            ),
+            selectedSectionId = sectionId.takeIf { id -> updatedSections.any { it.id == id } },
         )
     }
 
-    fun learningContent(
+    private fun result(
         sections: List<SongSection>,
-        editingSectionId: Int?,
-        learningLevel: LearningLevel,
-    ): SectionLearningContent? {
-        val section = sections.firstOrNull { it.id == editingSectionId } ?: return null
-        return SectionExplanationProvider.contentFor(
-            label = section.label,
-            level = learningLevel,
-            status = section.status,
-        )
-    }
+        selectedSectionId: Int?,
+    ) = SectionEditingResult(
+        sections = sections,
+        selectedSectionId = selectedSectionId,
+    )
 }
-
-data class SectionEditorSelection(
-    val selectedSectionId: Int?,
-    val editingSectionId: Int?,
-)
 
 data class SectionEditingResult(
     val sections: List<SongSection>,
     val selectedSectionId: Int?,
-    val editingSectionId: Int?,
-    val learningContent: SectionLearningContent?,
 )
 
 private const val MANUAL_MUSICAL_CONTRAST_EXPLANATION =

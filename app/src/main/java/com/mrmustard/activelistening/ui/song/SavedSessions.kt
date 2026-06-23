@@ -1,7 +1,6 @@
 package com.mrmustard.activelistening.ui.song
 
 import android.graphics.BitmapFactory
-import android.media.MediaMetadataRetriever
 import androidx.compose.animation.core.animate
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
@@ -33,7 +32,6 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.produceState
 import androidx.compose.runtime.mutableFloatStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
@@ -44,7 +42,6 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.layout.ContentScale
-import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.input.pointer.positionChange
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.platform.LocalLayoutDirection
@@ -60,14 +57,13 @@ import com.mrmustard.activelistening.R
 import com.mrmustard.activelistening.domain.progress.LearningProgressSummary
 import com.mrmustard.activelistening.domain.session.SavedListeningSession
 import com.mrmustard.activelistening.domain.time.formatTimeCode
-import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
-import kotlinx.coroutines.withContext
-import androidx.core.net.toUri
 
 fun LazyListScope.savedSessions(
     sessions: List<SavedListeningSession>,
     progressSummaries: Map<String, LearningProgressSummary>,
+    artworkBySongKey: Map<String, ByteArray?>,
+    onArtworkRequested: (String) -> Unit,
     onSessionClick: (SavedListeningSession) -> Unit,
     onDeleteSession: (String) -> Unit,
     openSessionKey: String?,
@@ -89,6 +85,8 @@ fun LazyListScope.savedSessions(
             modifier = Modifier.padding(bottom = if (index < sessions.lastIndex) 6.dp else 0.dp),
             session = session,
             progress = progressSummaries[session.songKey],
+            artwork = artworkBySongKey[session.songKey],
+            onArtworkRequested = { onArtworkRequested(session.songKey) },
             isOpen = openSessionKey == session.songKey,
             onOpen = { onOpenSessionChange(session.songKey) },
             onClose = { onOpenSessionChange(null) },
@@ -123,6 +121,8 @@ private fun SavedSessionsHeader(
 private fun SavedSessionItem(
     session: SavedListeningSession,
     progress: LearningProgressSummary?,
+    artwork: ByteArray?,
+    onArtworkRequested: () -> Unit,
     isOpen: Boolean,
     onOpen: () -> Unit,
     onClose: () -> Unit,
@@ -130,6 +130,7 @@ private fun SavedSessionItem(
     onDelete: () -> Unit,
     modifier: Modifier = Modifier,
 ) {
+    LaunchedEffect(session.songKey) { onArtworkRequested() }
     val actionWidth = 72.dp
     val actionWidthPx = with(LocalDensity.current) { actionWidth.toPx() }
     val layoutDirection = LocalLayoutDirection.current
@@ -236,7 +237,7 @@ private fun SavedSessionItem(
                         .background(MaterialTheme.colorScheme.surfaceVariant),
                     contentAlignment = Alignment.Center,
                 ) {
-                    SavedSessionArtwork(songKey = session.songKey)
+                    SavedSessionArtwork(artwork = artwork)
                 }
                 Column(
                     modifier = Modifier
@@ -294,30 +295,18 @@ private fun SavedSessionItem(
 
 @Composable
 private fun SavedSessionArtwork(
-    songKey: String,
+    artwork: ByteArray?,
     modifier: Modifier = Modifier,
 ) {
-    val context = LocalContext.current
-    val artworkBitmap by produceState<androidx.compose.ui.graphics.ImageBitmap?>(
-        initialValue = null,
-        key1 = songKey,
-    ) {
-        value = withContext(Dispatchers.IO) {
-            runCatching {
-                MediaMetadataRetriever().use { retriever ->
-                    retriever.setDataSource(context, songKey.toUri())
-                    retriever.embeddedPicture
-                        ?.let { picture ->
-                            BitmapFactory.decodeByteArray(picture, 0, picture.size)?.asImageBitmap()
-                        }
-                    }
-            }.getOrNull()
+    val artworkBitmap = remember(artwork) {
+        artwork?.let { bytes ->
+            BitmapFactory.decodeByteArray(bytes, 0, bytes.size)?.asImageBitmap()
         }
     }
 
     if (artworkBitmap != null) {
         Image(
-            bitmap = artworkBitmap!!,
+            bitmap = artworkBitmap,
             contentDescription = null,
             modifier = modifier.fillMaxSize(),
             contentScale = ContentScale.Crop,

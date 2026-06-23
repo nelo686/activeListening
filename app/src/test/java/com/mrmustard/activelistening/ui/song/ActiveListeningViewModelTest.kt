@@ -22,6 +22,7 @@ import com.mrmustard.activelistening.domain.session.SavedListeningSession
 import com.mrmustard.activelistening.domain.session.SavedListeningSessionRepository
 import com.mrmustard.activelistening.domain.session.DeletedSavedSong
 import com.mrmustard.activelistening.domain.session.SavedSongRepository
+import com.mrmustard.activelistening.domain.session.SongArtworkRepository
 import com.mrmustard.activelistening.domain.settings.UserSettings
 import com.mrmustard.activelistening.domain.settings.UserSettingsRepository
 import com.mrmustard.activelistening.domain.structure.SectionLabel
@@ -33,6 +34,7 @@ import com.mrmustard.activelistening.domain.structure.SongStructureRepository
 import com.mrmustard.activelistening.domain.usecase.GuidedSessionUseCase
 import com.mrmustard.activelistening.domain.usecase.ImportSongUseCase
 import com.mrmustard.activelistening.domain.usecase.SectionEditingUseCase
+import com.mrmustard.activelistening.domain.usecase.ExportSongMapUseCase
 import com.mrmustard.activelistening.test.MainDispatcherRule
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.CompletableDeferred
@@ -86,15 +88,20 @@ class ActiveListeningViewModelTest {
         viewModel = ActiveListeningViewModel(
             importSongUseCase = ImportSongUseCase(importGateway, audioPlayer),
             audioPlayer = audioPlayer,
-            guidedListeningRepository = guidedListeningRepository,
+            guidedListeningCoordinator = GuidedListeningCoordinator(
+                guidedListeningRepository = guidedListeningRepository,
+                guidedSessionUseCase = GuidedSessionUseCase(),
+                learningProgressRepository = learningProgressRepository,
+            ),
             userSettingsRepository = FakeUserSettingsRepository(),
-            songStructureRepository = structureRepository,
-            savedListeningSessionRepository = sessionRepository,
+            songSessionCoordinator = SongSessionCoordinator(
+                sessionRepository = sessionRepository,
+                structureRepository = structureRepository,
+                artworkRepository = FakeSongArtworkRepository,
+            ),
             savedSongRepository = savedSongRepository,
-            songMapExportRepository = exportRepository,
-            guidedSessionUseCase = GuidedSessionUseCase(),
+            exportSongMapUseCase = ExportSongMapUseCase(exportRepository),
             sectionEditingUseCase = SectionEditingUseCase(),
-            learningProgressRepository = learningProgressRepository,
         )
     }
 
@@ -621,6 +628,10 @@ private class FakeSongMapExportRepository : SongMapExportRepository {
         exportCalled = true
         return result
     }
+}
+
+private object FakeSongArtworkRepository : SongArtworkRepository {
+    override suspend fun load(songKey: String): ByteArray? = null
 }
 
 private class FakeUserSettingsRepository : UserSettingsRepository {

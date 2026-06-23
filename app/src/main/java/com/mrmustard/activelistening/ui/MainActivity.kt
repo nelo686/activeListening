@@ -61,6 +61,7 @@ class MainActivity : ComponentActivity() {
                         state = state,
                         onImportClick = { openSongLauncher.launch(arrayOf("*/*")) },
                         onSavedSessionClick = viewModel::resumeSavedSession,
+                        onSavedSongArtworkRequested = viewModel::loadSavedSongArtwork,
                         onDeleteSavedSession = viewModel::deleteSavedSession,
                         onUndoSavedSessionDeletion = viewModel::undoSavedSessionDeletion,
                         onSavedSessionDeletionMessageShown = viewModel::clearSavedSessionDeletionEvent,

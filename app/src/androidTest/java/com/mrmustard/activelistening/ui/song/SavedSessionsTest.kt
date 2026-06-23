@@ -118,6 +118,7 @@ class SavedSessionsTest {
                     ),
                     onImportClick = {},
                     onSavedSessionClick = onResume,
+                    onSavedSongArtworkRequested = {},
                     onDeleteSavedSession = onDelete,
                     onUndoSavedSessionDeletion = {},
                     onSavedSessionDeletionMessageShown = {},

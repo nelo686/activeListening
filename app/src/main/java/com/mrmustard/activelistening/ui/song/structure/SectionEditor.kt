@@ -18,7 +18,6 @@ import androidx.compose.foundation.text.KeyboardActions
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.Button
-import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.ElevatedCard
 import androidx.compose.material3.FilterChip
@@ -52,11 +51,8 @@ import androidx.compose.ui.unit.dp
 import com.mrmustard.activelistening.R
 import com.mrmustard.activelistening.domain.learning.SectionLearningContent
 import com.mrmustard.activelistening.domain.structure.SectionLabel
-import com.mrmustard.activelistening.domain.structure.SectionMusicalContrast
-import com.mrmustard.activelistening.domain.structure.SectionRhythmConfidence
-import com.mrmustard.activelistening.domain.structure.SectionRhythmInfo
-import com.mrmustard.activelistening.domain.structure.SectionRhythmRegularity
 import com.mrmustard.activelistening.domain.structure.SongSection
+import com.mrmustard.activelistening.domain.time.parseTimeCode
 
 private val SheetSectionShape = RoundedCornerShape(18.dp)
 
@@ -328,7 +324,7 @@ private fun CompactTimeField(
     var text by remember(timeMillis, label) { mutableStateOf(formatSectionTime(timeMillis)) }
     val keyboardController = LocalSoftwareKeyboardController.current
     LaunchedEffect(timeMillis) { text = formatSectionTime(timeMillis) }
-    val parsedTime = parseEditorTime(text)
+    val parsedTime = parseTimeCode(text)
     val isInvalid = text.isNotBlank() && parsedTime == null
 
     Column(
@@ -476,15 +472,6 @@ private fun SectionHeading(text: String) {
     )
 }
 
-private fun parseEditorTime(input: String): Long? {
-    val parts = input.trim().split(":")
-    if (parts.size != 2) return null
-    val minutes = parts[0].toLongOrNull() ?: return null
-    val seconds = parts[1].toLongOrNull() ?: return null
-    if (minutes < 0L || seconds !in 0L..59L) return null
-    return minutes * 60_000L + seconds * 1_000L
-}
-
 @Composable
 private fun HeaderTag(
     text: String,
@@ -513,95 +500,4 @@ private fun HeaderTag(
             selectedBorderColor = MaterialTheme.colorScheme.primary,
         ),
     )
-}
-
-@Composable
-private fun RhythmInfoPanel(
-    rhythmInfo: SectionRhythmInfo?,
-    musicalContrast: SectionMusicalContrast?,
-) {
-    Card(
-        modifier = Modifier.fillMaxWidth(),
-        shape = RoundedCornerShape(16.dp),
-        colors = CardDefaults.cardColors(
-            containerColor = MaterialTheme.colorScheme.primary.copy(alpha = 0.10f),
-        ),
-    ) {
-        Column(
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(16.dp),
-            verticalArrangement = Arrangement.spacedBy(10.dp),
-        ) {
-            Text(
-                text = stringResource(R.string.structure_rhythm_title),
-                style = MaterialTheme.typography.titleMedium,
-                fontWeight = FontWeight.Bold,
-                color = MaterialTheme.colorScheme.primary,
-            )
-
-            when {
-                rhythmInfo?.regularity == SectionRhythmRegularity.Irregular -> Text(
-                    text = stringResource(R.string.structure_rhythm_irregular),
-                    style = MaterialTheme.typography.bodyMedium,
-                    color = MaterialTheme.colorScheme.onSurfaceVariant,
-                )
-
-                rhythmInfo?.estimatedBars != null -> Text(
-                    text = stringResource(
-                        R.string.structure_rhythm_estimated_bars,
-                        rhythmInfo.estimatedBars,
-                    ),
-                    style = MaterialTheme.typography.bodyMedium,
-                    color = MaterialTheme.colorScheme.onSurfaceVariant,
-                )
-
-                else -> Text(
-                    text = stringResource(R.string.structure_rhythm_unavailable),
-                    style = MaterialTheme.typography.bodyMedium,
-                    color = MaterialTheme.colorScheme.onSurfaceVariant,
-                )
-            }
-
-            if (rhythmInfo?.confidence == SectionRhythmConfidence.Low &&
-                rhythmInfo.regularity != SectionRhythmRegularity.Irregular
-            ) {
-                Text(
-                    text = stringResource(R.string.structure_rhythm_low_confidence),
-                    style = MaterialTheme.typography.bodySmall,
-                    color = MaterialTheme.colorScheme.error,
-                )
-            }
-
-            musicalContrast?.let { contrast ->
-                HorizontalDivider(
-                    color = MaterialTheme.colorScheme.primary.copy(alpha = 0.18f),
-                )
-                Text(
-                    text = stringResource(R.string.structure_contrast_title),
-                    style = MaterialTheme.typography.titleMedium,
-                    fontWeight = FontWeight.Bold,
-                    color = MaterialTheme.colorScheme.primary,
-                )
-                Text(
-                    text = contrast.explanation,
-                    style = MaterialTheme.typography.bodyMedium,
-                    color = MaterialTheme.colorScheme.onSurfaceVariant,
-                )
-                if (contrast.confidence == SectionRhythmConfidence.Low) {
-                    Text(
-                        text = stringResource(R.string.structure_warning_title),
-                        style = MaterialTheme.typography.titleMedium,
-                        fontWeight = FontWeight.Bold,
-                        color = MaterialTheme.colorScheme.primary,
-                    )
-                    Text(
-                        text = stringResource(R.string.structure_contrast_low_confidence),
-                        style = MaterialTheme.typography.bodyMedium,
-                        color = MaterialTheme.colorScheme.onSurfaceVariant,
-                    )
-                }
-            }
-        }
-    }
 }

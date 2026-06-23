@@ -16,6 +16,7 @@ data class ActiveListeningUiState(
     val importedSong: ImportedSong? = null,
     val importError: ImportSongError? = null,
     val savedSessions: List<SavedListeningSession> = emptyList(),
+    val savedSongArtwork: Map<String, ByteArray?> = emptyMap(),
     val progressSummaries: Map<String, LearningProgressSummary> = emptyMap(),
     val savedSessionDeletionEvent: SavedSessionDeletionEvent? = null,
     val playbackState: PlaybackState = PlaybackState(),

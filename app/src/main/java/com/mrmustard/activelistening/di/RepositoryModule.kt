@@ -3,9 +3,11 @@ package com.mrmustard.activelistening.di
 import com.mrmustard.activelistening.data.export.AndroidPdfSongMapExportRepository
 import com.mrmustard.activelistening.data.importing.AndroidSongImportGateway
 import com.mrmustard.activelistening.data.playback.ExoPlayerAudioPlayer
+import com.mrmustard.activelistening.data.session.AndroidSongArtworkRepository
 import com.mrmustard.activelistening.domain.export.SongMapExportRepository
 import com.mrmustard.activelistening.domain.importsong.SongImportGateway
 import com.mrmustard.activelistening.domain.playback.AudioPlayer
+import com.mrmustard.activelistening.domain.session.SongArtworkRepository
 import dagger.Binds
 import dagger.Module
 import dagger.hilt.InstallIn
@@ -28,4 +30,9 @@ abstract class RepositoryModule {
     abstract fun bindSongMapExportRepository(
         repository: AndroidPdfSongMapExportRepository,
     ): SongMapExportRepository
+
+    @Binds
+    abstract fun bindSongArtworkRepository(
+        repository: AndroidSongArtworkRepository,
+    ): SongArtworkRepository
 }
